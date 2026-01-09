@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Jurídico - CODEGO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-[#002b5c] p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="bg-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center border border-gray-100">
+            <div class="flex items-center gap-4">
+                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo" class="h-12 w-auto">
+                <div>
+                    <h1 class="text-xl font-bold text-[#002b5c]">Gestão Jurídica</h1>
+                    <p class="text-sm text-gray-500 italic">Novo Registro Processual</p>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <a href="{{ url_for('menu_jur') }}" class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 text-sm">
+                    <i data-lucide="home" class="w-4 h-4"></i> Início
+                </a>
+                <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 font-medium flex items-center gap-2 text-sm">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Sair
+                </a>
+            </div>
+        </header>
+
+        <form action="{{ url_for('cadastro_jur') }}" method="POST" class="bg-white rounded-2xl p-10 shadow-2xl border border-gray-100">
+            <h2 class="text-lg font-bold text-[#002b5c] mb-8 flex items-center gap-2 border-b pb-4">
+                <i data-lucide="gavel"></i> Informações do Processo
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Processo Judicial</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </span>
+                        <input type="text" name="processo_judicial" required 
+                            class="w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                            placeholder="Digite o número do processo">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </span>
+                        <input type="text" name="status" required 
+                            class="w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                            placeholder="Ex: Em andamento, Concluído...">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Assunto Judicial</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i data-lucide="bookmark" class="w-5 h-5"></i>
+                        </span>
+                        <textarea name="assunto_judicial" required rows="3"
+                            class="w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                            placeholder="Descreva o assunto jurídico"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex justify-end gap-4 border-t pt-6">
+                <button type="button" onclick="window.location.href='/menu_jur'" 
+                    class="bg-gray-100 text-gray-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition-all">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                    class="bg-green-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg flex items-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i> Salvar Registro
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

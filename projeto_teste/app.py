@@ -219,7 +219,7 @@ def recuperar_senha():
 
 @app.route('/relatorio')
 def relatorios():
-    if 'username' not in session or session.get('role') != 'admin':
+    if 'username' not in session:
         return redirect(url_for('login'))
     try:
         with mysql.connector.connect(**db_config) as db:

@@ -1,11 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
 import pandas as pd
 import os
 from logger_config import sistema_logger
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import mysql.connector
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from datetime import datetime
+from reportlab.lib import colors
 
 app = Flask(__name__)
 # Chave secreta para gerenciar sessões
 app.secret_key = 'sua_chave_secreta_aqui'
+
+# TENHO QUE TIRAR ESSA PARTE DAQUI DEPOIS - CONFIGURAÇÃO DO BANCO DE DADOS
+# ----------------------------------------------------------------------------------------------------
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Joaolopes05',
+    'database': 'codego_db'
+}
+# ----------------------------------------------------------------------------------------------------
 
 # --- Configuração de Dados ---
 # Cabeçalhos completos para manter a compatibilidade com o CSV original
@@ -157,6 +175,106 @@ def cadastro_jur():
         return redirect(url_for('menu_jur'))
 
     return render_template('cadastro_jur.html', username=username)
+
+@app.route('/relatorio')
+def relatorios():
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    try:
+        with mysql.connector.connect(**db_config) as db:
+            with db.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT id, empresa FROM municipal_lots")
+                empresas = cursor.fetchall()
+    except mysql.connector.Error as err:
+        empresas = []
+        print(f"Erro ao buscar empresas: {err}")
+
+    return render_template('relatorios.html', empresas=empresas)
+
+@app.route('/relatorio', methods=['POST'])
+def relatorio_pdf():
+    empresa_id = request.form.get('empresa')
+    if not empresa_id:
+        return "Nenhuma empresa selecionada."
+    
+    try:
+        empresa_id = int(empresa_id)
+        with mysql.connector.connect(**db_config) as db:
+            with db.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (empresa_id,))
+                lot = cursor.fetchone()
+                
+                if not lot:
+                    return f"Empresa com ID {empresa_id} não encontrada."
+    
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+
+        # Título
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+        )
+        story.append(Paragraph(f"Relatório - {lot['empresa']}", title_style))
+        story.append(Spacer(1, 12))
+
+        # Dados gerais
+        data = [
+            ["Campo", "Valor"],
+            ["Empresa", lot.get('empresa', '-')],
+            ["CNPJ", lot.get('cnpj', '-')],
+            ["Município", lot.get('municipio', '-')],
+            ["Distrito", lot.get('distrito', '-')],
+            ["Status de assentamento", lot.get('status_de_assentamento', '-')],
+            ["Ramo de atividade", lot.get('ramo_de_atividade', '-')],
+            ["Empregos gerados", str(lot.get('empregos_gerados', '-'))],
+            ["Processo SEI", str(lot.get('processo_sei', '-'))],
+            ["Quadra", str(lot.get('quadra', '-'))],
+            ["Tamanho (m²)", str(lot.get('tamanho_m2', '-'))],
+            ["Matrículas", lot.get('matriculas', '-')],
+            ["Status jurídico", lot.get('status', '-')],
+            ["Assunto judicial", lot.get('assunto_judicial', '-')],
+            ["Observações (assentamento)", lot.get('observacoes', '-')],
+            ["Observações 2", lot.get('observacoes_2', '-')],
+            ["Observações 3", lot.get('observacoes_3', '-')],
+            ["Data do relatório", datetime.now().strftime("%d/%m/%Y")],
+        ]
+
+        table = Table(data, colWidths=[150, 350])
+        table.setStyle(
+            TableStyle(
+                [
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('FONTSIZE', (0, 1), (-1, -1), 9),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+                    ('GRID', (0, 0), (-1, -1), 0.25, colors.black),
+                ]
+            )
+        )
+
+        story.append(table)
+        
+        # Build PDF
+        doc.build(story)
+        buffer.seek(0)
+        pdf_data = buffer.getvalue()
+
+        response = make_response(pdf_data)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename="relatorio_{lot["empresa"]}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
+        return response
+
+    except ValueError:
+        return "ID da empresa inválido."
+    except mysql.connector.Error as err:
+        return f"Erro ao acessar o banco de dados: {err}"
 
 @app.route('/logout')
 def logout():

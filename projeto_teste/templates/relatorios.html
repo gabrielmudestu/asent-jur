@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Relatórios</title>
+</head>
+<body>
+    <div>
+        <h1>Gerar Relatório</h1>
+        <div>
+            <form method="post" action="/relatorio">
+                <label for="empresa">Empresa:</label>
+                <select name="empresa" id="empresa">
+                    <option value="">Selecione uma empresa</option>
+                    {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <input type="submit" value="Gerar Relatório">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

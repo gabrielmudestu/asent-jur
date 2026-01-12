@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel CodeGO - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         :root {
             --sidebar-bg: #ffffff;
-            --accent-blue: #002b5c;
+            --accent-blue: #002b5c; /* Azul Cobalto */
             --button-blue: #7a97bb;
-            --text-color: #333;
+            --text-white: #ffffff;
+            --logout-red: #ef4444;
+            --logout-red-hover: #dc2626;
         }
 
         body, html {
@@ -18,8 +23,8 @@
             padding: 0;
             height: 100%;
             width: 100%;
-            font-family: Arial, sans-serif;
-            overflow: hidden; /* Evita rolagem na página principal */
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
         }
 
         .wrapper {
@@ -28,7 +33,7 @@
             width: 100vw;
         }
 
-        /* --- BARRA LATERAL (SIDEBAR) --- */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 280px;
             min-width: 280px;
@@ -63,7 +68,7 @@
             color: white;
             text-decoration: none;
             padding: 14px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: bold;
             text-align: center;
@@ -75,40 +80,70 @@
 
         .nav-button:hover {
             background-color: var(--accent-blue);
+            transform: translateX(5px);
         }
 
-        /* --- ÁREA DO CONTEÚDO (DASHBOARD) --- */
+        /* --- CONTEÚDO PRINCIPAL --- */
         .main-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            background-color: #e5e7eb;
+            background-color: #f3f4f6;
         }
 
+        /* --- TOPBAR INVERTIDA (AZUL COBALTO COM LETRA BRANCA) --- */
         .topbar {
-            background-color: var(--accent-blue);
-            color: white;
-            padding: 8px 20px;
+            background-color: var(--accent-blue); /* Fundo Azul Cobalto */
+            color: var(--text-white); /* Letras Brancas */
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            height: 35px;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 5;
         }
 
-        .logout-link {
+        .welcome-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-white); /* Texto em Branco */
+            letter-spacing: -0.025em;
+        }
+
+        .welcome-text span {
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* Botão de Logout */
+        .btn-logout {
+            background-color: var(--logout-red);
             color: white;
             text-decoration: none;
-            border: 1px solid white;
-            padding: 2px 10px;
-            border-radius: 3px;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1); /* Borda sutil para destaque no azul */
         }
 
-        /* CONTAINER DA IMAGEM PARA OCUPAR TUDO */
+        .btn-logout:hover {
+            background-color: var(--logout-red-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* CONTAINER DO DASHBOARD */
         .dashboard-container {
             flex-grow: 1;
             width: 100%;
-            height: calc(100vh - 35px); /* Desconta a altura da topbar */
+            height: calc(100vh - 70px);
             position: relative;
             overflow: hidden;
         }
@@ -116,7 +151,7 @@
         .dashboard-img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Força a imagem a preencher todo o container */
+            object-fit: cover;
             display: block;
         }
     </style>
@@ -131,15 +166,21 @@
 
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
-                <button class="nav-button">Editar</button>
+                <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
                 <button class="nav-button">Gerar Relatório</button>
             </div>
         </div>
-
+        
         <div class="main-content">
             <div class="topbar">
-                <span>Bem-vindo, <strong>{{ session['username'] }}</strong></span>
-                <a href="{{ url_for('logout') }}" class="logout-link">SAIR</a>
+                <div class="welcome-text">
+                    <span>Bem-vindo,</span> {{ session['username'] }}
+                </div>
+                
+                <a href="{{ url_for('logout') }}" class="btn-logout">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Sair do Sistema
+                </a>
             </div>
 
             <div class="dashboard-container">
@@ -148,5 +189,8 @@
         </div>
     </div>
 
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

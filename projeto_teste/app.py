@@ -338,3 +338,6 @@ if __name__ == '__main__':
     # Inicializa o CSV se não existir
     ler_csv_seguro()
     app.run(debug=True)
+
+
+    

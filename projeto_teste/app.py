@@ -25,7 +25,7 @@ app.secret_key = 'sua_chave_secreta_aqui'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 db_config = {
-    'host': '',
+    'host': '192.168.15.146',
     'user': 'max',
     'password': 'Joaolopes05',
     'database': 'codego_db',
@@ -249,6 +249,16 @@ def recuperar_senha():
         return redirect(url_for('login'))
     return render_template('recuperar_senha.html')
 
+@app.route('/teste-conexao')
+def teste_conexao():
+    try:
+        with mysql.connector.connect(**db_config) as db:
+            with db.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                return "Conexão com o banco OK!"
+    except Exception as e:
+        return f"Erro: {e}"
+
 @app.route('/logs')
 def logs():
     if 'username' not in session or session.get('role') != 'admin': return redirect(url_for('login'))
@@ -264,4 +274,4 @@ def logs():
 
 if __name__ == '__main__':
     ler_csv_seguro()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

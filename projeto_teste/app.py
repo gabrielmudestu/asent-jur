@@ -25,10 +25,11 @@ app.secret_key = 'sua_chave_secreta_aqui'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
+    'host': '',
+    'user': 'max',
     'password': 'Joaolopes05',
-    'database': 'codego_db'
+    'database': 'codego_db',
+    'port': 3306
 }
 
 # --- CONFIGURAÇÃO DE DADOS (CSV) ---

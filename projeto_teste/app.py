@@ -39,7 +39,7 @@ def ler_csv_seguro():
         return df
     return pd.read_csv(OUTPUT_CSV, sep=';', encoding='utf-8', engine='python')
 
-# --- AUTENTICAÇÃO BLINDADA ---
+# --- AUTENTICAÇÃO ---
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -47,19 +47,16 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        # Limpa qualquer sessão residual antes de um novo login
         session.clear()
 
         if username == 'admin' and password == '12345':
             session['username'] = 'Administrador'
             session['role'] = 'admin'
-            print(f"LOGIN SUCESSO: {username} como {session['role']}")
             return redirect(url_for('menu'))
             
         elif username == 'jur' and password == '12345':
             session['username'] = 'Setor Jurídico'
             session['role'] = 'jur'
-            print(f"LOGIN SUCESSO: {username} como {session['role']}")
             return redirect(url_for('menu_jur'))
         else:
             flash('Usuário ou senha inválidos!', 'danger')
@@ -70,6 +67,16 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+# --- ROTAS DE SUPORTE (PARA EVITAR ERRO DE URL NO LOGIN.HTML) ---
+
+@app.route('/recuperar_senha')
+def recuperar_senha():
+    return "Página de recuperação de senha em desenvolvimento."
+
+@app.route('/registrar_usuario')
+def registrar_usuario():
+    return "Página de registro de usuário em desenvolvimento."
 
 # --- MENUS ---
 
@@ -85,23 +92,13 @@ def menu_jur():
         return redirect(url_for('login'))
     return render_template('menu_jur.html')
 
-# --- ROTA DE RELATÓRIOS (VERSÃO BLINDADA) ---
+# --- ROTA DE RELATÓRIOS (DINÂMICA) ---
 
 @app.route('/relatorios', methods=['GET', 'POST'])
-
 def relatorios():
-    
-    # Verifica se o usuário está logado
     if 'role' not in session:
-        print("ACESSO NEGADO: Sessão não encontrada.")
         return redirect(url_for('login'))
 
-    # DEBUG NO TERMINAL
-    print(f"--- ACESSO À ROTA RELATÓRIOS ---")
-    print(f"Usuário: {session.get('username')}")
-    print(f"Cargo Identificado: {session.get('role')}")
-
-    # Lógica de geração de PDF (POST)
     if request.method == 'POST':
         empresa_id = request.form.get('empresa')
         try:
@@ -124,10 +121,9 @@ def relatorios():
             response.headers['Content-Disposition'] = f'attachment; filename="relatorio_{empresa_id}.pdf"'
             return response
         except Exception as e:
-            print(f"ERRO PDF: {e}")
-            return f"Erro interno: {e}"
+            return f"Erro ao gerar PDF: {e}"
 
-    # Lógica de exibição da página (GET)
+    # Lógica GET: Busca empresas e escolhe o template
     empresas = []
     try:
         with mysql.connector.connect(**db_config) as db:
@@ -135,17 +131,15 @@ def relatorios():
                 cursor.execute("SELECT id, empresa FROM municipal_lots ORDER BY empresa ASC")
                 empresas = cursor.fetchall()
     except Exception as e:
-        print(f"ERRO BANCO: {e}")
+        print(f"Erro banco: {e}")
 
-    # DECISÃO FINAL DE TEMPLATE
+    # Seleção de template baseada no cargo
     if session.get('role') == 'jur':
-        print("ENCAMINHANDO PARA: relatorios_jur.html (VERMELHO)")
         return render_template('relatorios_jur.html', empresas=empresas)
     else:
-        print("ENCAMINHANDO PARA: relatorios.html (AZUL)")
         return render_template('relatorios.html', empresas=empresas)
 
-# --- OUTRAS ROTAS ---
+# --- CADASTROS E EDIÇÕES ---
 
 @app.route('/cadastro_jur', methods=['GET', 'POST'])
 def cadastro_jur():

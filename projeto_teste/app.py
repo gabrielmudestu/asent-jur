@@ -148,9 +148,16 @@ def cadastro_jur():
 
 @app.route('/selecionar_edicao')
 def selecionar_edicao():
-    role = session.get('role')
-    df = ler_csv_seguro().fillna('-')
-    return render_template('selecionar_edicao.html', dados=df.to_dict(orient='records'), role=role)
+    try:
+        with mysql.connector.connect(**db_config) as db:
+            with db.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT MUNICIPIO, EMPRESA, CNPJ FROM municipal_lots")
+                dados = cursor.fetchall()
+    except mysql.connector.Error as err:
+        dados = []
+        print(f"Erro ao buscar dados: {err}")
+
+    return render_template('selecionar_edicao.html', dados=dados, role=session.get('role'))
 
 @app.route('/editar/<int:row_id>', methods=['GET', 'POST'])
 def editar(row_id):

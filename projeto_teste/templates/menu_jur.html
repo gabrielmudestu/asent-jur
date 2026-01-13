@@ -11,8 +11,8 @@
     <style>
         :root {
             --sidebar-bg: #ffffff;
-            --accent-blue: #002b5c; 
-            --button-red: #e57373; 
+            --accent-blue: #002b5c; /* Azul Cobalto da Topbar */
+            --button-red: #e57373; /* Tom avermelhado jurídico */
             --button-red-hover: #d32f2f;
             --text-white: #ffffff;
             --logout-red: #ef4444;
@@ -20,36 +20,65 @@
         }
 
         body, html {
-            margin: 0; padding: 0;
-            height: 100%; width: 100%;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
             font-family: 'Inter', sans-serif;
             overflow: hidden;
+            background-color: #f3f4f6;
         }
 
-        .wrapper { display: flex; height: 100vh; width: 100vw; }
+        .wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
 
         /* --- SIDEBAR --- */
         .sidebar {
-            width: 280px; min-width: 280px;
+            width: 280px;
+            min-width: 280px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid #ddd;
-            display: flex; flex-direction: column;
-            align-items: center; padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
             box-shadow: 2px 0 10px rgba(0,0,0,0.05);
             z-index: 10;
         }
 
-        .logo-container img { width: 200px; margin-bottom: 30px; }
+        .logo-container {
+            margin-bottom: 30px;
+            text-align: center;
+        }
 
-        .nav-menu { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+        .logo-container img {
+            width: 200px;
+        }
+
+        .nav-menu {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
         .nav-button {
             background-color: var(--button-red);
-            color: white; text-decoration: none;
-            padding: 14px; border-radius: 8px;
-            font-size: 13px; font-weight: bold;
-            text-align: center; transition: all 0.3s;
-            text-transform: uppercase; border: none; cursor: pointer;
+            color: white;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            display: block;
         }
 
         .nav-button:hover {
@@ -57,64 +86,123 @@
             transform: translateX(5px);
         }
 
-        /* --- CONTEÚDO --- */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; background-color: #ffffff; }
+        /* --- CONTEÚDO PRINCIPAL --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
+        /* --- TOPBAR --- */
         .topbar {
             background-color: var(--accent-blue);
             color: var(--text-white);
             padding: 15px 30px;
-            display: flex; justify-content: space-between; align-items: center;
-            height: 70px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 5;
         }
 
-        .welcome-text { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.025em; }
-        .welcome-text span { font-weight: 300; opacity: 0.8; margin-right: 5px; }
+        .welcome-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.025em;
+        }
 
+        .welcome-text span {
+            font-weight: 300;
+            opacity: 0.8;
+            margin-right: 5px;
+        }
+
+        /* Botão de Logout */
         .btn-logout {
             background-color: var(--logout-red);
-            color: white; text-decoration: none;
-            padding: 10px 22px; border-radius: 10px;
-            font-weight: 600; font-size: 0.875rem;
-            display: flex; align-items: center; gap: 8px;
+            color: white;
+            text-decoration: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        .dashboard-container { flex-grow: 1; position: relative; }
-        .dashboard-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .btn-logout:hover {
+            background-color: var(--logout-red-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* CONTAINER DO DASHBOARD (IMAGEM) */
+        .dashboard-container {
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100vh - 70px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .dashboard-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ajusta a imagem sem cortar */
+            display: block;
+        }
     </style>
 </head>
 <body>
+
+    {% if session.get('role') == 'jur' %}
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
                 <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
             </div>
+
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro_jur') }}" class="nav-button">Adicionar Informações Jurídicas</a>
                 <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
                 <a href="{{ url_for('relatorios') }}" class="nav-button">Gerar Relatório</a>
             </div>
         </div>
-
+        
         <div class="main-content">
             <div class="topbar">
                 <div class="welcome-text">
-                    <span> Bem-vindo,</span>{{ session['username'] }}
+                    <span>Bem-vindo,</span> {{ session['username'] }}
                 </div>
+                
                 <a href="{{ url_for('logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Sair do Sistema
                 </a>
             </div>
+
             <div class="dashboard-container">
-                <img src="{{ url_for('static', filename='dashboard_jur.jpg') }}" class="dashboard-img" alt="Dashboard Jurídico">
+                <img src="{{ url_for('static', filename='dashboard_jur.jpg') }}" class="dashboard-img" alt="Painel Jurídico">
             </div>
         </div>
     </div>
-    <script>lucide.createIcons();</script>
+    {% else %}
+    <script>window.location.href = "{{ url_for('login') }}";</script>
+    {% endif %}
+
+    <script>
+        // Inicializa os ícones do Lucide
+        lucide.createIcons();
+    </script>
 </body>
 </html>

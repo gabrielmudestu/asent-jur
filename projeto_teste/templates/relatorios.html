@@ -3,248 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel CodeGO - Gerar Relatórios</title>
+    <title>Gerar Relatórios - CodeGO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
-        :root {
-            --sidebar-bg: #ffffff;
-            --accent-blue: #002b5c; /* Azul Cobalto */
-            --button-blue: #7a97bb;
-            --text-white: #ffffff;
-            --logout-red: #ef4444;
-            --logout-red-hover: #dc2626;
-        }
-
-        body, html {
+        /* Estilos fiéis ao padrão do seu menu.html */
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Mantém o comportamento de dashboard */
         }
 
-        .wrapper {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* --- SIDEBAR (EXTRADA DO SEU CÓDIGO) --- */
-        .sidebar {
-            width: 280px;
-            min-width: 280px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-
-        .logo-container {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .logo-container img {
-            width: 200px;
-        }
-
-        .nav-menu {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .nav-button {
-            background-color: var(--button-blue);
+        /* Barra Superior (Top Navbar) */
+        .top-navbar {
+            background-color: #1a233a; /* Azul escuro padrão */
             color: white;
-            text-decoration: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            border: none;
-            cursor: pointer;
-        }
-
-        .nav-button:hover {
-            background-color: var(--accent-blue);
-            transform: translateX(5px);
-        }
-
-        /* Destaque para a página atual */
-        .nav-button.active {
-            background-color: var(--accent-blue);
-        }
-
-        /* --- CONTEÚDO PRINCIPAL --- */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #f3f4f6;
-        }
-
-        /* --- TOPBAR (EXTRADA DO SEU CÓDIGO) --- */
-        .topbar {
-            background-color: var(--accent-blue);
-            color: var(--text-white);
-            padding: 15px 30px;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 5;
+            padding: 0 25px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
         }
 
-        .welcome-text {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--text-white);
-            letter-spacing: -0.025em;
-        }
-
-        .welcome-text span {
-            font-weight: 400;
-            opacity: 0.9;
-        }
-
+        .user-info { font-size: 14px; }
+        
         .btn-logout {
-            background-color: var(--logout-red);
+            background-color: transparent;
+            border: 1px solid #ffffff66;
             color: white;
+            padding: 5px 15px;
+            font-size: 13px;
+            text-transform: uppercase;
             text-decoration: none;
-            padding: 10px 22px;
-            border-radius: 10px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+        .btn-logout:hover { background-color: #ffffff22; color: white; }
+
+        /* Sidebar (Barra Lateral) */
+        .sidebar {
+            width: 260px;
+            background-color: #ffffff;
+            height: 100vh;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .sidebar img.logo {
+            width: 160px; /* Tamanho padrão da logo CodeGO */
+            margin-bottom: 30px;
+        }
+
+        /* Botões do Menu Lateral */
+        .menu-link {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
             font-weight: 600;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: 0.3s;
+            text-align: center;
         }
 
-        .btn-logout:hover {
-            background-color: var(--logout-red-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
+        .btn-primary-menu { background-color: #5a82ba; color: white; }
+        .btn-primary-menu:hover { background-color: #4a6fa5; }
+        
+        .btn-active-menu { background-color: #d1d8e0; color: #333; } /* Cor para a página atual */
 
-        /* --- ÁREA DE TRABALHO DO RELATÓRIO --- */
-        .report-container {
+        /* Conteúdo Principal */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 60px;
             padding: 40px;
-            overflow-y: auto; /* Permite rolar apenas o conteúdo se for longo */
         }
 
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        /* Card do Formulário */
         .report-card {
             background: white;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
-        }
-
-        .report-card h2 {
-            margin-top: 0;
-            color: var(--accent-blue);
-            font-size: 1.25rem;
-            margin-bottom: 20px;
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
             border-radius: 8px;
-            font-family: 'Inter', sans-serif;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            max-width: 800px;
+        }
+
+        .form-label {
+            font-weight: 600;
             font-size: 14px;
-            margin-bottom: 20px;
+            color: #555;
         }
 
-        .btn-submit {
-            background-color: var(--accent-blue);
+        .btn-generate {
+            background-color: #2b6cb0;
             color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
             font-weight: bold;
-            cursor: pointer;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
             width: 100%;
-            font-family: 'Inter', sans-serif;
-            text-transform: uppercase;
-            transition: background 0.3s;
-        }
-
-        .btn-submit:hover {
-            opacity: 0.9;
         }
     </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <div class="sidebar">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
-            </div>
-
-            <div class="nav-menu">
-                <a href="{{ url_for('cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
-                <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
-                <a href="{{ url_for('relatorios') }}" class="nav-button active">Gerar Relatório</a>
-            </div>
+    <nav class="top-navbar">
+        <div class="user-info">
+            Olá, <strong>{{ session.username }}</strong> | Dashboard
         </div>
+        <a href="{{ url_for('logout') }}" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Sair do sistema
+        </a>
+    </nav>
+
+    <aside class="sidebar">
+        <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="CodeGO" class="logo">
         
-        <div class="main-content">
-            <div class="topbar">
-                <div class="welcome-text">
-                    <span>Bem-vindo,</span> {{ session['username'] }}
+        <nav>
+            <a href="{{ url_for('cadastro') }}" class="menu-link btn-primary-menu">Cadastrar Nova Empresa</a>
+            <a href="{{ url_for('selecionar_edicao') }}" class="menu-link btn-primary-menu">Editar Cadastro</a>
+            <a href="{{ url_for('relatorios') }}" class="menu-link btn-active-menu">Gerar Relatório</a>
+        </nav>
+
+        <div class="mt-5">
+            <img src="{{ url_for('static', filename='unidade.jpg') }}" class="img-fluid rounded border" alt="Unidade">
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <h1 class="page-title">Visualizar e Gerar Relatórios</h1>
+        <p class="page-subtitle">Selecione a empresa abaixo para baixar o relatório oficial em PDF.</p>
+
+        <div class="report-card">
+            <form method="post" action="/relatorio">
+                <div class="mb-4">
+                    <label for="empresa" class="form-label">Selecione a Empresa:</label>
+                    <select name="empresa" id="empresa" class="form-select form-select-lg" style="font-size: 15px;">
+                        <option value="">Clique para selecionar...</option>
+                        {% for empresa in empresas %}
+                            <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 
-                <a href="{{ url_for('logout') }}" class="btn-logout">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Sair do Sistema
-                </a>
-            </div>
-
-            <div class="report-container">
-                <div class="report-card">
-                    <h2>Emissão de Relatório Oficial</h2>
-                    <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Selecione uma empresa da base de dados para gerar o documento PDF consolidado.</p>
-                    
-                    <form method="post" action="/relatorio">
-                        <label style="font-weight: 600; font-size: 13px; color: #444; display: block; margin-bottom: 8px;">EMPRESA REGISTRADA</label>
-                        <select name="empresa" class="form-select" required>
-                            <option value="">Clique para selecionar...</option>
-                            {% for empresa in empresas %}
-                                <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
-                            {% endfor %}
-                        </select>
-
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-file-pdf" style="margin-right: 8px;"></i> Gerar Relatório Agora
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-info-circle"></i> O arquivo será baixado automaticamente após a geração.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-generate">
+                            <i class="fas fa-file-download"></i> GERAR RELATÓRIO PDF
                         </button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </div>
+    </main>
 
-    <script>
-        lucide.createIcons();
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

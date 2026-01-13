@@ -255,7 +255,8 @@ def teste_conexao():
         with mysql.connector.connect(**db_config) as db:
             with db.cursor() as cursor:
                 cursor.execute("SELECT 1")
-                return "Conexão com o banco OK!"
+                result = cursor.fetchone()  # Consome o resultado
+                return f"Conexão com o banco OK! Resultado: {result}"
     except Exception as e:
         return f"Erro: {e}"
 

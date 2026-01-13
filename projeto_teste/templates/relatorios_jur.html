@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel CodeGO - Gerar Relatórios</title>
+    <title>Painel Jurídico - CODEGO - Gerar Relatório</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -12,7 +12,8 @@
         :root {
             --sidebar-bg: #ffffff;
             --accent-blue: #002b5c; /* Azul Cobalto */
-            --button-blue: #7a97bb;
+            --button-red: #e57373; /* Tom avermelhado jurídico */
+            --button-red-hover: #d32f2f;
             --text-white: #ffffff;
             --logout-red: #ef4444;
             --logout-red-hover: #dc2626;
@@ -24,7 +25,7 @@
             height: 100%;
             width: 100%;
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Mantém o comportamento de dashboard */
+            overflow: hidden;
         }
 
         .wrapper {
@@ -33,7 +34,7 @@
             width: 100vw;
         }
 
-        /* --- SIDEBAR (EXTRADA DO SEU CÓDIGO) --- */
+        /* --- SIDEBAR JURÍDICA --- */
         .sidebar {
             width: 280px;
             min-width: 280px;
@@ -47,13 +48,9 @@
             z-index: 10;
         }
 
-        .logo-container {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
         .logo-container img {
             width: 200px;
+            margin-bottom: 30px;
         }
 
         .nav-menu {
@@ -64,7 +61,7 @@
         }
 
         .nav-button {
-            background-color: var(--button-blue);
+            background-color: var(--button-red);
             color: white;
             text-decoration: none;
             padding: 14px;
@@ -79,11 +76,11 @@
         }
 
         .nav-button:hover {
-            background-color: var(--accent-blue);
+            background-color: var(--button-red-hover);
             transform: translateX(5px);
         }
 
-        /* Destaque para a página atual */
+        /* Destaque para a página atual no jurídico */
         .nav-button.active {
             background-color: var(--accent-blue);
         }
@@ -93,10 +90,10 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            background-color: #f3f4f6;
+            background-color: #f3f4f6; /* Fundo cinza claro para destacar o card */
         }
 
-        /* --- TOPBAR (EXTRADA DO SEU CÓDIGO) --- */
+        /* --- TOPBAR JURÍDICA --- */
         .topbar {
             background-color: var(--accent-blue);
             color: var(--text-white);
@@ -117,8 +114,10 @@
         }
 
         .welcome-text span {
-            font-weight: 400;
-            opacity: 0.9;
+            font-weight: 300;
+            opacity: 0.8;
+            font-size: 1.6rem;
+            margin-right: 5px;
         }
 
         .btn-logout {
@@ -143,75 +142,90 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- ÁREA DE TRABALHO DO RELATÓRIO --- */
-        .report-container {
+        /* --- CONTAINER DE RELATÓRIO --- */
+        .container-trabalho {
             padding: 40px;
-            overflow-y: auto; /* Permite rolar apenas o conteúdo se for longo */
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
-        .report-card {
+        .card-relatorio {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 650px;
         }
 
-        .report-card h2 {
-            margin-top: 0;
+        .card-relatorio h2 {
             color: var(--accent-blue);
-            font-size: 1.25rem;
-            margin-bottom: 20px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .instrucao {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
         }
 
         .form-select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #edf2f7;
+            border-radius: 10px;
+            font-size: 1rem;
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        .btn-submit {
+        .form-select:focus {
+            border-color: var(--button-red);
+        }
+
+        .btn-gerar {
             background-color: var(--accent-blue);
             color: white;
             border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
             width: 100%;
-            font-family: 'Inter', sans-serif;
+            padding: 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
             text-transform: uppercase;
-            transition: background 0.3s;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s;
         }
 
-        .btn-submit:hover {
+        .btn-gerar:hover {
             opacity: 0.9;
         }
     </style>
 </head>
 <body>
-
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
                 <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
             </div>
-
             <div class="nav-menu">
-                <a href="{{ url_for('cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
+                <a href="{{ url_for('cadastro_jur') }}" class="nav-button">Adicionar Informações Jurídicas</a>
                 <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
                 <a href="{{ url_for('relatorios') }}" class="nav-button active">Gerar Relatório</a>
             </div>
         </div>
-        
+
         <div class="main-content">
             <div class="topbar">
                 <div class="welcome-text">
-                    <span>Bem-vindo,</span> {{ session['username'] }}
+                    <span> Bem-vindo,</span>{{ session['username'] }}
                 </div>
                 
                 <a href="{{ url_for('logout') }}" class="btn-logout">
@@ -219,23 +233,24 @@
                     Sair do Sistema
                 </a>
             </div>
-
-            <div class="report-container">
-                <div class="report-card">
-                    <h2>Emissão de Relatório Oficial</h2>
-                    <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Selecione uma empresa da base de dados para gerar o documento PDF consolidado.</p>
+            
+            <div class="container-trabalho">
+                <div class="card-relatorio">
+                    <h2>Relatório Jurídico</h2>
+                    <p class="instrucao">Selecione a empresa para consolidar os dados cadastrais e as informações de processos judiciais em um PDF.</p>
                     
                     <form method="post" action="/relatorio">
-                        <label style="font-weight: 600; font-size: 13px; color: #444; display: block; margin-bottom: 8px;">EMPRESA REGISTRADA</label>
+                        <label style="font-weight: 600; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecionar Empresa</label>
                         <select name="empresa" class="form-select" required>
-                            <option value="">Clique para selecionar...</option>
+                            <option value="">Buscar empresa...</option>
                             {% for empresa in empresas %}
                                 <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
                             {% endfor %}
                         </select>
 
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-file-pdf" style="margin-right: 8px;"></i> Gerar Relatório Agora
+                        <button type="submit" class="btn-gerar">
+                            <i class="fas fa-file-invoice"></i>
+                            Gerar Documento PDF
                         </button>
                     </form>
                 </div>

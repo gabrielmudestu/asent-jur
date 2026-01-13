@@ -25,7 +25,7 @@ app.secret_key = 'sua_chave_secreta_aqui'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 db_config = {
-    'host': '',
+    'host': '192.168.15.146',
     'user': 'max',
     'password': 'Joaolopes05',
     'database': 'codego_db',

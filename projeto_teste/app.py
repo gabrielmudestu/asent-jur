@@ -55,7 +55,8 @@ def add_watermark(canvas, doc):
     """Marca d'água com PNG (melhor qualidade)."""
     canvas.saveState()
     
-    logo_path = 'logo_codego.png'  # ou o nome exato do seu arquivo PNG
+    logo_path = os.path.join(app.root_path, 'static', 'logo_codego.png')
+
     if os.path.exists(logo_path):
         logo = ImageReader(logo_path)
         
@@ -74,7 +75,7 @@ def add_watermark(canvas, doc):
         # Posiciona no centro SEM rotação (PNG fica perfeito)
         canvas.translate(center_x, center_y)
         
-        canvas.rotate(45)  # Sem rotação para PNG
+        canvas.rotate(45)
         # Opacidade para PNG (transparência nativa + alpha adicional)
         canvas.setFillAlpha(0.12)  # 12% de opacidade
         

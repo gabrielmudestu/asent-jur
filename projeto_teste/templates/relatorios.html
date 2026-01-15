@@ -206,6 +206,20 @@
                 <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
                 <a href="{{ url_for('relatorios') }}" class="nav-button active">Gerar Relatório</a>
             </div>
+            <div id="empresa-info" style="margin-top: 30px; width: 100%; display: none;">
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <img id="empresa-foto"
+                        src=""
+                        alt="Foto da empresa"
+                        style="width: 100%; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;">
+                </div>
+                <div>
+                    <h3 id="empresa-nome"
+                        style="font-size: 14px; font-weight: 700; color: #002b5c; margin: 0 0 6px 0;"></h3>
+                    <p id="empresa-descricao"
+                    style="font-size: 12px; color: #555; margin: 0;"></p>
+                </div>
+            </div>
         </div>
         
         <div class="main-content">
@@ -243,8 +257,42 @@
         </div>
     </div>
 
+    
+    <script type="application/json" id="empresas-info-data">
+        {{ empresas_info | tojson | safe }}
+    </script>
     <script>
         lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectEmpresa = document.querySelector('select[name="empresa"]');
+            const empresaInfoBox = document.getElementById('empresa-info');
+            const empresaFoto = document.getElementById('empresa-foto');
+            const empresaNome = document.getElementById('empresa-nome');
+            const empresaDescricao = document.getElementById('empresa-descricao');
+
+            const empresasInfo = JSON.parse(
+                document.getElementById('empresas-info-data').textContent
+            );
+
+            selectEmpresa.addEventListener('change', function() {
+                const id = this.value;
+
+                if (!id || !empresasInfo[id]) {
+                    empresaInfoBox.style.display = 'none';
+                    return;
+                }
+
+                const info = empresasInfo[id];
+
+                empresaFoto.src = info.foto;
+                empresaFoto.alt = `Foto da empresa ${id}`;
+                empresaNome.textContent = this.options[this.selectedIndex].text; // nome vindo do select
+                empresaDescricao.textContent = info.descricao;
+
+                empresaInfoBox.style.display = 'block';
+            });
+        });
     </script>
 </body>
 </html>

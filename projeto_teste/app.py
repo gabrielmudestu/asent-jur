@@ -225,16 +225,16 @@ def editar(empresa_id):
                 
                 if request.method == 'POST':
                     campos = [
-                        'MUNICIPIO ID', 'MUNICIPIO', 'DISTRITO', 'EMPRESA', 'CNPJ',
-                        'PROCESSO SEI', 'STATUS DE ASSENTAMENTO', 'OBSERVAÇÕES',
-                        'RAMO DE ATIVIDADE', 'EMPREGOS GERADOS', 'OBSERVAÇÕES_1',
-                        'QUADRA', 'MÓDULO(S)', 'QTD. MÓDULOS', 'TAMANHO(M²)',
-                        'MATRÍCULA(S)', 'OBSEVAÇÕES', 'DATA ESCRITURAÇÃO',
-                        'DATA CONTRATO DE COMPRA E VENDA', 'AÇÃO JUDICIAL',
-                        'TAXA E OCUPAÇÃO DO IMÓVEL(%)', 'IMÓVEL REGULAR/IRREGULAR',
-                        'IRREGULARIDADES?', 'ÚLTIMA VISTORIA', 'OBSERVAÇÕES_2',
-                        'ATUALIZADO', 'OBSERVAÇÕES_3', 'PROCESSO JUDICIAL',
-                        'STATUS', 'ASSUNTO JUDICIAL'
+                        'municipio', 'distrito', 'empresa', 'cnpj',
+                        'processo_sei', 'status_de_assentamento', 'observacoes',
+                        'ramo_de_atividade', 'empregos_gerados', 'observacoes_1',
+                        'quadra', 'modulo_s', 'qtd_modulos', 'tamanho_m2',
+                        'matricula_s', 'obsevacoes', 'data_escrituracao',
+                        'datao_contrato_de_compra_e_venda', 'acao_judicial',
+                        'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
+                        'irregularidades', 'ultima_vistoria', 'observacoes_2',
+                        'atualizado', 'observacoes_3', 'processo_judicial',
+                        'status', 'assunto_judicial'
                     ]
 
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])

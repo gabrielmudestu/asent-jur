@@ -35,7 +35,7 @@
                         {% for col in colunas %}
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
-                                {{ col }}
+                                {{ labels.get(col, col) }}
                             </label>
                             
                             {% if 'OBSERVAÇÕES' in col or 'IRREGULARIDADES' in col %}

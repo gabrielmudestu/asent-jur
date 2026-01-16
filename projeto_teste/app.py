@@ -35,17 +35,50 @@ db_config = {
 
 # --- CONFIGURAÇÃO DE DADOS (CSV) ---
 COLUNAS = [
-    'MUNICIPIO ID', 'MUNICIPIO', 'DISTRITO', 'EMPRESA', 'CNPJ', 
-    'PROCESSO SEI', 'STATUS DE ASSENTAMENTO', 'OBSERVAÇÕES', 
-    'RAMO DE ATIVIDADE', 'EMPREGOS GERADOS', 'OBSERVAÇÕES_1', 
-    'QUADRA', 'MÓDULO(S)', 'QTD. MÓDULOS', 'TAMANHO(M²)', 
-    'MATRÍCULA(S)', 'OBSEVAÇÕES', 'DATA ESCRITURAÇÃO', 
-    'DATA CONTRATO DE COMPRA E VENDA', 'AÇÃO JUDICIAL', 
-    'TAXA E OCUPAÇÃO DO IMÓVEL(%)', 'IMÓVEL REGULAR/IRREGULAR', 
-    'IRREGULARIDADES?', 'ÚLTIMA VISTORIA', 'OBSERVAÇÕES_2', 
-    'ATUALIZADO', 'OBSERVAÇÕES_3', 'PROCESSO JUDICIAL', 
-    'STATUS', 'ASSUNTO JUDICIAL'
+    'municipio', 'distrito', 'empresa', 'cnpj',
+    'processo_sei', 'status_de_assentamento', 'observacoes',
+    'ramo_de_atividade', 'empregos_gerados', 'observacoes_1',
+    'quadra', 'modulo_s', 'qtd_modulos', 'tamanho_m2',
+    'matricula_s', 'obsevacoes', 'data_escrituracao',
+    'datao_contrato_de_compra_e_venda', 'acao_judicial',
+    'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
+    'irregularidades', 'ultima_vistoria', 'observacoes_2',
+    'atualizado', 'observacoes_3', 'processo_judicial',
+    'status', 'assunto_judicial'
 ]
+
+# Dicionário de tradução dos campos
+LABELS = {
+    'municipio': 'Município',
+    'distrito': 'Distrito',
+    'empresa': 'Empresa',
+    'cnpj': 'CNPJ',
+    'processo_sei': 'Processo SEI',
+    'status_de_assentamento': 'Status de Assentamento',
+    'observacoes': 'Observações',
+    'ramo_de_atividade': 'Ramo de Atividade',
+    'empregos_gerados': 'Empregos Gerados',
+    'observacoes_1': 'Observações 1',
+    'quadra': 'Quadra',
+    'modulo_s': 'Módulo(s)',
+    'qtd_modulos': 'Quantidade de Módulos',
+    'tamanho_m2': 'Tamanho (m²)',
+    'matricula_s': 'Matrícula(s)',
+    'obsevacoes': 'Observações',
+    'data_escrituracao': 'Data de Escrituração',
+    'data_contrato_de_compra_e_venda': 'Data do Contrato de Compra e Venda',
+    'acao_judicial': 'Ação Judicial',
+    'taxa_e_ocupacao_do_imovel': 'Taxa e Ocupação do Imóvel (%)',
+    'imovel_regular_irregular': 'Imóvel Regular/Irregular',
+    'irregularidades': 'Irregularidades',
+    'ultima_vistoria': 'Última Vistoria',
+    'observacoes_2': 'Observações 2',
+    'atualizado': 'Atualizado',
+    'observacoes_3': 'Observações 3',
+    'processo_judicial': 'Processo Judicial',
+    'status': 'Status',
+    'assunto_judicial': 'Assunto Judicial'
+}
 
 OUTPUT_CSV = 'dados_salvos.csv'
 
@@ -219,6 +252,7 @@ def editar(empresa_id):
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (empresa_id,))
                 empresa = cursor.fetchone()
+
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
                     return redirect(url_for('selecionar_edicao'))
@@ -249,7 +283,7 @@ def editar(empresa_id):
                     flash('Alterações salvas!', 'success')
                     return redirect(url_for('selecionar_edicao'))
                 
-                return render_template('editar.html', dados=empresa, colunas=COLUNAS, empresa_id=empresa_id)
+                return render_template('editar.html', dados=empresa, colunas=COLUNAS, labels=LABELS, empresa_id=empresa_id)
             
     except Exception as e:
         print(f"Erro ao editar: {e}")

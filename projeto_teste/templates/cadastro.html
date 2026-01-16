@@ -46,12 +46,12 @@
             <div id="ind-4" class="step-indicator bg-white text-gray-400 w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-300 transition-all">4</div>
         </div>
 
-        <form action="{{ url_for('cadastro') }}" method="POST" class="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
+        <form action="{{ url_for('cadastro') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
             
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 border border-green-200 flex items-center gap-3 animate-bounce">
+                        <div class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 border border-green-200 flex items-center gap-3 animate-pulse">
                             <i data-lucide="check-circle" class="w-6 h-6"></i>
                             <span class="font-bold">{{ message }}</span>
                         </div>
@@ -68,6 +68,19 @@
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Distrito</label><input type="text" name="DISTRITO" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Empresa</label><input type="text" name="EMPRESA" required class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">CNPJ</label><input type="text" name="CNPJ" required class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
+                    
+                    <div class="md:col-span-2 p-4 bg-blue-50 rounded-2xl border-2 border-dashed border-blue-200">
+                        <label class="block text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+                            <i data-lucide="image" class="w-4 h-4"></i> Upload da Imagem da Empresa
+                        </label>
+                        <input type="file" name="IMAGEM_EMPRESA" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Descrição Detalhada da Empresa</label>
+                        <textarea name="DESCRICAO_EMPRESA" rows="3" placeholder="Histórico e principais atividades..." class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
+                    </div>
+
                     <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Ramo de Atividade</label><input type="text" name="RAMO DE ATIVIDADE" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
                 </div>
             </div>
@@ -97,7 +110,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Processo SEI</label><input type="text" name="PROCESSO SEI" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Status de Assentamento</label><input type="text" name="STATUS DE ASSENTAMENTO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Imóvel Regular?</label><select name="IMÓVEL REGULAR/IRREGULAR" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none"><option value="REGULAR">REGULAR</option><option value="IRREGULAR">IRREGULAR</option></select></div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Imóvel Regular?</label>
+                        <select name="IMÓVEL REGULAR/IRREGULAR" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="REGULAR">REGULAR</option>
+                            <option value="IRREGULAR">IRREGULAR</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -107,10 +126,9 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Escrituração</label><input type="date" name="DATA ESCRITURAÇÃO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Contrato Compra/Venda</label><input type="date" name="DATA CONTRATO DE COMPRA E VENDA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Contrato Compra/Venda</label><input type="date" name="DATA CONTRATO DE COMPRA E VENDA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Última Vistoria</label><input type="date" name="ÚLTIMA VISTORIA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Empregos Gerados</label><input type="number" name="EMPREGOS GERADOS" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Status Final</label><input type="text" name="STATUS" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Atualização</label><input type="date" name="ATUALIZADO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                 </div>
                 <div class="mt-6"><label class="block text-sm font-bold text-gray-700 mb-1">Descreva Irregularidades (se houver)</label><textarea name="IRREGULARIDADES?" rows="3" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea></div>
@@ -147,7 +165,7 @@
             document.getElementById(`step-${currentStep}`).classList.add('active');
             document.getElementById(`ind-${currentStep}`).classList.add('active');
 
-            // Visibilidade do botão Voltar
+            // Botão Voltar
             document.getElementById('prevBtn').style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
             
             // Alternância entre Próximo e Salvar
@@ -162,4 +180,4 @@
         }
     </script>
 </body>
-</html>>
+</html>

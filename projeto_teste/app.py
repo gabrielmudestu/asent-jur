@@ -26,7 +26,7 @@ app.secret_key = 'sua_chave_secreta_aqui'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 db_config = {
-    'host': 'localhost',
+    'host': '26.11.224.184',
     'port': 3306,
     'user': 'max',
     'password': 'Joaolopes05',

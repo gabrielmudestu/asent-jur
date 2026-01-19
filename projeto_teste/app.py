@@ -40,7 +40,7 @@ COLUNAS = [
     'ramo_de_atividade', 'empregos_gerados', 'observacoes_1',
     'quadra', 'modulo_s', 'qtd_modulos', 'tamanho_m2',
     'matricula_s', 'obsevacoes', 'data_escrituracao',
-    'datao_contrato_de_compra_e_venda', 'acao_judicial',
+    'data_contrato_de_compra_e_venda', 'acao_judicial',
     'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
     'irregularidades', 'ultima_vistoria', 'observacoes_2',
     'atualizado', 'observacoes_3', 'processo_judicial',
@@ -275,10 +275,14 @@ def editar(empresa_id):
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
 
                     valores = [request.form.get(col, '') for col in campos]
+                    print("Valores recebidos:", valores)
                     valores.append(empresa_id)
 
+                    print("Executando UPDATE...")
                     cursor.execute(query, valores)
+                    print("UPDATE executado, commitando...")
                     db.commit()
+                    print("Commit realizado!")
 
                     flash('Alterações salvas!', 'success')
                     return redirect(url_for('selecionar_edicao'))

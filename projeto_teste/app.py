@@ -87,56 +87,24 @@ chaves_editaveis = COLUNAS[-4:]
 labels_fixas = {k: LABELS[k] for k in chaves_fixas}
 labels_editaveis = {k: LABELS[k] for k in chaves_editaveis}
 
-
-
-
 OUTPUT_CSV = 'dados_salvos.csv'
 
 # --- FUNÇÕES AUXILIARES ---
 
 def add_watermark(canvas, doc):
-    """Marca d'água com PNG (melhor qualidade)."""
     canvas.saveState()
-    
     logo_path = os.path.join(app.root_path, 'static', 'logo_codego.png')
-
     if os.path.exists(logo_path):
         logo = ImageReader(logo_path)
-        
-        # Dimensões da página A4
-        page_width = A4[0]  # 595.28 pontos
-        page_height = A4[1]  # 841.89 pontos
-        
-        # Tamanho da marca d'água (PNG mantém proporção e qualidade)
-        width = 600
-        height = 150
-        
-        # Centro da página
-        center_x = page_width / 2
-        center_y = page_height / 2
-        
-        # Posiciona no centro SEM rotação (PNG fica perfeito)
+        page_width, page_height = A4
+        width, height = 600, 150
+        center_x, center_y = page_width / 2, page_height / 2
         canvas.translate(center_x, center_y)
-        
         canvas.rotate(45)
-        # Opacidade para PNG (transparência nativa + alpha adicional)
-        canvas.setFillAlpha(0.12)  # 12% de opacidade
-        
-        # Desenha a imagem PNG (qualidade máxima)
-        canvas.drawImage(
-            logo,
-            -width/2,
-            -height/2,
-            width=width,
-            height=height,
-            mask='auto'  # Usa transparência nativa do PNG
-        )
-        
+        canvas.setFillAlpha(0.12)
+        canvas.drawImage(logo, -width/2, -height/2, width=width, height=height, mask='auto')
         canvas.setFillAlpha(1.0)
-    
     canvas.restoreState()
-
-
 
 def ler_csv_seguro():
     if not os.path.exists(OUTPUT_CSV):
@@ -224,10 +192,14 @@ def cadastro():
 def cadastro_jur():
     if session.get('role') != 'jur': return redirect(url_for('login'))
     if request.method == 'POST':
+        # Inicializa dicionário com todas as colunas vazias
         dados = {col: '' for col in COLUNAS}
-        dados['PROCESSO JUDICIAL'] = request.form.get('processo_judicial', '')
-        dados['STATUS'] = request.form.get('status', '')
-        dados['ASSUNTO JUDICIAL'] = request.form.get('assunto_judicial', '')
+        # Preenche os campos específicos do formulário jurídico
+        dados['processo_judicial'] = request.form.get('processo_judicial', '')
+        dados['status'] = request.form.get('status', '')
+        dados['assunto_judicial'] = request.form.get('assunto_judicial', '')
+        dados['valor_da_causa'] = request.form.get('valor_da_causa', '') # Nova informação capturada
+        
         salvar_no_csv(dados)
         flash('Registro jurídico salvo!', 'success')
         return redirect(url_for('menu_jur'))
@@ -241,104 +213,69 @@ def selecionar_edicao():
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("""
-                    SELECT id, MUNICIPIO, EMPRESA, CNPJ 
+                    SELECT id, municipio, empresa, cnpj 
                     FROM municipal_lots 
-                    WHERE EMPRESA != '-'
-                    ORDER BY EMPRESA
+                    WHERE empresa != '-'
+                    ORDER BY empresa
                 """)
                 dados = cursor.fetchall()
     except mysql.connector.Error as err:
         dados = []
         print(f"Erro ao buscar dados: {err}")
-
     return render_template('selecionar_edicao.html', dados=dados, role=session.get('role'))
 
 @app.route('/editar/<int:empresa_id>', methods=['GET', 'POST'])
 def editar(empresa_id):
     if session.get('role') != 'admin': return redirect(url_for('login'))
-
     try:
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (empresa_id,))
                 empresa = cursor.fetchone()
-
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
                     return redirect(url_for('selecionar_edicao'))
                 
                 if request.method == 'POST':
-                    campos = [
-                        'municipio', 'distrito', 'empresa', 'cnpj',
-                        'processo_sei', 'status_de_assentamento', 'observacoes',
-                        'ramo_de_atividade', 'empregos_gerados', 'observacoes_1',
-                        'quadra', 'modulo_s', 'qtd_modulos', 'tamanho_m2',
-                        'matricula_s', 'obsevacoes', 'data_escrituracao',
-                        'data_contrato_de_compra_e_venda', 'acao_judicial',
-                        'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
-                        'irregularidades', 'ultima_vistoria', 'observacoes_2',
-                        'atualizado', 'observacoes_3'
-                    ]
-
+                    campos = COLUNAS[:-4] # Pega as chaves fixas
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
-
                     valores = [request.form.get(col, '') for col in campos]
-                    print("Valores recebidos:", valores)
                     valores.append(empresa_id)
-
-                    print("Executando UPDATE...")
                     cursor.execute(query, valores)
-                    print("UPDATE executado, commitando...")
                     db.commit()
-                    print("Commit realizado!")
-
                     flash('Alterações salvas!', 'success')
                     return redirect(url_for('selecionar_edicao'))
-                
                 return render_template('editar.html', dados=empresa, colunas=chaves_fixas, labels=labels_fixas, empresa_id=empresa_id)
-            
     except Exception as e:
-        print(f"Erro ao editar: {e}")
-        flash('Erro ao salvar. Tente novamente.', 'danger')
+        flash(f'Erro ao editar: {e}', 'danger')
         return redirect(url_for('selecionar_edicao'))
 
 @app.route('/editar_jur/<int:empresa_id>', methods=['GET', 'POST'])
 def editar_jur(empresa_id):
     if session.get('role') != 'jur': return redirect(url_for('login'))
-
     try:
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (empresa_id,))
                 empresa = cursor.fetchone()
-
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
                     return redirect(url_for('selecionar_edicao'))
                 
                 if request.method == 'POST':
-                    campos = [
-                        'processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa'
-                    ]
-
+                    campos = ['processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa']
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
-
                     valores = [request.form.get(col, '') for col in campos]
                     valores.append(empresa_id)
-                    
                     cursor.execute(query, valores)
                     db.commit()
-
                     flash('Dados jurídicos atualizados!', 'success')
                     return redirect(url_for('selecionar_edicao'))
-                
                 return render_template('editar_jur.html', dados=empresa, colunas_fixas=chaves_fixas, colunas_editaveis=chaves_editaveis, labels=labels_fixas, labels_editaveis=labels_editaveis, empresa_id=empresa_id)
-            
     except Exception as e:
-        print(f"Erro ao editar jurídico: {e}")
-        flash('Erro ao salvar. Tente novamente.', 'danger')
+        flash(f'Erro ao editar jurídico: {e}', 'danger')
         return redirect(url_for('selecionar_edicao'))
 
 # --- ROTA DE RELATÓRIOS ---
@@ -356,7 +293,6 @@ def relatorios():
                     cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (int(empresa_id),))
                     lot = cursor.fetchone()
             if not lot: return "Empresa não encontrada.", 404
-
             buffer = BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=A4)
             frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
@@ -367,10 +303,8 @@ def relatorios():
             title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=16, spaceAfter=20)
             story.append(Paragraph(f"Relatório: {lot.get('empresa', 'N/A')}", title_style))
             story.append(Spacer(1, 12))
-            
             data = [["Campo", "Valor"]]
             for k, v in lot.items(): data.append([str(k).replace('_', ' ').upper(), str(v if v else '-')])
-            
             table = Table(data, colWidths=[150, 350])
             table.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1a233a')), ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke), ('GRID', (0,0), (-1,-1), 0.5, colors.grey)]))
             story.append(table)
@@ -382,24 +316,13 @@ def relatorios():
             return response
         except Exception as e: return f"Erro PDF: {e}"
 
-    empresas = []
-    empresas_info = {}
-
+    empresas, empresas_info = [], {}
     try:
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
-                cursor.execute("""
-                    SELECT id, empresa 
-                    FROM municipal_lots 
-                    WHERE EMPRESA != '-'
-                    ORDER BY empresa
-                """)
+                cursor.execute("SELECT id, empresa FROM municipal_lots WHERE empresa != '-' ORDER BY empresa")
                 empresas = cursor.fetchall()
-
-                cursor.execute("""
-                    SELECT empresa_id, descricao, caminho_imagem
-                    FROM empresa_infos
-                """)
+                cursor.execute("SELECT empresa_id, descricao, caminho_imagem FROM empresa_infos")
                 infos = cursor.fetchall()
         for row in infos:
             empresas_info[str(row['empresa_id'])] = {
@@ -410,7 +333,6 @@ def relatorios():
         print("Erro ao carregar dados:", err)
     template = 'relatorios_jur.html' if session.get('role') == 'jur' else 'relatorios.html'
     return render_template(template, empresas=empresas, empresas_info=empresas_info)
-
 
 # --- OUTRAS ROTAS ---
 
@@ -434,7 +356,7 @@ def teste_conexao():
         with mysql.connector.connect(**db_config) as db:
             with db.cursor() as cursor:
                 cursor.execute("SELECT 1")
-                result = cursor.fetchone()  # Consome o resultado
+                result = cursor.fetchone()
                 return f"Conexão com o banco OK! Resultado: {result}"
     except Exception as e:
         return f"Erro: {e}"

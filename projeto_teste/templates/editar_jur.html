@@ -35,7 +35,7 @@
                         {% for col in colunas_fixas %}
                         <div class="bg-gray-50 p-2 rounded border border-gray-100">
                             <label class="block text-[10px] font-bold text-gray-500 uppercase truncate" title="{{ col }}">
-                                {{ col }}
+                                {{ labels.get(col, col) }}
                             </label>
                             <input type="text" value="{{ dados[col] or '-' }}" readonly 
                                 class="w-full bg-transparent border-none text-sm text-gray-700 font-medium focus:ring-0 cursor-not-allowed">
@@ -53,14 +53,14 @@
                         {% for col in colunas_editaveis %}
                             {% if col == 'ASSUNTO JUDICIAL' %}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ col }}</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
                                 <textarea name="{{ col }}" rows="4" 
                                     class="w-full p-3 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm"
                                 >{{ dados[col] or '' }}</textarea>
                             </div>
                             {% else %}
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ col }}</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
                                 <input type="text" name="{{ col }}" value="{{ dados[col] or '' }}" 
                                     class="w-full p-3 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm">
                             </div>

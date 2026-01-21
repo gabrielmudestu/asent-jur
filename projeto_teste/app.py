@@ -44,7 +44,7 @@ COLUNAS = [
     'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
     'irregularidades', 'ultima_vistoria', 'observacoes_2',
     'atualizado', 'observacoes_3', 'processo_judicial',
-    'status', 'assunto_judicial'
+    'status', 'assunto_judicial', 'valor_da_causa',
 ]
 
 # Dicionário de tradução dos campos
@@ -77,8 +77,18 @@ LABELS = {
     'observacoes_3': 'Observações 3',
     'processo_judicial': 'Processo Judicial',
     'status': 'Status',
-    'assunto_judicial': 'Assunto Judicial'
+    'assunto_judicial': 'Assunto Judicial',
+    'valor_da_causa': 'Valor da Causa',
 }
+
+chaves_fixas = COLUNAS[:-4]
+chaves_editaveis = COLUNAS[-4:]
+
+labels_fixas = {k: LABELS[k] for k in chaves_fixas}
+labels_editaveis = {k: LABELS[k] for k in chaves_editaveis}
+
+
+
 
 OUTPUT_CSV = 'dados_salvos.csv'
 
@@ -264,11 +274,10 @@ def editar(empresa_id):
                         'ramo_de_atividade', 'empregos_gerados', 'observacoes_1',
                         'quadra', 'modulo_s', 'qtd_modulos', 'tamanho_m2',
                         'matricula_s', 'obsevacoes', 'data_escrituracao',
-                        'datao_contrato_de_compra_e_venda', 'acao_judicial',
+                        'data_contrato_de_compra_e_venda', 'acao_judicial',
                         'taxa_e_ocupacao_do_imovel', 'imovel_regular_irregular',
                         'irregularidades', 'ultima_vistoria', 'observacoes_2',
-                        'atualizado', 'observacoes_3', 'processo_judicial',
-                        'status', 'assunto_judicial'
+                        'atualizado', 'observacoes_3'
                     ]
 
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
@@ -287,7 +296,7 @@ def editar(empresa_id):
                     flash('Alterações salvas!', 'success')
                     return redirect(url_for('selecionar_edicao'))
                 
-                return render_template('editar.html', dados=empresa, colunas=COLUNAS, labels=LABELS, empresa_id=empresa_id)
+                return render_template('editar.html', dados=empresa, colunas=chaves_fixas, labels=labels_fixas, empresa_id=empresa_id)
             
     except Exception as e:
         print(f"Erro ao editar: {e}")
@@ -303,29 +312,29 @@ def editar_jur(empresa_id):
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (empresa_id,))
                 empresa = cursor.fetchone()
+
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
                     return redirect(url_for('selecionar_edicao'))
                 
                 if request.method == 'POST':
-                    processo_judicial = request.form.get('PROCESSO JUDICIAL', '')
-                    status = request.form.get('STATUS', '')
-                    assunto_judicial = request.form.get('ASSUNTO JUDICIAL', '')
+                    campos = [
+                        'processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa'
+                    ]
 
-                    query = """
-                        UPDATE municipal_lots 
-                        SET `PROCESSO JUDICIAL` = %s, `STATUS` = %s, `ASSUNTO JUDICIAL` = %s 
-                        WHERE id = %s
-                    """
-                    valores = (processo_judicial, status, assunto_judicial, empresa_id)
+                    set_clause = ', '.join([f"`{col}` = %s" for col in campos])
+                    query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
 
+                    valores = [request.form.get(col, '') for col in campos]
+                    valores.append(empresa_id)
+                    
                     cursor.execute(query, valores)
                     db.commit()
 
                     flash('Dados jurídicos atualizados!', 'success')
                     return redirect(url_for('selecionar_edicao'))
                 
-                return render_template('editar_jur.html', dados=empresa, colunas_fixas=COLUNAS[:-3], colunas_editaveis=COLUNAS[-3:], empresa_id=empresa_id)
+                return render_template('editar_jur.html', dados=empresa, colunas_fixas=chaves_fixas, colunas_editaveis=chaves_editaveis, labels=labels_fixas, labels_editaveis=labels_editaveis, empresa_id=empresa_id)
             
     except Exception as e:
         print(f"Erro ao editar jurídico: {e}")

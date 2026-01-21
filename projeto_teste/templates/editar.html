@@ -32,11 +32,10 @@
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {# O filtro [:-3] remove os 3 últimos itens da lista enviada pelo Flask #}
-                        {% for col in colunas[:-3] %}
+                        {% for col in colunas %}
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
-                                {{ labels.get(col, col) if labels else col }}
+                                {{ labels.get(col, col) }}
                             </label>
                             
                             {% if 'OBSERVAÇÕES' in col or 'IRREGULARIDADES' in col or 'DESCRIÇÃO' in col %}

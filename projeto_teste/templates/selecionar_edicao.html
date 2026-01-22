@@ -50,9 +50,9 @@
                     <tbody class="divide-y divide-gray-100">
                         {% for item in dados %}
                         <tr class="hover:bg-gray-50/80 transition-colors">
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['MUNICIPIO'] }}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-[#002b5c]">{{ item['EMPRESA'] }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ item['CNPJ'] }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['municipio'] }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-[#002b5c]">{{ item['empresa'] }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ item['cnpj'] }}</td>
                             <td class="px-6 py-4 text-center">
                                 {% if role == 'jur' %}
                                     <a href="{{ url_for('editar_jur', empresa_id=item['id']) }}" 

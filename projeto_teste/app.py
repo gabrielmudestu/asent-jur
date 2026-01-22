@@ -158,10 +158,10 @@ def login():
                     usuario = cursor.fetchone()
                     if usuario and bcrypt.check_password_hash(usuario['senha'], password):
                         session['username'] = usuario['login']
-                        if usuario['departamento'] == 'jurídico':
+                        if usuario['departamento'] == 'Jurídico':
                             session['role'] = 'jur'
                             return redirect(url_for('menu_jur'))
-                        elif usuario['departamento'] == 'assentamento':
+                        elif usuario['departamento'] == 'Assentamento':
                             session['role'] = 'assent'
                             return redirect(url_for('menu'))
                         elif usuario['departamento'] == 'admin':

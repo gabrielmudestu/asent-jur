@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
+from flask_bcrypt import Bcrypt
 
 # Configuração de Logs
 try:
@@ -22,6 +23,7 @@ except ImportError:
     sistema_logger = logging.getLogger('sistema')
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.secret_key = 'sua_chave_secreta_aqui'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
@@ -180,14 +182,28 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == 'admin' and password == '12345':
-            session['username'], session['role'] = username, 'admin'
-            return redirect(url_for('menu'))
-        elif username == 'jur' and password == '12345':
-            session['username'], session['role'] = username, 'jur'
-            return redirect(url_for('menu_jur'))
-        else:
-            flash('Usuário ou senha inválidos!', 'danger')
+
+        try:
+            with mysql.connector.connect(**db_config) as db:
+                with db.cursor(dictionary=True) as cursor:
+                    cursor.execute("SELECT * FROM usuarios WHERE login = %s", (username,))
+                    usuario = cursor.fetchone()
+                    if usuario and bcrypt.check_password_hash(usuario['senha'], password):
+                        session['username'] = usuario['login']
+                        if usuario['departamento'] == 'jurídico':
+                            session['role'] = 'jur'
+                            return redirect(url_for('menu_jur'))
+                        elif usuario['departamento'] == 'assentamento':
+                            session['role'] = 'assent'
+                            return redirect(url_for('menu'))
+                        elif usuario['departamento'] == 'admin':
+                            session['role'] = 'admin'
+                            return redirect(url_for('menu'))
+                    else:
+                        flash('Usuário ou senha inválidos!', 'danger')
+        except Exception as e:
+            flash(f'Erro ao fazer login: {e}', 'danger')
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -200,7 +216,7 @@ def logout():
 
 @app.route('/menu')
 def menu():
-    if session.get('role') != 'admin': return redirect(url_for('login'))
+    if session.get('role') not in ('assent','admin'): return redirect(url_for('login'))
     return render_template('menu.html')
 
 @app.route('/menu_jur')
@@ -212,7 +228,7 @@ def menu_jur():
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
-    if session.get('role') != 'admin': return redirect(url_for('login'))
+    if session.get('role') not in ('assent','admin'): return redirect(url_for('login'))
     if request.method == 'POST':
         dados = {col: request.form.get(col, '') for col in COLUNAS}
         salvar_no_csv(dados)
@@ -255,7 +271,7 @@ def selecionar_edicao():
 
 @app.route('/editar/<int:empresa_id>', methods=['GET', 'POST'])
 def editar(empresa_id):
-    if session.get('role') != 'admin': return redirect(url_for('login'))
+    if session.get('role') not in ('assent','admin'): return redirect(url_for('login'))
 
     try:
         with mysql.connector.connect(**db_config) as db:
@@ -417,8 +433,33 @@ def relatorios():
 @app.route('/registrar-usuario', methods=['GET', 'POST'])
 def registrar_usuario():
     if request.method == 'POST':
-        flash('Solicitação enviada!', 'success')
-        return redirect(url_for('login'))
+        nome = request.form.get('nome')
+        login = request.form.get('login')
+        email = request.form.get('email')
+        senha = request.form.get('senha')
+        departamento = request.form.get('departamento', '')
+
+        senha_hash = bcrypt.generate_password_hash(senha).decode('utf-8')
+
+        # Validação básica
+        if not nome or not login or not email or not senha:
+            flash('Todos os campos obrigatórios devem ser preenchidos.', 'danger')
+            return render_template('registrar_usuario.html')
+
+        try:
+            with mysql.connector.connect(**db_config) as db:
+                with db.cursor() as cursor:
+                    # Supondo que você tenha uma tabela 'usuarios' com os campos abaixo
+                    cursor.execute("""
+                        INSERT INTO usuarios (nome, login, email, senha, departamento)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (nome, login, email, senha_hash, departamento))
+                    db.commit()
+                flash('Usuário registrado com sucesso!', 'success')
+                return redirect(url_for('login'))
+        except Exception as e:
+            flash(f'Erro ao registrar usuário: {e}', 'danger')
+
     return render_template('registrar_usuario.html')
 
 @app.route('/recuperar-senha', methods=['GET', 'POST'])
@@ -428,16 +469,6 @@ def recuperar_senha():
         return redirect(url_for('login'))
     return render_template('recuperar_senha.html')
 
-@app.route('/teste-conexao')
-def teste_conexao():
-    try:
-        with mysql.connector.connect(**db_config) as db:
-            with db.cursor() as cursor:
-                cursor.execute("SELECT 1")
-                result = cursor.fetchone()  # Consome o resultado
-                return f"Conexão com o banco OK! Resultado: {result}"
-    except Exception as e:
-        return f"Erro: {e}"
 
 @app.route('/logs')
 def logs():

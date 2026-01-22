@@ -95,7 +95,7 @@ OUTPUT_CSV = 'dados_salvos.csv'
 
 def add_watermark(canvas, doc):
     canvas.saveState()
-    logo_path = os.path.join(app.root_path, 'static', 'logo_codego.png')
+    logo_path = os.path.join(app.root_path, 'static', 'logo_codego_grey.png')
     if os.path.exists(logo_path):
         logo = ImageReader(logo_path)
         page_width, page_height = A4
@@ -198,11 +198,57 @@ def menu_jur():
 def cadastro():
     if session.get('role') not in ('assent','admin'): return redirect(url_for('login'))
     if request.method == 'POST':
-        dados = {col: request.form.get(col, '') for col in COLUNAS}
-        salvar_no_csv(dados)
-        flash('Cadastro realizado!', 'success')
-        return redirect(url_for('cadastro'))
-    return render_template('cadastro.html', colunas=COLUNAS, username=session.get('username'))
+        colunas_map = {
+            'MUNICIPIO': 'municipio',
+            'DISTRITO': 'distrito',
+            'EMPRESA': 'empresa',
+            'CNPJ': 'cnpj',
+            'PROCESSO SEI': 'processo_sei',
+            'STATUS DE ASSENTAMENTO': 'status_de_assentamento',
+            'RAMO DE ATIVIDADE': 'ramo_de_atividade',
+            'EMPREGOS GERADOS': 'empregos_gerados',
+            'QUADRA': 'quadra',
+            'MÓDULO(S)': 'modulo_s',
+            'QTD. MÓDULOS': 'qtd_modulos',
+            'TAMANHO(M²)': 'tamanho_m2',
+            'MATRÍCULA(S)': 'matricula_s',
+            'OBSEVAÇÕES': 'obsevacoes',
+            'DATA ESCRITURAÇÃO': 'data_escrituracao',
+            'DATA CONTRATO DE COMPRA E VENDA': 'data_contrato_de_compra_e_venda',
+            'IRREGULARIDADES?': 'irregularidades',
+            'ÚLTIMA VISTORIA': 'ultima_vistoria',
+            'ATUALIZADO': 'atualizado',
+            'IMÓVEL REGULAR/IRREGULAR': 'imovel_regular_irregular',
+            'TAXA E OCUPAÇÃO DO IMÓVEL(%)': 'taxa_e_ocupacao_do_imovel',
+        }
+
+        campos_numericos = ['processo_sei', 'empregos_gerados', 'quadra', 'qtd_modulos', 'tamanho_m2', 'matricula_s', 'taxa_e_ocupacao_do_imovel']
+
+        dados = {}
+        for form_name, db_name in colunas_map.items():
+            valor = request.form.get(form_name, '')
+            if db_name in campos_numericos:
+                if valor.isdigit():
+                    dados[db_name] = int(valor)
+                else:
+                    dados[db_name] = '0'
+            else:
+                dados[db_name] = valor if valor else '-'
+            
+        try:
+            with mysql.connector.connect(**db_config) as db:
+                with db.cursor() as cursor:
+                    cols = ', '.join(dados.keys())
+                    placeholders = ', '.join(['%s'] * len(dados))
+                    query = f"INSERT INTO municipal_lots ({cols}) VALUES ({placeholders})"
+                    valores = list(dados.values())
+                    cursor.execute(query, valores)
+                    db.commit()
+                flash('Cadastro realizado com sucesso!', 'success')
+                return redirect(url_for('cadastro'))
+        except Exception as e:
+            flash(f'Erro ao cadastrar: {e}', 'danger')
+    return render_template('cadastro.html', username=session.get('username'))
 
 @app.route('/cadastro_jur', methods=['GET', 'POST'])
 def cadastro_jur():

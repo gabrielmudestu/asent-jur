@@ -24,11 +24,12 @@
                 </a>
             </div>
 
-            <form action="{{ url_for('editar', empresa_id=empresa_id) }}" method="POST" class="p-8">
+            <form id="formEditar" action="{{ url_for('editar', empresa_id=empresa_id) }}" method="POST" class="p-8">
                 
                 <div class="mb-6">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
-                        <i data-lucide="database" class="w-5 h-5"></i> Informações do Formulário
+                        <i data-lucide="building-2" class="w-5 h-5"></i> 
+                        Empresa: <span class="text-blue-600 ml-1">{{ dados['empresa'] if dados['empresa'] else 'Não informada' }}</span>
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -38,7 +39,7 @@
                                 {{ labels.get(col, col) }}
                             </label>
                             
-                            {% if 'OBSERVAÇÕES' in col or 'IRREGULARIDADES' in col or 'DESCRIÇÃO' in col %}
+                            {% if 'OBSERVAÇÕES' in col.upper() or 'IRREGULARIDADES' in col.upper() or 'DESCRIÇÃO' in col.upper() or 'OBSEVACOES' in col.upper() %}
                             <textarea name="{{ col }}" rows="2" 
                                 class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50"
                             >{{ dados[col] if dados[col] != '-' else '' }}</textarea>
@@ -71,7 +72,20 @@
     </div>
 
     <script>
+        // Inicializa os ícones do Lucide
         lucide.createIcons();
+
+        // Script para bloquear o envio do formulário ao pressionar ENTER
+        const form = document.getElementById('formEditar');
+        
+        form.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (e.target.nodeName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
     </script>
 </body>
 </html>

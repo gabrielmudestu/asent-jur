@@ -24,7 +24,7 @@
                 </a>
             </div>
 
-            <form action="{{ url_for('editar_jur', empresa_id=empresa_id) }}" method="POST" class="p-8">
+            <form id="formEditarJur" action="{{ url_for('editar_jur', empresa_id=empresa_id) }}" method="POST" class="p-8">
                 
                 <div class="mb-10">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
@@ -51,7 +51,7 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {% for col in colunas_editaveis %}
-                            {% if col == 'ASSUNTO JUDICIAL' %}
+                            {% if col == 'ASSUNTO JUDICIAL' or 'ASSUNTO' in col.upper() %}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
                                 <textarea name="{{ col }}" rows="4" 
@@ -79,13 +79,26 @@
                         <i data-lucide="save" class="w-5 h-5"></i> SALVAR ALTERAÇÕES JURÍDICAS
                     </button>
                 </div>
-                <form action="{{ url_for('editar_jur', empresa_id=empresa_id) }}" method="POST"></form>
             </form>
         </div>
     </div>
 
     <script>
+        // Inicializa os ícones do Lucide
         lucide.createIcons();
+
+        // Bloqueio da tecla Enter para evitar salvamento acidental
+        const formJur = document.getElementById('formEditarJur');
+        
+        formJur.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                // Permite o Enter apenas se o usuário estiver digitando no Assunto (Textarea)
+                if (e.target.nodeName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
     </script>
 </body>
-</html>>
+</html>

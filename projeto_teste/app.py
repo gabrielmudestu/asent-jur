@@ -1,3 +1,4 @@
+# flask faz ligação com o servidor Web e o inicia
 from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
 import pandas as pd
 import os
@@ -6,12 +7,13 @@ import mysql.connector
 from datetime import datetime
 from io import BytesIO
 
-# Importações para o PDF (ReportLab)
+# importações para realização do relatório
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageTemplate, Frame
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
+#criptografia da senha para não aparecer em texto branco no mySQL
 from flask_bcrypt import Bcrypt
 
 # Configuração de Logs
@@ -26,7 +28,7 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = 'sua_chave_secreta_aqui'
 
-# --- CONFIGURAÇÃO DO BANCO DE DADOS ---
+# configurações que permitem o acesso ao BD do mySQL (credenciais de acesso)
 db_config = {
     'host': '26.11.224.184',
     'port': 3306,
@@ -35,7 +37,7 @@ db_config = {
     'database': 'codego_db'
 }
 
-# --- CONFIGURAÇÃO DE DADOS (CSV) ---
+#  dados como são recebidos no banco de dados 
 COLUNAS = [
     'municipio', 'distrito', 'empresa', 'cnpj',
     'processo_sei', 'status_de_assentamento', 'observacoes',
@@ -49,7 +51,7 @@ COLUNAS = [
     'status', 'assunto_judicial', 'valor_da_causa',
 ]
 
-# Dicionário de tradução dos campos
+# nomes como serão vistos pelos usuários (tradução)
 LABELS = {
     'municipio': 'Município',
     'distrito': 'Distrito',
@@ -83,7 +85,9 @@ LABELS = {
     'valor_da_causa': 'Valor da Causa',
 }
 
-chaves_fixas = COLUNAS[:-4]
+#as fixas delimitam os campos relacionados ao usuários de Assentamento 
+chaves_fixas = COLUNAS[:-4] 
+#as editáveis indicam os campos referentes aos usuários do Jurídico
 chaves_editaveis = COLUNAS[-4:]
 
 labels_fixas = {k: LABELS[k] for k in chaves_fixas}
@@ -91,7 +95,7 @@ labels_editaveis = {k: LABELS[k] for k in chaves_editaveis}
 
 OUTPUT_CSV = 'dados_salvos.csv'
 
-# --- FUNÇÕES AUXILIARES ---
+# função que adiciona a marca d`água no fundo do relatório (inclinada a 45 graus)
 
 def add_watermark(canvas, doc):
     canvas.saveState()

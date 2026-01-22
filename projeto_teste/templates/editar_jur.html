@@ -28,7 +28,8 @@
                 
                 <div class="mb-10">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
-                        <i data-lucide="info" class="w-5 h-5"></i> Dados da Empresa e Imóvel
+                        <i data-lucide="building-2" class="w-5 h-5"></i> 
+                        Empresa: <span class="text-red-600 ml-1">{{ dados['empresa'] if dados['empresa'] else 'Não informada' }}</span>
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -46,12 +47,12 @@
 
                 <div class="bg-red-50 p-6 rounded-xl border border-red-100 shadow-inner">
                     <h3 class="text-red-700 font-bold mb-6 flex items-center gap-2">
-                        <i data-lucide="edit-3" class="w-5 h-5"></i> Campos Editáveis
+                        <i data-lucide="edit-3" class="w-5 h-5"></i> Campos Editáveis (Jurídico)
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {% for col in colunas_editaveis %}
-                            {% if col == 'ASSUNTO JUDICIAL' or 'ASSUNTO' in col.upper() %}
+                            {% if col == 'assunto_judicial' or 'ASSUNTO' in col.upper() %}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
                                 <textarea name="{{ col }}" rows="4" 
@@ -84,15 +85,15 @@
     </div>
 
     <script>
-        // Inicializa os ícones do Lucide
+        // Inicializa ícones
         lucide.createIcons();
 
-        // Bloqueio da tecla Enter para evitar salvamento acidental
+        // Trava para o Enter não enviar o formulário acidentalmente
         const formJur = document.getElementById('formEditarJur');
         
         formJur.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                // Permite o Enter apenas se o usuário estiver digitando no Assunto (Textarea)
+                // Permite o Enter somente em textareas (campos de assunto/observações)
                 if (e.target.nodeName !== 'TEXTAREA') {
                     e.preventDefault();
                     return false;

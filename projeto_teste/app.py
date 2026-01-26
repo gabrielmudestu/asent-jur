@@ -6,6 +6,7 @@ import csv
 import mysql.connector
 from datetime import datetime
 from io import BytesIO
+from werkzeug.utils import secure_filename
 
 # importações para realização do relatório
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageTemplate, Frame
@@ -92,6 +93,12 @@ chaves_editaveis = COLUNAS[-4:]
 
 labels_fixas = {k: LABELS[k] for k in chaves_fixas}
 labels_editaveis = {k: LABELS[k] for k in chaves_editaveis}
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'imagens_empresas')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 OUTPUT_CSV = 'dados_salvos.csv'
 
@@ -232,6 +239,7 @@ def cadastro():
         dados = {}
         for form_name, db_name in colunas_map.items():
             valor = request.form.get(form_name, '')
+
             if db_name in campos_numericos:
                 if valor.isdigit():
                     dados[db_name] = int(valor)
@@ -239,6 +247,8 @@ def cadastro():
                     dados[db_name] = '0'
             else:
                 dados[db_name] = valor if valor else '-'
+
+        empresa_id = None
             
         try:
             with mysql.connector.connect(**db_config) as db:
@@ -246,11 +256,43 @@ def cadastro():
                     cols = ', '.join(dados.keys())
                     placeholders = ', '.join(['%s'] * len(dados))
                     query = f"INSERT INTO municipal_lots ({cols}) VALUES ({placeholders})"
-                    valores = list(dados.values())
+                    valores = [dados[campo] for campo in dados.keys()]
                     cursor.execute(query, valores)
+                    empresa_id = cursor.lastrowid
                     db.commit()
-                flash('Cadastro realizado com sucesso!', 'success')
-                return redirect(url_for('cadastro'))
+                
+                if not empresa_id:
+                    raise Exception("Erro ao obter ID do cadastro.")
+                
+                file = request.files.get('IMAGEM_EMPRESA')
+                descricao = request.form.get('DESCRICAO_EMPRESA', '') or ' '
+
+                if file and file.filename.strip():
+                    nome_original = file.filename
+                    nome_base, ext = os.path.splitext(nome_original)
+                    ext = ext.lower()
+
+                    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                        ext = '.jpg'
+
+                    nome_arquivo = f"empresa{empresa_id}{ext}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo)
+
+                    file.save(filepath)
+
+                    caminho_imagem = f"/static/imagens_empresas/{nome_arquivo}".replace('\\', '/')
+
+                    with db.cursor() as cursor:
+                        cursor.execute("""
+                            INSERT INTO empresa_infos (empresa_id, descricao, caminho_imagem)
+                            VALUES (%s, %s, %s)
+                            ON DUPLICATE KEY UPDATE
+                                descricao = VALUES(descricao),
+                                caminho_imagem = VALUES(caminho_imagem)
+                        """, (empresa_id, descricao, caminho_imagem))
+                        db.commit()
+            flash('Registro salvo com sucesso!', 'success')
+            return redirect(url_for('cadastro'))
         except Exception as e:
             flash(f'Erro ao cadastrar: {e}', 'danger')
     return render_template('cadastro.html', username=session.get('username'))

@@ -131,6 +131,7 @@ def ler_csv_seguro():
         sistema_logger.error(f"Erro ao ler CSV: {e}")
         return pd.DataFrame(columns=COLUNAS)
 
+#salva uma cópia dos dados em um CSV local, registra quem salvou e o horário 
 def salvar_no_csv(dados_dict):
     dados_dict['USUARIO_REGISTRO'] = session.get('username', 'sistema')
     dados_dict['DATA_REGISTRO'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -141,7 +142,7 @@ def salvar_no_csv(dados_dict):
     novo_df.to_csv(OUTPUT_CSV, mode='a', index=False, header=header, 
                    encoding='utf-8', sep=';', quoting=csv.QUOTE_MINIMAL)
 
-# --- MIDDLEWARE DE SEGURANÇA ---
+#  verifica se o usuário está logado, se não estiver 
 
 @app.before_request
 def before_request_func():

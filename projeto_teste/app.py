@@ -112,6 +112,7 @@ def add_watermark(canvas, doc):
         canvas.setFillAlpha(1.0)
     canvas.restoreState()
 
+#verifica se dados_salvos.csv existem, se não, cria um com o cabeçalho correto 
 def ler_csv_seguro():
     if not os.path.exists(OUTPUT_CSV):
         df_init = pd.DataFrame(columns=COLUNAS + ['USUARIO_REGISTRO', 'DATA_REGISTRO'])

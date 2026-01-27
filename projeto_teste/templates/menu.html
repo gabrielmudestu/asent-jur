@@ -16,6 +16,7 @@
             --text-white: #ffffff;
             --logout-red: #ef4444;
             --logout-red-hover: #dc2626;
+            --admin-amber: #f59e0b; /* Cor para o botão de Logs */
         }
 
         body, html {
@@ -91,10 +92,10 @@
             background-color: #f3f4f6;
         }
 
-        /* --- TOPBAR INVERTIDA (AZUL COBALTO COM LETRA BRANCA) --- */
+        /* --- TOPBAR --- */
         .topbar {
-            background-color: var(--accent-blue); /* Fundo Azul Cobalto */
-            color: var(--text-white); /* Letras Brancas */
+            background-color: var(--accent-blue);
+            color: var(--text-white);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
@@ -104,10 +105,16 @@
             z-index: 5;
         }
 
+        .topbar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
         .welcome-text {
             font-size: 1.6rem;
             font-weight: 700;
-            color: var(--text-white); /* Texto em Branco */
+            color: var(--text-white);
             letter-spacing: -0.025em;
         }
 
@@ -116,10 +123,8 @@
             opacity: 0.9;
         }
 
-        /* Botão de Logout */
-        .btn-logout {
-            background-color: var(--logout-red);
-            color: white;
+        /* Estilo comum para botões da Topbar */
+        .btn-topbar {
             text-decoration: none;
             padding: 10px 22px;
             border-radius: 10px;
@@ -130,16 +135,17 @@
             gap: 8px;
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.1); /* Borda sutil para destaque no azul */
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
-        .btn-logout:hover {
-            background-color: var(--logout-red-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
+        .btn-logout { background-color: var(--logout-red); }
+        .btn-logout:hover { background-color: var(--logout-red-hover); transform: translateY(-2px); }
 
-        /* CONTAINER DO DASHBOARD */
+        /* Botão de Logs exclusivo Admin */
+        .btn-logs { background-color: var(--admin-amber); color: #1a202c; border: none; }
+        .btn-logs:hover { background-color: #d97706; transform: translateY(-2px); }
+
         .dashboard-container {
             flex-grow: 1;
             width: 100%;
@@ -177,10 +183,19 @@
                     <span>Bem-vindo,</span> {{ session['username'] }}
                 </div>
                 
-                <a href="{{ url_for('logout') }}" class="btn-logout">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Sair do Sistema
-                </a>
+                <div class="topbar-actions">
+                    {% if session.get('role') == 'admin' %}
+                    <a href="{{ url_for('logs') }}" class="btn-topbar btn-logs">
+                        <i data-lucide="database-zap" class="w-4 h-4"></i>
+                        Logs do Sistema
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('logout') }}" class="btn-topbar btn-logout">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Sair do Sistema
+                    </a>
+                </div>
             </div>
 
             <div class="dashboard-container">

@@ -354,6 +354,11 @@ def editar(empresa_id):
                     valores.append(empresa_id)
                     cursor.execute(query, valores)
                     db.commit()
+                    gravar_log(
+                        acao=f"EDIÇÃO_EMPRESA (ID {empresa_id})",
+                        usuario_username=session.get('username'),
+                        db_conn=db
+                    )
                     flash('Alterações salvas!', 'success')
                     return redirect(url_for('selecionar_edicao'))
                 return render_template('editar.html', dados=empresa, colunas=chaves_fixas, labels=labels_fixas, empresa_id=empresa_id)
@@ -381,6 +386,11 @@ def editar_jur(empresa_id):
                     valores.append(empresa_id)
                     cursor.execute(query, valores)
                     db.commit()
+                    gravar_log(
+                        acao=f"EDIÇÃO_JURIDICA (ID {empresa_id})",
+                        usuario_username=session.get('username'),
+                        db_conn=db
+                    )
                     flash('Dados jurídicos atualizados!', 'success')
                     return redirect(url_for('selecionar_edicao'))
                 return render_template('editar_jur.html', dados=empresa, colunas_fixas=chaves_fixas, colunas_editaveis=chaves_editaveis, labels=labels_fixas, labels_editaveis=labels_editaveis, empresa_id=empresa_id)
@@ -494,7 +504,7 @@ def logs():
     try:
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
-                cursor.execute("SELECT * FROM logs ORDER BY timestamp DESC")
+                cursor.execute("SELECT user_id, username, action, timestamp FROM logs ORDER BY timestamp DESC LIMIT 1000")
                 logs_data = cursor.fetchall()
     except mysql.connector.Error as err:
         print(f"Erro logs: {err}")

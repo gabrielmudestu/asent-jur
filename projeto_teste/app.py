@@ -17,13 +17,6 @@ from reportlab.lib.utils import ImageReader
 #criptografia da senha para não aparecer em texto branco no mySQL
 from flask_bcrypt import Bcrypt
 
-# Configuração de Logs
-try:
-    from logger_config import sistema_logger
-except ImportError:
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    sistema_logger = logging.getLogger('sistema')
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -100,7 +93,28 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-OUTPUT_CSV = 'dados_salvos.csv'
+# função que grava o log na tabela logs do banco de dados
+def gravar_log(acao, usuario_id=None, usuario_username=None, db_conn=None):
+    """Grava um log na tabela logs com user_id, username e action."""
+    if db_conn is None:
+        db = mysql.connector.connect(**db_config)
+    else:
+        db = db_conn
+
+    # Se não for passado user_id/username, usa os da sessão
+    user_id = usuario_id or session.get('user_id')
+    username = usuario_username or session.get('username')
+
+    with db.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO logs (user_id, username, action)
+            VALUES (%s, %s, %s)
+        """, (user_id, username, acao))
+        db.commit()
+
+    # Só fecha se não foi passada conexão externa
+    if not db_conn and db:
+        db.close()
 
 # função que adiciona a marca d`água no fundo do relatório (inclinada a 45 graus)
 
@@ -118,27 +132,6 @@ def add_watermark(canvas, doc):
         canvas.drawImage(logo, -width/2, -height/2, width=width, height=height, mask='auto')
         canvas.setFillAlpha(1.0)
     canvas.restoreState()
-
-def ler_csv_seguro():
-    if not os.path.exists(OUTPUT_CSV):
-        df_init = pd.DataFrame(columns=COLUNAS + ['USUARIO_REGISTRO', 'DATA_REGISTRO'])
-        df_init.to_csv(OUTPUT_CSV, index=False, sep=';', encoding='utf-8')
-        return df_init
-    try:
-        return pd.read_csv(OUTPUT_CSV, sep=';', on_bad_lines='skip', encoding='utf-8', engine='python')
-    except Exception as e:
-        sistema_logger.error(f"Erro ao ler CSV: {e}")
-        return pd.DataFrame(columns=COLUNAS)
-
-def salvar_no_csv(dados_dict):
-    dados_dict['USUARIO_REGISTRO'] = session.get('username', 'sistema')
-    dados_dict['DATA_REGISTRO'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    colunas_completas = COLUNAS + ['USUARIO_REGISTRO', 'DATA_REGISTRO']
-    novo_df = pd.DataFrame([dados_dict])
-    novo_df = novo_df.reindex(columns=colunas_completas, fill_value='')
-    header = not os.path.exists(OUTPUT_CSV)
-    novo_df.to_csv(OUTPUT_CSV, mode='a', index=False, header=header, 
-                   encoding='utf-8', sep=';', quoting=csv.QUOTE_MINIMAL)
 
 # --- MIDDLEWARE DE SEGURANÇA ---
 
@@ -259,7 +252,11 @@ def cadastro():
                     cursor.execute(query, valores)
                     empresa_id = cursor.lastrowid
                     db.commit()
-                
+                    gravar_log(
+                        acao=f"CADASTRO_EMPRESA (ID {empresa_id})",
+                        usuario_username=session.get('username'),
+                        db_conn=db
+                    )
                 if not empresa_id:
                     raise Exception("Erro ao obter ID do cadastro.")
                 
@@ -291,6 +288,11 @@ def cadastro():
                         """, (empresa_id, descricao, caminho_imagem))
                         db.commit()
             flash('Registro salvo com sucesso!', 'success')
+            gravar_log(
+                acao=f"UPLOAD_IMAGEM_EMPRESA (empresa{empresa_id})",
+                usuario_username=session.get('username'),
+                db_conn=db
+            )
             return redirect(url_for('cadastro'))
         except Exception as e:
             flash(f'Erro ao cadastrar: {e}', 'danger')
@@ -308,7 +310,6 @@ def cadastro_jur():
         dados['assunto_judicial'] = request.form.get('assunto_judicial', '')
         dados['valor_da_causa'] = request.form.get('valor_da_causa', '') # Nova informação capturada
         
-        salvar_no_csv(dados)
         flash('Registro jurídico salvo!', 'success')
         return redirect(url_for('menu_jur'))
     return render_template('cadastro_jur.html', username=session.get('username'))
@@ -500,5 +501,4 @@ def logs():
     return render_template('logs.html', logs=logs_data)
 
 if __name__ == '__main__':
-    ler_csv_seguro()
     app.run(host='0.0.0.0', port=5000, debug=True)

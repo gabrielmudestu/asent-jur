@@ -43,6 +43,9 @@
                                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     Ação Realizada
                                 </th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    Detalhes da Ação
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
@@ -62,10 +65,17 @@
                                 <td class="px-6 py-4 text-sm text-gray-700 font-mono bg-gray-50/30">
                                     {{ log['action'] }}
                                 </td>
+                                <td class="px-6 py-4 text-sm text-gray-600 bg-gray-50">
+                                    {% if log['descricao'] %}
+                                        {{ log['descricao'] }}
+                                    {% else %}
+                                        <span class="text-gray-400 font-italic">Sem detalhes adicionais.</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="3" class="px-6 py-10 text-center text-gray-400">
+                                <td colspan="4" class="px-6 py-10 text-center text-gray-400">
                                     Nenhum log registrado até o momento.
                                 </td>
                             </tr>
@@ -85,7 +95,6 @@
     </div>
 
     <script>
-        // Inicializa os ícones do Lucide
         lucide.createIcons();
     </script>
 </body>

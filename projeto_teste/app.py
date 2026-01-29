@@ -94,7 +94,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # função que grava o log na tabela logs do banco de dados
-def gravar_log(acao, descricao='', usuario_id=None, usuario_username=None, db_conn=None):
+def gravar_log(acao, usuario_id=None, usuario_username=None, db_conn=None):
     """Grava um log na tabela logs com user_id, username e action."""
     if db_conn is None:
         db = mysql.connector.connect(**db_config)
@@ -106,9 +106,9 @@ def gravar_log(acao, descricao='', usuario_id=None, usuario_username=None, db_co
 
     with db.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO logs (user_id, username, action, descricao)
-            VALUES (%s, %s, %s, %s)
-        """, (user_id, username, acao, descricao[:500]))
+            INSERT INTO logs (user_id, username, action)
+            VALUES (%s, %s, %s)
+        """, (user_id, username, acao))
         db.commit()
 
     if not db_conn and db:
@@ -317,30 +317,12 @@ def editar(empresa_id):
                     campos = COLUNAS[:-4]
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
-                    valores = []
-                    alteracoes = []
-
-                    for col in campos:
-                        valor_novo = request.form.get(col, '').strip()
-                        valor_velho = str(empresa.get(col, '') or '').strip()
-
-                        valores.append(valor_novo)
-
-                        if valor_novo != valor_velho:
-                            alteracoes.append(f"{LABELS[col]}: '{valor_velho}' → '{valor_novo}'")
-
+                    valores = [request.form.get(col, '') for col in campos]
                     valores.append(empresa_id)
                     cursor.execute(query, valores)
                     db.commit()
-                    empresa_nome = empresa['empresa'] or f'empresa {empresa_id}'
-                    descricao_log = f"Empresa: {empresa_nome} (ID {empresa_id})"
-                    if alteracoes:
-                        descricao_log += " | Alterações: " + "; ".join(alteracoes)
-                    else:
-                        descricao_log += " | Nenhuma alteração realizada."
                     gravar_log(
-                        acao=f"EDIÇÃO_EMPRESA",
-                        descricao=descricao_log,
+                        acao=f"EDIÇÃO_EMPRESA (ID {empresa_id})",
                         usuario_username=session.get('username'),
                         db_conn=db
                     )
@@ -364,30 +346,12 @@ def editar_jur(empresa_id):
                     campos = ['processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa']
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
-                    valores = []
-                    alteracoes = []
-
-                    for col in campos:
-                        valor_novo = request.form.get(col, '').strip()
-                        valor_velho = str(empresa.get(col, '') or '').strip()
-
-                        valores.append(valor_novo)
-
-                        if valor_novo != valor_velho:
-                            alteracoes.append(f"{LABELS[col]}: '{valor_velho}' → '{valor_novo}'")
-
+                    valores = [request.form.get(col, '') for col in campos]
                     valores.append(empresa_id)
                     cursor.execute(query, valores)
                     db.commit()
-                    empresa_nome = empresa['empresa'] or f'empresa {empresa_id}'
-                    descricao_log = f"Empresa: {empresa_nome} (ID {empresa_id})"
-                    if alteracoes:
-                        descricao_log += " | Alterações Jurídicas: " + "; ".join(alteracoes)
-                    else:
-                        descricao_log += " | Nenhuma alteração nos campos jurídicos."
                     gravar_log(
-                        acao=f"EDIÇÃO_JURIDICA",
-                        descricao=descricao_log,
+                        acao=f"EDIÇÃO_JURIDICA (ID {empresa_id})",
                         usuario_username=session.get('username'),
                         db_conn=db
                     )
@@ -499,7 +463,7 @@ def logs():
     try:
         with mysql.connector.connect(**db_config) as db:
             with db.cursor(dictionary=True) as cursor:
-                cursor.execute("SELECT user_id, username, action, descricao, timestamp FROM logs ORDER BY timestamp DESC LIMIT 1000")
+                cursor.execute("SELECT user_id, username, action, timestamp FROM logs ORDER BY timestamp DESC LIMIT 1000")
                 logs_data = cursor.fetchall()
         return render_template('logs.html', logs=logs_data)
     except: return redirect(url_for('menu'))

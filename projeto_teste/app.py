@@ -294,6 +294,7 @@ def cadastro_jur():
 
     return render_template('cadastro_jur.html', empresas=empresas_pendentes, username=session.get('username'))
 
+
 # --- ROTAS DE EDIÇÃO ---
 
 @app.route('/selecionar_edicao')

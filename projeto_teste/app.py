@@ -17,10 +17,19 @@ from reportlab.lib.utils import ImageReader
 #criptografia da senha para não aparecer em texto branco no mySQL
 from flask_bcrypt import Bcrypt
 
+from itsdangerous import URLSafeTimedSerializer
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
+import hashlib
+from itsdangerous import URLSafeTimedSerializer
 
 app = Flask(__name__)
+
+app.secret_key = 'codego-super-secreta-2026-chave-muito-longa-aqui-mude-isso-em-producao!'
+app.config['SECRET_KEY'] = app.secret_key
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 bcrypt = Bcrypt(app)
-app.secret_key = 'sua_chave_secreta_aqui'
 
 # configurações que permitem o acesso ao BD do mySQL (credenciais de acesso)
 db_config = {
@@ -140,7 +149,7 @@ def add_watermark(canvas, doc):
 
 @app.before_request
 def before_request_func():
-    caminhos_livres = ['login', 'static', 'recuperar_senha', 'registrar_usuario']
+    caminhos_livres = ['login', 'static', 'recuperar_senha', 'registrar_usuario', 'redefinir_senha']
     if 'username' not in session and request.endpoint not in caminhos_livres:
         return redirect(url_for('login'))
 
@@ -717,9 +726,121 @@ def registrar_usuario():
 @app.route('/recuperar-senha', methods=['GET', 'POST'])
 def recuperar_senha():
     if request.method == 'POST':
-        flash('E-mail de recuperação enviado!', 'success')
-        return redirect(url_for('login'))
+        email = request.form.get('email', '').strip().lower()
+
+        if not email:
+            flash('Por favor, informe seu e-mail cadastrado.', 'danger')
+            return render_template('recuperar_senha.html')
+        
+        try:
+            # Buscar usuário pelo login
+            db = mysql.connector.connect(**db_config)
+            cursor = db.cursor(dictionary=True)
+            cursor.execute("SELECT id, login, email FROM usuarios WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            cursor.close()
+
+            if not user:
+                # Mesmo se não existir, mostra a mesma mensagem para segurança
+                flash('Se o e-mail for válido, enviaremos instruções de recuperação.', 'info')
+                return render_template('recuperar_senha.html')
+            
+            user_id = user['id']
+            login_usuario = user['login']
+            email_usuario = user['email']
+
+            # Gerar um token com expiração de 15 minutos
+            token = serializer.dumps({'user_id': user_id}, salt='recover')
+
+            # Gerar o link de redefinição
+            reset_url = url_for('redefinir_senha', token=token, _external=True)
+
+            # Montar o e-mail (copie sua estrutura de e-mail já usada no seu sistema)
+            subject = "Recuperação de senha - CODEGO"
+            body = f"""
+Olá {login_usuario},
+
+Você solicitou a recuperação de sua senha no sistema CODEGO.
+
+Para redefinir sua senha, clique no link abaixo:
+
+{reset_url}
+
+Este link é válido por 15 minutos apenas.
+
+Se você não solicitou, ignore este e-mail.
+
+Atenciosamente,
+Equipe CODEGO
+"""
+            # Enviar o e‑mail via gmail
+            try:
+                # Configuração do gmail
+                smtp_server = 'smtp.gmail.com'
+                smtp_port = 587
+                smtp_username = 'emailsendercodego@gmail.com'
+                smtp_password = 'sxlf wwsk woha cxuc'
+
+                msg = MIMEMultipart()
+                msg['From'] = smtp_username
+                msg['To'] = email_usuario
+                msg['Subject'] = subject
+
+                msg.attach(MIMEText(body, 'plain', 'utf-8'))
+
+                server = smtplib.SMTP(smtp_server, smtp_port)
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.sendmail(smtp_username, [email_usuario], msg.as_string())
+                server.quit()
+
+                flash('Se o e-mail for válido, enviaremos instruções de recuperação para o e-mail cadastrado.', 'info')
+                return redirect(url_for('login'))
+
+            except Exception as e:
+                flash(f'Erro ao enviar e-mail: {str(e)}. Tente novamente mais tarde.', 'danger')
+                return render_template('recuperar_senha.html')
+
+        except Exception as e:
+            flash(f'Erro ao processar a recuperação: {str(e)}', 'danger')
+            return render_template('recuperar_senha.html')
+
+    # Se for GET, só mostra o formulário
     return render_template('recuperar_senha.html')
+
+@app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
+def redefinir_senha(token):
+    try:
+        data = serializer.loads(token, salt='recover', max_age=900)
+        user_id = data['user_id']
+    except Exception as e:
+        flash('Link inválido ou expirado.', 'danger')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        senha = request.form.get('senha', '').strip()
+        confirmar = request.form.get('confirmar', '').strip()
+        
+        if not senha or senha != confirmar:
+            flash('As senhas não conferem ou estão vazias.', 'danger')
+            return render_template('redefinir_senha.html', token=token)
+
+        senha_hash = bcrypt.generate_password_hash(senha).decode('utf-8')
+        
+        try:
+            db = mysql.connector.connect(**db_config)
+            cursor = db.cursor()
+            cursor.execute("UPDATE usuarios SET senha = %s WHERE id = %s", (senha_hash, user_id))
+            db.commit()
+            cursor.close()
+            db.close()
+            flash('Senha alterada com sucesso!', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash(f'Erro ao salvar senha: {str(e)}', 'danger')
+            return render_template('redefinir_senha.html', token=token)
+    
+    return render_template('redefinir_senha.html', token=token)
 
 @app.route('/logs')
 def logs():

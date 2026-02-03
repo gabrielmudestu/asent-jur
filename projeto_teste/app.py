@@ -26,18 +26,20 @@ from itsdangerous import URLSafeTimedSerializer
 
 app = Flask(__name__)
 
-app.secret_key = 'codego-super-secreta-2026-chave-muito-longa-aqui-mude-isso-em-producao!'
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback-local-key')
 app.config['SECRET_KEY'] = app.secret_key
+app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'development')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=8)
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 bcrypt = Bcrypt(app)
 
 # configurações que permitem o acesso ao BD do mySQL (credenciais de acesso)
 db_config = {
-    'host': '26.11.224.184',
-    'port': 3306,
-    'user': 'max',
-    'password': 'Joaolopes05',
-    'database': 'codego_db'
+    'host': os.environ.get('DB_HOST', '26.11.224.184'),
+    'port': int(os.environ.get('DB_PORT', 3306)),
+    'user': os.environ.get('DB_USER', 'max'),
+    'password': os.environ.get('DB_PASSWORD', 'Joaolopes05'),
+    'database': os.environ.get('DB_NAME', 'codego_db')
 }
 
 #  dados como são recebidos no banco de dados 

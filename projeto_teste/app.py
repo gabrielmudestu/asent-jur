@@ -1,12 +1,9 @@
 # flask faz ligação com o servidor Web e o inicia
 from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
-import pandas as pd
 import os
-import csv
 import mysql.connector
 from datetime import datetime, timedelta
 from io import BytesIO
-from werkzeug.utils import secure_filename
 
 # importações para realização do relatório
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageTemplate, Frame, Image, NextPageTemplate
@@ -21,7 +18,6 @@ from itsdangerous import URLSafeTimedSerializer
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
-import hashlib
 from itsdangerous import URLSafeTimedSerializer
 
 app = Flask(__name__)

@@ -1,0 +1,77 @@
+# =========================
+# PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =========================
+# VIRTUAL ENVIRONMENTS
+# =========================
+venv/
+.env/
+.envrc
+.venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# =========================
+# FLASK
+# =========================
+instance/
+.webassets-cache
+
+# arquivos de sessão/cache
+*.log
+*.sqlite3
+*.db
+
+# =========================
+# VARIÁVEIS DE AMBIENTE
+# =========================
+.env
+.env.*
+
+# =========================
+# IDE / EDITORES
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# SISTEMA OPERACIONAL
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# TESTES / COVERAGE
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# NODE (se usar frontend com npm)
+# =========================
+node_modules/

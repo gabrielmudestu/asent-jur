@@ -19,6 +19,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 from itsdangerous import URLSafeTimedSerializer
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -31,11 +33,11 @@ bcrypt = Bcrypt(app)
 
 # configurações que permitem o acesso ao BD do mySQL (credenciais de acesso)
 db_config = {
-    'host': os.environ.get('DB_HOST', '26.11.224.184'),
-    'port': int(os.environ.get('DB_PORT', 3306)),
-    'user': os.environ.get('DB_USER', 'max'),
-    'password': os.environ.get('DB_PASSWORD', 'Joaolopes05'),
-    'database': os.environ.get('DB_NAME', 'codego_db')
+    'host': os.environ.get('DB_HOST'),
+    'port': int(os.environ.get('DB_PORT')),
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'database': os.environ.get('DB_NAME')
 }
 
 #  dados como são recebidos no banco de dados 
@@ -264,6 +266,7 @@ def cadastro():
                     db.commit()
                     gravar_log(
                         acao=f"CADASTRO_EMPRESA (ID {empresa_id})",
+                        descricao = " | ".join([f"{campo}: {valor}" for campo, valor in dados.items()]),
                         usuario_username=session.get('username'),
                         db_conn=db
                     )
@@ -297,12 +300,12 @@ def cadastro():
                                 caminho_imagem = VALUES(caminho_imagem)
                         """, (empresa_id, descricao, caminho_imagem))
                         db.commit()
+                        gravar_log(
+                            acao=f"UPLOAD_IMAGEM_EMPRESA (empresa{empresa_id})",
+                            usuario_username=session.get('username'),
+                            db_conn=db
+                        )
             flash('Registro salvo com sucesso!', 'success')
-            gravar_log(
-                acao=f"UPLOAD_IMAGEM_EMPRESA (empresa{empresa_id})",
-                usuario_username=session.get('username'),
-                db_conn=db
-            )
             return redirect(url_for('cadastro'))
         except Exception as e:
             flash(f'Erro ao cadastrar: {e}', 'danger')

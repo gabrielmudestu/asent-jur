@@ -160,6 +160,13 @@
             object-fit: cover;
             display: block;
         }
+
+        .dashboard-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -199,7 +206,12 @@
             </div>
 
             <div class="dashboard-container">
-                <iframe title="PBI SocioEconomico" width="1230" height="700" src="https://app.powerbi.com/view?r=eyJrIjoiZTI0MWJjZmMtNmMyNC00OTE0LTkxMjgtMjI4OGJjN2M3YmM1IiwidCI6ImZmY2UxNmU0LTFmZTUtNDlhMS1iOWUxLTEwNzQ4YzFlZWRjNSJ9" frameborder="0" allowFullScreen="true"></iframe>
+                <iframe 
+                    title="PBI SocioEconomico"
+                    src="https://app.powerbi.com/view?r=eyJrIjoiZTI0MWJjZmMtNmMyNC00OTE0LTkxMjgtMjI4OGJjN2M3YmM1IiwidCI6ImZmY2UxNmU0LTFmZTUtNDlhMS1iOWUxLTEwNzQ4YzFlZWRjNSJ9&navContentPaneEnabled=false&filterPaneEnabled=false"
+                    allowfullscreen>
+                </iframe>
+
                 <!-- <img src="{{ url_for('static', filename='dashboard_estatico.jpg') }}" class="dashboard-img"> !-->
             </div>
         </div>

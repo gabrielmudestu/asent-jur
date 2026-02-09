@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
     
     <style>
         :root {
@@ -255,7 +258,7 @@
                     
                     <form method="post" action="/relatorio">
                         <label style="font-weight: 600; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecionar Empresa</label>
-                        <select name="empresa" class="form-select" required>
+                        <select id="select-empresa" name="empresa" class="form-select" required>
                             <option value="">Buscar empresa...</option>
                             {% for empresa in empresas %}
                                 <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
@@ -277,6 +280,17 @@
 
     <script>
         lucide.createIcons();
+
+        new TomSelect("#select-empresa", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Digite para buscar empresa...",
+            maxOptions: 1000
+        });
+
 
         document.addEventListener('DOMContentLoaded', function() {
             const selectEmpresa = document.querySelector('select[name="empresa"]');

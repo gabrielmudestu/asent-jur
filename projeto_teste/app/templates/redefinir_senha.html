@@ -36,7 +36,7 @@
             </p>
         </div>
 
-        <form method="POST" action="{{ url_for('redefinir_senha', token=token) }}" class="space-y-6">
+        <form method="POST" action="{{ url_for('auth.redefinir_senha', token=token) }}" class="space-y-6">
             <!-- Campo oculto do token -->
             <input type="hidden" name="token" value="{{ token }}">
 
@@ -79,7 +79,7 @@
         </form>
 
         <div class="mt-8 text-center border-t pt-6">
-            <a href="{{ url_for('login') }}"
+            <a href="{{ url_for('auth.login') }}"
                 class="text-sm text-blue-600 hover:text-primary-500 font-bold flex items-center justify-center gap-2">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 Voltar para o login

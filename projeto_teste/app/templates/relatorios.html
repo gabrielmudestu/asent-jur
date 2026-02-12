@@ -205,9 +205,9 @@
             </div>
 
             <div class="nav-menu">
-                <a href="{{ url_for('cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
-                <a href="{{ url_for('selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
-                <a href="{{ url_for('relatorios') }}" class="nav-button active">Gerar Relatório</a>
+                <a href="{{ url_for('cadastro.cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
+                <a href="{{ url_for('edicao.selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
+                <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button active">Gerar Relatório</a>
             </div>
             <div id="empresa-info" style="margin-top: 30px; width: 100%; display: none;">
                 <div style="text-align: center; margin-bottom: 10px;">
@@ -231,7 +231,7 @@
                     <span>Bem-vindo,</span> {{ session['username'] }}
                 </div>
                 
-                <a href="{{ url_for('logout') }}" class="btn-logout">
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Sair do Sistema
                 </a>

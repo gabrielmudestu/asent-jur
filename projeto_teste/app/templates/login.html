@@ -28,7 +28,7 @@
             {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-5">
+        <form action="{{ url_for('auth_login.login') }}" method="POST" class="space-y-5">
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Usuário</label>
                 <div class="relative">
@@ -55,10 +55,10 @@
                 </div>
             </div>
             <div class="flex flex-col items-center gap-2 mt-4 mb-2">
-    <a href="{{ url_for('auth.recuperar_senha') }}" class="text-[13px] text-blue-600 hover:underline font-mediums">
+    <a href="{{ url_for('auth_password.recuperar_senha') }}" class="text-[13px] text-blue-600 hover:underline font-mediums">
         Esqueceu a senha?
     </a>
-    <a href="{{ url_for('auth.registrar_usuario') }}" class="text-[13px] text-blue-600 hover:underline font-mediums">
+    <a href="{{ url_for('auth_user.registrar_usuario') }}" class="text-[13px] text-blue-600 hover:underline font-mediums">
         Não tem login? 
   
     </a>

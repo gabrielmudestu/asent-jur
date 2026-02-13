@@ -9,7 +9,7 @@ def role_required(*roles_permitidas):
             # não logado
             if 'username' not in session:
                 flash('Faça login primeiro.', 'warning')
-                return redirect(url_for('auth.login'))
+                return redirect(url_for('auth_login.login'))
 
             role_usuario = session.get('role')
 

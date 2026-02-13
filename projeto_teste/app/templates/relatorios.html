@@ -231,7 +231,7 @@
                     <span>Bem-vindo,</span> {{ session['username'] }}
                 </div>
                 
-                <a href="{{ url_for('auth.logout') }}" class="btn-logout">
+                <a href="{{ url_for('auth_login.logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Sair do Sistema
                 </a>

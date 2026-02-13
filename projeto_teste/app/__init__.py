@@ -1,5 +1,4 @@
-from flask import Flask, session, redirect, url_for, request
-from itsdangerous import URLSafeTimedSerializer
+from flask import Flask
 from dotenv import load_dotenv
 from app.extensions import bcrypt
 
@@ -11,7 +10,9 @@ def create_app():
     bcrypt.init_app(app)
 
     # registrar blueprints
-    from app.routes.auth import auth_bp
+    from app.routes.auth_login import auth_login_bp
+    from app.routes.auth_password import auth_password_bp
+    from app.routes.auth_user import auth_user_bp
     from app.routes.cadastro import cadastro_bp
     from app.routes.relatorios import relatorio_bp
     from app.routes.logs import logs_bp
@@ -19,7 +20,9 @@ def create_app():
     from app.routes.juridico import juridico_bp
     from app.routes.dashboard import dashboard_bp
 
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_login_bp)
+    app.register_blueprint(auth_password_bp)
+    app.register_blueprint(auth_user_bp)
     app.register_blueprint(cadastro_bp)
     app.register_blueprint(relatorio_bp)
     app.register_blueprint(logs_bp)

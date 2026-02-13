@@ -33,7 +33,7 @@ class AuthService:
         
         token = TokenService.gerar_token_recuperacao(user['id'])
 
-        reset_url = url_for('auth.redefinir_senha', token=token, _external=True)
+        reset_url = url_for('auth_password.redefinir_senha', token=token, _external=True)
 
         assunto = "Recuperação de senha - CODEGO"
 

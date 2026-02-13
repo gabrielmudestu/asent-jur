@@ -3,6 +3,8 @@ from app.db import get_db
 from app.services.log_service import gravar_log
 import os
 from app.utils.decorators import role_required
+from app.constants import colunas_map, campos_numericos
+from app.services.cadastro_service import CadastroService
 
 cadastro_bp = Blueprint("cadastro", __name__)
 
@@ -10,43 +12,8 @@ cadastro_bp = Blueprint("cadastro", __name__)
 @role_required('assent', 'admin')
 def cadastro():
     if request.method == 'POST':
-        colunas_map = {
-            'MUNICIPIO': 'municipio',
-            'DISTRITO': 'distrito',
-            'EMPRESA': 'empresa',
-            'CNPJ': 'cnpj',
-            'PROCESSO SEI': 'processo_sei',
-            'STATUS DE ASSENTAMENTO': 'status_de_assentamento',
-            'RAMO DE ATIVIDADE': 'ramo_de_atividade',
-            'EMPREGOS GERADOS': 'empregos_gerados',
-            'QUADRA': 'quadra',
-            'MÓDULO(S)': 'modulo_s',
-            'QTD. MÓDULOS': 'qtd_modulos',
-            'TAMANHO(M²)': 'tamanho_m2',
-            'MATRÍCULA(S)': 'matricula_s',
-            'OBSEVAÇÕES': 'obsevacoes',
-            'DATA ESCRITURAÇÃO': 'data_escrituracao',
-            'DATA CONTRATO DE COMPRA E VENDA': 'data_contrato_de_compra_e_venda',
-            'IRREGULARIDADES?': 'irregularidades',
-            'ÚLTIMA VISTORIA': 'ultima_vistoria',
-            'ATUALIZADO': 'atualizado',
-            'IMÓVEL REGULAR/IRREGULAR': 'imovel_regular_irregular',
-            'TAXA E OCUPAÇÃO DO IMÓVEL(%)': 'taxa_e_ocupacao_do_imovel',
-        }
 
-        campos_numericos = ['processo_sei', 'empregos_gerados', 'quadra', 'qtd_modulos', 'tamanho_m2', 'matricula_s', 'taxa_e_ocupacao_do_imovel']
-
-        dados = {}
-        for form_name, db_name in colunas_map.items():
-            valor = request.form.get(form_name, '')
-
-            if db_name in campos_numericos:
-                if valor.isdigit():
-                    dados[db_name] = int(valor)
-                else:
-                    dados[db_name] = '0'
-            else:
-                dados[db_name] = valor if valor else '-'
+        dados = CadastroService.normalizar_dados(request.form)
 
         empresa_id = None
             

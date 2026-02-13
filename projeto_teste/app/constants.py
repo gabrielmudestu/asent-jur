@@ -51,3 +51,29 @@ chaves_editaveis = COLUNAS[-4:]
 
 labels_fixas = {k: LABELS[k] for k in chaves_fixas}
 labels_editaveis = {k: LABELS[k] for k in chaves_editaveis}
+
+colunas_map = {
+    'MUNICIPIO': 'municipio',
+    'DISTRITO': 'distrito',
+    'EMPRESA': 'empresa',
+    'CNPJ': 'cnpj',
+    'PROCESSO SEI': 'processo_sei',
+    'STATUS DE ASSENTAMENTO': 'status_de_assentamento',
+    'RAMO DE ATIVIDADE': 'ramo_de_atividade',
+    'EMPREGOS GERADOS': 'empregos_gerados',
+    'QUADRA': 'quadra',
+    'MÓDULO(S)': 'modulo_s',
+    'QTD. MÓDULOS': 'qtd_modulos',
+    'TAMANHO(M²)': 'tamanho_m2',
+    'MATRÍCULA(S)': 'matricula_s',
+    'OBSEVAÇÕES': 'obsevacoes',
+    'DATA ESCRITURAÇÃO': 'data_escrituracao',
+    'DATA CONTRATO DE COMPRA E VENDA': 'data_contrato_de_compra_e_venda',
+    'IRREGULARIDADES?': 'irregularidades',
+    'ÚLTIMA VISTORIA': 'ultima_vistoria',
+    'ATUALIZADO': 'atualizado',
+    'IMÓVEL REGULAR/IRREGULAR': 'imovel_regular_irregular',
+    'TAXA E OCUPAÇÃO DO IMÓVEL(%)': 'taxa_e_ocupacao_do_imovel',
+}
+
+campos_numericos = ['processo_sei', 'empregos_gerados', 'quadra', 'qtd_modulos', 'tamanho_m2', 'matricula_s', 'taxa_e_ocupacao_do_imovel']

@@ -243,6 +243,7 @@
                     <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Selecione uma empresa da base de dados para gerar o documento PDF consolidado.</p>
                     
                     <form method="post" action="/relatorio">
+                        {{ form.hidden_tag() }}
                         <label style="font-weight: 600; font-size: 13px; color: #444; display: block; margin-bottom: 8px;">EMPRESA REGISTRADA</label>
                         <select id="select-empresa" name="empresa" class="form-select" required>
                             <option value="">Clique para selecionar...</option>

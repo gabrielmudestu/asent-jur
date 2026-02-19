@@ -37,6 +37,7 @@
         </div>
 
         <form method="POST" action="{{ url_for('auth_password.redefinir_senha', token=token) }}" class="space-y-6">
+            {{ form.hidden_tag() }}
             <!-- Campo oculto do token -->
             <input type="hidden" name="token" value="{{ token }}">
 

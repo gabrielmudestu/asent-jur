@@ -1,10 +1,14 @@
 from flask import Flask
 from dotenv import load_dotenv
-from app.extensions import bcrypt
+from app.extensions import bcrypt, limiter, csrf
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
+
+    limiter.init_app(app)
+    csrf.init_app(app)
 
     load_dotenv()
     bcrypt.init_app(app)

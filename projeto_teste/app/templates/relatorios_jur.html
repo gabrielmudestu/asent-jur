@@ -258,6 +258,7 @@
                     <p class="instrucao">Selecione a empresa para consolidar os dados cadastrais e as informações de processos judiciais em um PDF.</p>
                     
                     <form method="post" action="/relatorio">
+                        {{ form.hidden_tag() }}
                         <label style="font-weight: 600; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecionar Empresa</label>
                         <select id="select-empresa" name="empresa" class="form-select" required>
                             <option value="">Buscar empresa...</option>

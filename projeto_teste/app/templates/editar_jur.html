@@ -26,7 +26,7 @@
             </div>
 
             <form id="formEditarJur" action="{{ url_for('edicao.editar_jur', empresa_id=empresa_id) }}" method="POST" class="p-8">
-                
+                {{ form.hidden_tag() }}
                 <div class="mb-10">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
                         <i data-lucide="building-2" class="w-5 h-5"></i> 

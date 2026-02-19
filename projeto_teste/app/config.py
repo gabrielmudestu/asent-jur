@@ -2,6 +2,9 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev")
+    SESSION_COOKIE_SECURE = True      # só envia cookie em HTTPS
+    SESSION_COOKIE_HTTPONLY = True    # impede acesso via JS
+    SESSION_COOKIE_SAMESITE = "Lax"
     DB_HOST = os.getenv("DB_HOST")
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")

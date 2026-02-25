@@ -1,6 +1,5 @@
 from flask import render_template, request, flash, redirect, url_for, session, current_app, Blueprint
 from app.services.auth_service import AuthService
-from app.extensions import limiter
 
 auth_login_bp = Blueprint("auth_login", __name__)
 
@@ -9,7 +8,6 @@ def index():
     return render_template("login.html")
 
 @auth_login_bp.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
         username = request.form.get('username','').strip()

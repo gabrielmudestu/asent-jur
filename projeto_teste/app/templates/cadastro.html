@@ -48,7 +48,7 @@
         </div>
 
         <form action="{{ url_for('cadastro.cadastro') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
-            {{ form.hidden_tag() }}
+            
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}

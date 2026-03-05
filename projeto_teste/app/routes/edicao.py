@@ -34,7 +34,7 @@ def editar(empresa_id):
                 empresa = cursor.fetchone()
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
-                    return redirect(url_for('selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao'))
                 
                 if request.method == 'POST':
                     campos_numericos = [
@@ -93,7 +93,7 @@ def editar(empresa_id):
                         db_conn=db
                     )
                     flash('Alterações salvas!', 'success')
-                    return redirect(url_for('selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao'))
                 return render_template('editar.html', dados=empresa, colunas=chaves_fixas, labels=labels_fixas, empresa_id=empresa_id)
     except Exception as e:
         flash(f'Erro ao editar: {e}', 'danger')
@@ -109,7 +109,7 @@ def editar_jur(empresa_id):
                 empresa = cursor.fetchone()
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
-                    return redirect(url_for('selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao'))
                 
                 if request.method == 'POST':
                     campos = ['processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa']
@@ -143,8 +143,8 @@ def editar_jur(empresa_id):
                         db_conn=db
                     )
                     flash('Dados jurídicos atualizados!', 'success')
-                    return redirect(url_for('selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao'))
                 return render_template('editar_jur.html', dados=empresa, colunas_fixas=chaves_fixas, colunas_editaveis=chaves_editaveis, labels=labels_fixas, labels_editaveis=labels_editaveis, empresa_id=empresa_id)
     except Exception as e:
         flash(f'Erro ao editar jurídico: {e}', 'danger')
-        return redirect(url_for('selecionar_edicao'))
+        return redirect(url_for('edicao.selecionar_edicao'))

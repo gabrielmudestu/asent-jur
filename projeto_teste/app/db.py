@@ -10,3 +10,4 @@ def get_db():
         port=current_app.config["DB_PORT"],
         charset="utf8mb4"
     )
+    

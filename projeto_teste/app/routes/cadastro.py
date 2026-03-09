@@ -100,17 +100,16 @@ def cadastro_jur():
             flash(f'Erro ao salvar: {e}', 'danger')
 
     # Lógica GET: Busca empresas que não possuem dados jurídicos preenchidos
-    empresas_pendentes = []
+    empresas = []
     try:
         with get_db() as db:
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("""
                     SELECT id, empresa, cnpj FROM municipal_lots 
-                    WHERE (processo_judicial IS NULL OR processo_judicial = '' OR processo_judicial = '-')
-                    AND empresa != '-' ORDER BY empresa
+                    WHERE empresa != '-' ORDER BY empresa
                 """)
-                empresas_pendentes = cursor.fetchall()
+                empresas = cursor.fetchall()
     except Exception as e:
         print(f"Erro ao buscar empresas: {e}")
 
-    return render_template('cadastro_jur.html', empresas=empresas_pendentes, username=session.get('username'))
+    return render_template('cadastro_jur.html', empresas=empresas, username=session.get('username'))

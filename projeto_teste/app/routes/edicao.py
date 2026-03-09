@@ -13,7 +13,7 @@ def selecionar_edicao():
         with get_db() as db:
             with db.cursor(dictionary=True) as cursor:
                 cursor.execute("""
-                    SELECT id, municipio, empresa, cnpj 
+                    SELECT id, municipio, empresa, cnpj, processo_judicial, processo_sei
                     FROM municipal_lots 
                     WHERE empresa != '-'
                     ORDER BY empresa

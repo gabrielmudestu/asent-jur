@@ -124,9 +124,10 @@ let linhas = document.querySelectorAll(".linha-registro");
 linhas.forEach(function(linha){
 
 let textoVisivel = linha.innerText.toLowerCase();
-let processo = (linha.dataset.processo || "").toLowerCase();
+let processoJudicial = (linha.dataset.processo || "").toLowerCase();
+let processoSEI = (linha.dataset.sei || "").toLowerCase();
 
-if(textoVisivel.includes(filtro) || processo.includes(filtro)){
+if(textoVisivel.includes(filtro) || processoJudicial.includes(filtro) || processoSEI.includes(filtro)){
 linha.style.display = "";
 }else{
 linha.style.display = "none";

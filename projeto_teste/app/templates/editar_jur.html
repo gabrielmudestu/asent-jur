@@ -51,24 +51,79 @@
                         <i data-lucide="edit-3" class="w-5 h-5"></i> Campos Editáveis (Jurídico)
                     </h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {% for col in colunas_editaveis %}
-                            {% if col == 'assunto_judicial' or 'ASSUNTO' in col.upper() %}
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
-                                <textarea name="{{ col }}" rows="4" 
-                                    class="w-full p-3 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm"
-                                >{{ dados[col] or '' }}</textarea>
-                            </div>
-                            {% else %}
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ labels_editaveis.get(col, col) }}</label>
-                                <input type="text" name="{{ col }}" value="{{ dados[col] or '' }}" 
-                                    class="w-full p-3 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all shadow-sm">
-                            </div>
-                            {% endif %}
-                        {% endfor %}
+                    <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                    Processos Judiciais
+                    </label>
+
+                    <div id="lista-processos" class="space-y-4">
+
+                    {% for p in processos %}
+                    <div class="border border-red-200 rounded-xl overflow-hidden processo-card">
+
+                        <button type="button"
+                        onclick="toggleProcesso(this)"
+                        class="w-full flex justify-between items-center bg-red-100 px-4 py-3 font-bold text-red-800">
+
+                            Processo {{ loop.index }} — {{ p.numero_processo if p.numero_processo else 'Novo processo' }}
+
+                            <i data-lucide="chevron-down" class="icone-toggle w-5 h-5"></i>
+
+                        </button>
+
+                        <div class="conteudo-processo p-4 space-y-3 hidden">
+
+                            <label class="text-sm font-bold">Número do processo</label>
+                            <input type="text"
+                            name="numero_processo[]"
+                            value="{{ p.numero_processo }}"
+                            class="w-full p-2 border rounded">
+
+                            <label class="text-sm font-bold">Status</label>
+                            <select name="status[]" class="w-full p-2 border rounded">
+                                <option value="">Selecione...</option>
+                                {% for opcao in status_opcoes %}
+                                    <option value="{{ opcao }}"
+                                    {% if p.status == opcao %}selected{% endif %}>
+                                    {{ opcao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <label class="text-sm font-bold">Assunto Judicial</label>
+                            <textarea
+                            name="assunto_judicial[]"
+                            class="w-full p-2 border rounded">{{ p.assunto_judicial }}</textarea>
+
+                            <label class="text-sm font-bold">Valor da causa</label>
+                            <input type="text"
+                            name="valor_da_causa[]"
+                            value="{{ p.valor_da_causa }}"
+                            class="w-full p-2 border rounded">
+
+                            <button type="button"
+                            onclick="removerProcesso(this)"
+                            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                            Remover processo
+                            </button>
+
+                        </div>
+
                     </div>
+                    {% endfor %}
+
+                    </div>
+
+                    <button type="button"
+                    onclick="adicionarProcesso()"
+                    class="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
+
+                    <i data-lucide="plus"></i>
+                    Adicionar processo
+                    </button>
+
+                    </div>
+
                 </div>
 
                 <div class="mt-8 flex justify-end gap-4 border-t pt-6">
@@ -101,6 +156,83 @@
                 }
             }
         });
+
+        function adicionarProcesso(){
+
+        let container = document.getElementById("lista-processos");
+
+        let numero = container.children.length + 1;
+
+        let div = document.createElement("div");
+
+        div.className = "border border-red-200 rounded-xl overflow-hidden processo-card";
+
+        div.innerHTML = `
+
+        <button type="button"
+        onclick="toggleProcesso(this)"
+        class="w-full flex justify-between items-center bg-red-100 px-4 py-3 font-bold text-red-800">
+
+        Processo ${numero} — Novo processo
+
+        <i data-lucide="chevron-down" class="icone-toggle w-5 h-5"></i>
+
+        </button>
+
+        <div class="conteudo-processo p-4 space-y-3">
+
+        <label class="text-sm font-bold">Número do processo</label>
+        <input type="text" name="numero_processo[]" class="w-full p-2 border rounded">
+
+        <label class="text-sm font-bold">Status</label>
+        <select name="status[]" class="w-full p-2 border rounded">
+        <option value="">Selecione...</option>
+        <option value="ATIVO">ATIVO</option>
+        <option value="ARQUIVADO">ARQUIVADO</option>
+        <option value="SUSPENSO">SUSPENSO</option>
+        </select>
+
+        <label class="text-sm font-bold">Assunto Judicial</label>
+        <textarea name="assunto_judicial[]" class="w-full p-2 border rounded"></textarea>
+
+        <label class="text-sm font-bold">Valor da causa</label>
+        <input type="text" name="valor_da_causa[]" class="w-full p-2 border rounded">
+
+        <button type="button"
+        onclick="removerProcesso(this)"
+        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+        Remover processo
+        </button>
+
+        </div>
+        `;
+
+        container.appendChild(div);
+
+        lucide.createIcons();
+
+        }
+
+        function removerProcesso(botao){
+        
+        let card = botao.closest(".processo-card");
+
+        card.remove();
+
+        }
+
+        function toggleProcesso(botao){
+
+        let card = botao.parentElement;
+        let conteudo = card.querySelector(".conteudo-processo");
+        let icone = botao.querySelector(".icone-toggle");
+
+        conteudo.classList.toggle("hidden");
+
+        icone.classList.toggle("rotate-180");
+
+        }
+
     </script>
 </body>
 </html>

@@ -40,7 +40,51 @@
                                 {{ labels.get(col, col) }}
                             </label>
                             
-                            {% if 'OBSERVAÇÕES' in col.upper() or 'IRREGULARIDADES' in col.upper() or 'DESCRIÇÃO' in col.upper() or 'OBSEVACOES' in col.upper() %}
+                            {% if col == 'ramo_de_atividade' %}
+                            <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
+                                <option value="">Selecione...</option>
+                                {% for opcao in ramo_de_atividade_opcoes %}
+                                <option value="{{ opcao }}"
+                                {% if dados[col] == opcao %}selected{% endif %}>
+                                {{ opcao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            {% elif col == 'status_de_assentamento' %}
+                            <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
+                                <option value="">Selecione...</option>
+                                {% for opcao in status_de_assentamento_opcoes %}
+                                <option value="{{ opcao }}"
+                                {% if dados[col] == opcao %}selected{% endif %}>
+                                {{ opcao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            {% elif col == 'acao_judicial' %}
+                            <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
+                                <option value="">Selecione...</option>
+                                {% for opcao in acao_judicial_opcoes %}
+                                <option value="{{ opcao }}"
+                                {% if dados[col] == opcao %}selected{% endif %}>
+                                {{ opcao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            {% elif col == 'imovel_regular_irregular' %}
+                            <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
+                                <option value="">Selecione...</option>
+                                {% for opcao in imovel_opcoes %}
+                                <option value="{{ opcao }}"
+                                {% if dados[col] == opcao %}selected{% endif %}>
+                                {{ opcao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            {% elif 'OBSERVAÇÕES' in col.upper() or 'IRREGULARIDADES' in col.upper() or 'DESCRIÇÃO' in col.upper() or 'OBSEVACOES' in col.upper() %}
                             <textarea name="{{ col }}" rows="2" 
                                 class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50"
                             >{{ dados[col] if dados[col] != '-' else '' }}</textarea>

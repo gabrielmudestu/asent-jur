@@ -10,6 +10,9 @@ edicao_bp = Blueprint("edicao", __name__)
 @edicao_bp.route('/selecionar_edicao')
 @role_required('assent', 'admin', 'jur')
 def selecionar_edicao():
+
+    modo = 'jur' if request.referrer and 'menu_jur' in request.referrer else 'assent'
+
     try:
         with get_db() as db:
             with db.cursor(dictionary=True) as cursor:
@@ -23,7 +26,7 @@ def selecionar_edicao():
     except Exception as err:
         dados = []
         print(f"Erro ao buscar dados: {err}")
-    return render_template('selecionar_edicao.html', dados=dados, role=session.get('role'))
+    return render_template('selecionar_edicao.html', dados=dados, modo=modo)
 
 @edicao_bp.route('/editar/<int:empresa_id>', methods=['GET', 'POST'])
 @role_required('assent', 'admin')

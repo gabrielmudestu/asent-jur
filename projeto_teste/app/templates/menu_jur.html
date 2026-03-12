@@ -180,6 +180,11 @@
                 <div class="welcome-text">
                     <span> Bem-vindo,</span>{{ session['username'] }}
                 </div>
+                {% if session.get('role') == 'admin' %}
+                    <a href="{{ url_for('dashboard.menu') }}" class="btn-topbar btn-logs">
+                        Alternar Menu
+                    </a>
+                {% endif %}
                 
                 <a href="{{ url_for('auth_login.logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>

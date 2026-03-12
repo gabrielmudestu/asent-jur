@@ -193,6 +193,9 @@
                 
                 <div class="topbar-actions">
                     {% if session.get('role') == 'admin' %}
+                    <a href="{{ url_for('dashboard.menu_jur') }}" class="btn-topbar btn-logs">
+                        Alternar Menu
+                    </a>
                     <a href="{{ url_for('logs.logs') }}" class="btn-topbar btn-logs">
                         <i data-lucide="database-zap" class="w-4 h-4"></i>
                         Logs do Sistema

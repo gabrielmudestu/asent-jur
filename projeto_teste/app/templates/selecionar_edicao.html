@@ -21,15 +21,15 @@
 <div class="bg-white rounded-t-2xl p-6 shadow-xl border-b flex flex-col md:flex-row justify-between items-center gap-4">
 
 <div class="flex items-center gap-4">
-<div class="p-3 {% if role == 'jur' %}bg-red-50 text-red-600{% else %}bg-blue-50 text-[#002b5c]{% endif %} rounded-full">
+<div class="p-3 {% if modo == 'jur' %}bg-red-50 text-red-600{% else %}bg-blue-50 text-[#002b5c]{% endif %} rounded-full">
 <i data-lucide="search" class="w-6 h-6"></i>
 </div>
 
 <div>
 <h1 class="text-xl font-bold text-[#002b5c]">Selecionar Registro</h1>
 <p class="text-xs text-gray-500 font-medium">MODO:
-<span class="{% if role == 'jur' %}text-red-600{% else %}text-blue-600{% endif %} uppercase">
-{{ 'Edição Jurídica' if role == 'jur' else 'Edição de Assentamento' }}
+<span class="{% if modo == 'jur' %}text-red-600{% else %}text-blue-600{% endif %} uppercase">
+{{ 'Edição Jurídica' if modo == 'jur' else 'Edição de Assentamento' }}
 </span>
 </p>
 </div>
@@ -46,7 +46,7 @@ placeholder="Pesquisar município, empresa, CNPJ ou processo..."
 class="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#002b5c] outline-none">
 </div>
 
-<a href="{{ url_for('dashboard.menu_jur' if role == 'jur' else 'dashboard.menu') }}"
+<a href="{{ url_for('dashboard.menu_jur' if modo == 'jur' else 'dashboard.menu') }}"
 class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
 <i data-lucide="corner-up-left" class="w-4 h-4"></i> VOLTAR AO MENU
 </a>
@@ -79,7 +79,7 @@ data-sei="{{ item.processo_sei }}">
 <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ item['cnpj'] }}</td>
 <td class="px-6 py-4 text-center">
 
-{% if role == 'jur' %}
+{% if modo == 'jur' %}
 <a href="{{ url_for('edicao.editar_jur', empresa_id=item['id']) }}"
 class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
 <i data-lucide="gavel" class="w-4 h-4"></i> EDITAR JURÍDICO

@@ -172,6 +172,13 @@
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>
                 <a href="{{ url_for('edicao.selecionar_edicao') }}" class="nav-button">Editar Processos</a>
                 <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button">Gerar Relatório</a>
+
+                {% if session.get('role') == 'jur' %}
+    <a href="{{ url_for('auth_user.registrar_colaborador') }}" class="nav-button" style="background-color: var(--button-red); margin-top: 10px;">
+        <i data-lucide="user-plus" class="w-4 h-4 inline-block mr-2"></i>
+        Registrar Usuário
+    </a>
+    {% endif %}
             </div>
         </div>
 

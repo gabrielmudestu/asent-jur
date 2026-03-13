@@ -116,7 +116,9 @@ Equipe CODEGO
             "admin": "admin",
             "Gestor - Jurídico": "jur",
         "Gestor - Assentamento": "assent",
-          "Administrador": "admin"
+          "Administrador": "admin" ,
+          "Usuário - Jurídico": "user_jur",      
+         "Usuário - Assentamento": "user_assent", 
 
         }
 

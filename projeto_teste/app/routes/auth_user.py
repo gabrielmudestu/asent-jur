@@ -1,5 +1,6 @@
-from flask import render_template, request, flash, redirect, url_for, current_app, Blueprint
+from flask import render_template, request, flash, redirect, session, url_for, current_app, Blueprint
 from app.services.auth_service import AuthService
+from app.utils.decorators import role_required
 
 auth_user_bp = Blueprint("auth_user", __name__)
 
@@ -20,3 +21,19 @@ def registrar_usuario():
             flash('Erro interno. Contate o administrador.', 'danger')
 
     return render_template('registrar_usuario.html')
+
+@auth_user_bp.route('/registrar-colaborador')
+@role_required('assent', 'jur', 'admin') # Garantindo que só gestores acessem
+def registrar_colaborador():
+    role = session.get('role')
+    
+    # Define o departamento automático baseado na role do gestor
+    if role == 'jur':
+        depto_predefinido = "Usuário - Jurídico"
+    elif role == 'assent':
+        depto_predefinido = "Usuário - Assentamento"
+    else:
+        # Se for admin acessando por aqui, podemos deixar um padrão ou redirecionar
+        depto_predefinido = "Administrador"
+        
+    return render_template('registrar_colaborador.html', depto=depto_predefinido)

@@ -113,7 +113,11 @@ Equipe CODEGO
         ROLE_MAP = {
             "Jurídico": "jur",
             "Assentamento": "assent",
-            "admin": "admin"
+            "admin": "admin",
+            "Gestor - Jurídico": "jur",
+        "Gestor - Assentamento": "assent",
+          "Administrador": "admin"
+
         }
 
         session['username'] = usuario['login']

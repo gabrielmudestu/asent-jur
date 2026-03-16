@@ -95,7 +95,7 @@ def cadastro_jur():
                     db.commit()
                     gravar_log(f"CADASTRO_JURIDICO_INICIAL (ID {empresa_id})", db_conn=db)
             flash('Informações jurídicas adicionadas com sucesso!', 'success')
-            return redirect(url_for('menu_jur'))
+            return redirect(url_for('dashboard.menu', modo='jur'))
         except Exception as e:
             flash(f'Erro ao salvar: {e}', 'danger')
 

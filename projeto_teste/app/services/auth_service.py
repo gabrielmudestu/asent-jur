@@ -128,5 +128,5 @@ Equipe CODEGO
     @staticmethod
     def redirect_por_role(role):
         if role == 'jur':
-            return redirect(url_for('dashboard.menu_jur'))
-        return redirect(url_for('dashboard.menu'))
+            return redirect(url_for('dashboard.menu', modo='jur'))
+        return redirect(url_for('dashboard.menu', modo='assent'))

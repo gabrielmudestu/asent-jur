@@ -206,7 +206,7 @@
 
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
-                <a href="{{ url_for('edicao.selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
+                <a href="{{ url_for('edicao.selecionar_edicao', modo='assent') }}" class="nav-button">Editar Cadastro</a>
                 <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button active">Gerar Relatório</a>
             </div>
             <div id="empresa-info" style="margin-top: 30px; width: 100%; display: none;">

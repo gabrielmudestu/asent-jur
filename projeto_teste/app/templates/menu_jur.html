@@ -170,7 +170,7 @@
             </div>
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>
-                <a href="{{ url_for('edicao.selecionar_edicao') }}" class="nav-button">Editar Processos</a>
+                <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="nav-button">Editar Processos</a>
                 <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button">Gerar Relatório</a>
 
                 {% if session.get('role') == 'jur' %}
@@ -188,7 +188,7 @@
                     <span> Bem-vindo,</span>{{ session['username'] }}
                 </div>
                 {% if session.get('role') == 'admin' %}
-                    <a href="{{ url_for('dashboard.menu') }}" class="btn-topbar btn-logs">
+                    <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="btn-topbar btn-logs">
                         Alternar Menu
                     </a>
                 {% endif %}

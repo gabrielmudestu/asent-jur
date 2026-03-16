@@ -3,12 +3,11 @@ from app.utils.decorators import role_required
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
-@dashboard_bp.route('/menu')
-@role_required('assent', 'admin')
-def menu():
+@dashboard_bp.route('/menu/<modo>')
+@role_required('assent', 'jur', 'admin')
+def menu(modo):
+    
+    if modo == "jur":
+        return render_template('menu_jur.html')
+    
     return render_template('menu.html')
-
-@dashboard_bp.route('/menu_jur')
-@role_required('jur', 'admin')
-def menu_jur():
-    return render_template('menu_jur.html')

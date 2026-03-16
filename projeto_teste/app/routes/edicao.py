@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, abort
 from app.db import get_db
 from app.services.log_service import gravar_log
 from app.constants import COLUNAS, LABELS, chaves_fixas, labels_fixas, chaves_editaveis, labels_editaveis, ramo_de_atividade_opcoes, status_opcoes, status_de_assentamento_opcoes, acao_judicial_opcoes, imovel_opcoes
@@ -7,11 +7,17 @@ from app.utils.decorators import role_required
 
 edicao_bp = Blueprint("edicao", __name__)
 
-@edicao_bp.route('/selecionar_edicao')
+@edicao_bp.route('/selecionar_edicao/<modo>')
 @role_required('assent', 'admin', 'jur')
-def selecionar_edicao():
+def selecionar_edicao(modo):
 
-    modo = 'jur' if request.referrer and 'menu_jur' in request.referrer else 'assent'
+    role = session.get('role')
+
+    if modo == 'assent' and role not in ['assent', 'admin']:
+        abort(403)
+
+    if modo == 'jur' and role not in ['jur', 'admin']:
+        abort(403)
 
     try:
         with get_db() as db:
@@ -38,7 +44,7 @@ def editar(empresa_id):
                 empresa = cursor.fetchone()
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
-                    return redirect(url_for('edicao.selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
                 
                 if request.method == 'POST':
                     campos_numericos = [
@@ -97,11 +103,11 @@ def editar(empresa_id):
                         db_conn=db
                     )
                     flash('Alterações salvas!', 'success')
-                    return redirect(url_for('edicao.selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
                 return render_template('editar.html', dados=empresa, colunas=chaves_fixas, labels=labels_fixas, empresa_id=empresa_id, ramo_de_atividade_opcoes=ramo_de_atividade_opcoes, status_de_assentamento_opcoes=status_de_assentamento_opcoes, imovel_opcoes=imovel_opcoes, acao_judicial_opcoes=acao_judicial_opcoes)
     except Exception as e:
         flash(f'Erro ao editar: {e}', 'danger')
-        return redirect(url_for('edicao.selecionar_edicao'))
+        return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
     
 @edicao_bp.route('/editar_jur/<int:empresa_id>', methods=['GET', 'POST'])
 @role_required('jur', 'admin')
@@ -113,7 +119,7 @@ def editar_jur(empresa_id):
                 empresa = cursor.fetchone()
                 if not empresa:
                     flash('Empresa não encontrada.', 'danger')
-                    return redirect(url_for('edicao.selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao', modo='jur'))
                 
                 cursor.execute("""
                 SELECT id, numero_processo, status, assunto_judicial, valor_da_causa
@@ -171,8 +177,8 @@ def editar_jur(empresa_id):
 
                     flash('Processos atualizados!', 'success')
 
-                    return redirect(url_for('edicao.selecionar_edicao'))
+                    return redirect(url_for('edicao.selecionar_edicao', modo='jur'))
                 return render_template('editar_jur.html', dados=empresa, processos=processos, colunas_fixas=chaves_fixas, colunas_editaveis=chaves_editaveis, labels=labels_fixas, labels_editaveis=labels_editaveis, empresa_id=empresa_id, status_opcoes=status_opcoes)
     except Exception as e:
         flash(f'Erro ao editar jurídico: {e}', 'danger')
-        return redirect(url_for('edicao.selecionar_edicao'))
+        return redirect(url_for('edicao.selecionar_edicao', modo='jur'))

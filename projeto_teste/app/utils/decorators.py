@@ -16,7 +16,7 @@ def role_required(*roles_permitidas):
             # sem permissão
             if role_usuario not in roles_permitidas:
                 flash('Você não tem permissão para acessar esta página.', 'danger')
-                return redirect(url_for('dashboard.menu'))
+                return "Acesso negado", 403
 
             return func(*args, **kwargs)
 

@@ -180,7 +180,7 @@
 
             <div class="nav-menu">
     <a href="{{ url_for('cadastro.cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
-    <a href="{{ url_for('edicao.selecionar_edicao') }}" class="nav-button">Editar Cadastro</a>
+    <a href="{{ url_for('edicao.selecionar_edicao', modo='assent') }}" class="nav-button">Editar Cadastro</a>
     <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button">Gerar Relatório</a>
 
     {% if session.get('role') == 'admin' %}
@@ -210,7 +210,7 @@
                 
                 <div class="topbar-actions">
                     {% if session.get('role') == 'admin' %}
-                    <a href="{{ url_for('dashboard.menu_jur') }}" class="btn-topbar btn-logs">
+                    <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="btn-topbar btn-logs">
                         Alternar Menu
                     </a>
                     <a href="{{ url_for('logs.logs') }}" class="btn-topbar btn-logs">

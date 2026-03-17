@@ -173,7 +173,7 @@
                 <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="nav-button">Editar Processos</a>
                 <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button">Gerar Relatório</a>
 
-                {% if session.get('role') == 'jur' %}
+                {% if session.get('role') == 'jur_gestor' %}
     <a href="{{ url_for('auth_user.registrar_colaborador') }}" class="nav-button" style="background-color: var(--button-red); margin-top: 10px;">
         <i data-lucide="user-plus" class="w-4 h-4 inline-block mr-2"></i>
         Registrar Usuário

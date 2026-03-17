@@ -190,7 +190,7 @@
     </a>
     
     {% endif %}
-    {% if session.get('role') == 'assent' %}
+    {% if session.get('role') == 'assent_gestor' %}
     <a href="{{ url_for('auth_user.registrar_colaborador') }}" class="nav-button" style="background-color: #10b981; margin-top: 10px;">
         <i data-lucide="user-plus" class="w-4 h-4 inline-block mr-2"></i>
         Registrar Usuário

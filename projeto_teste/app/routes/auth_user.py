@@ -23,14 +23,14 @@ def registrar_usuario():
     return render_template('registrar_usuario.html')
 
 @auth_user_bp.route('/registrar-colaborador')
-@role_required('assent', 'jur', 'admin') # Garantindo que só gestores acessem
+@role_required('assent_gestor', 'jur_gestor', 'admin') # Garantindo que só gestores acessem
 def registrar_colaborador():
     role = session.get('role')
     
     # Define o departamento automático baseado na role do gestor
-    if role == 'jur':
+    if role == 'jur_gestor':
         depto_predefinido = "Usuário - Jurídico"
-    elif role == 'assent':
+    elif role == 'assent_gestor':
         depto_predefinido = "Usuário - Assentamento"
     else:
         # Se for admin acessando por aqui, podemos deixar um padrão ou redirecionar

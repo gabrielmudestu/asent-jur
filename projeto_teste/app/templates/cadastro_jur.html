@@ -73,6 +73,20 @@ class="w-full p-3 border rounded-lg">
 </div>
 
 <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-2">
+        Tipo de Processo
+    </label>
+
+    <select name="tipo_processo" required
+    class="w-full p-3 border rounded-lg">
+        <option value="">-- Selecione o tipo de processo --</option>
+        <option value="trabalhista">Trabalhista</option>
+        <option value="civel">Cível</option>
+        <option value="criminal">Criminal</option>
+    </select>
+</div>
+
+<div>
 <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
 <input type="text" name="status" required
 class="w-full p-3 border rounded-lg">
@@ -90,6 +104,36 @@ class="w-full p-3 border rounded-lg">
 <label class="block text-sm font-semibold text-gray-700 mb-2">Assunto Judicial</label>
 <textarea name="assunto_judicial" required rows="3"
 class="w-full p-3 border rounded-lg"></textarea>
+</div>
+
+<label class="flex items-center gap-3 cursor-pointer mt-4">
+    <input type="checkbox" id="recurso_acionado" name="recurso_acionado" class="hidden peer">
+    
+    <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition">
+        <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 peer-checked:translate-x-5 transition"></div>
+    </div>
+
+    <span class="text-sm font-semibold text-gray-700">
+        Recurso acionado?
+    </span>
+</label>
+
+<div id="campo-recurso" class="hidden mt-4">
+    
+    <label class="block text-sm font-semibold text-gray-700 mb-2">
+        Tipo de Recurso
+    </label>
+    
+    <select name="tipo_recurso"
+    class="w-full p-3 border rounded-lg">
+        <option value="">-- Selecione o tipo de recurso --</option>
+        <option value="apelacao">Apelação</option>
+        <option value="agravo">Agravo</option>
+        <option value="embargos">Embargos</option>
+        <option value="recurso_especial">Recurso Especial</option>
+        <option value="recurso_extraordinario">Recurso Extraordinário</option>
+    </select>
+
 </div>
 
 <div class="mt-10 flex justify-end gap-4 border-t pt-6">
@@ -182,6 +226,17 @@ return `<div>${escape(nome)}</div>`;
 
 }
 
+});
+
+const checkbox = document.getElementById("recurso_acionado");
+const campoRecurso = document.getElementById("campo-recurso");
+
+checkbox.addEventListener("change", function () {
+    if (this.checked) {
+        campoRecurso.classList.remove("hidden");
+    } else {
+        campoRecurso.classList.add("hidden");
+    }
 });
 
 </script>

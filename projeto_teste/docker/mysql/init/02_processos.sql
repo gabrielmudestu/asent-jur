@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS processos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT SERIAL PRIMARY KEY,
     empresa_id INT NOT NULL,
 
     numero_processo VARCHAR(120) NOT NULL,

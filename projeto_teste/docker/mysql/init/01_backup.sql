@@ -71,11 +71,11 @@ DROP TABLE IF EXISTS `logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `logs` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL SERIAL,
   `user_id` int DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
   `action` text,
-  `timestamp` datetime DEFAULT CURRENT_TIMESTAMP,
+  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `descricao` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -99,7 +99,7 @@ DROP TABLE IF EXISTS `municipal_lots`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `municipal_lots` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL SERIAL,
   `municipio` varchar(50) DEFAULT NULL,
   `distrito` varchar(50) DEFAULT NULL,
   `empresa` varchar(50) DEFAULT NULL,
@@ -152,7 +152,7 @@ DROP TABLE IF EXISTS `usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `usuarios` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL SERIAL,
   `nome` varchar(100) NOT NULL,
   `login` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,

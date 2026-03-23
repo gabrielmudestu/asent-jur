@@ -8,15 +8,15 @@ from app.utils.decorators import role_required
 edicao_bp = Blueprint("edicao", __name__)
 
 @edicao_bp.route('/selecionar_edicao/<modo>')
-@role_required('assent', 'admin', 'jur')
+@role_required('assent', 'admin', 'jur', 'assent_gestor','jur_gestor')
 def selecionar_edicao(modo):
 
     role = session.get('role')
 
-    if modo == 'assent' and role not in ['assent', 'admin']:
+    if modo == 'assent' and role not in ['assent', 'admin', 'assent_gestor']:
         abort(403)
 
-    if modo == 'jur' and role not in ['jur', 'admin']:
+    if modo == 'jur' and role not in ['jur', 'admin','jur_gestor']:
         abort(403)
 
     try:
@@ -35,7 +35,7 @@ def selecionar_edicao(modo):
     return render_template('selecionar_edicao.html', dados=dados, modo=modo)
 
 @edicao_bp.route('/editar/<int:empresa_id>', methods=['GET', 'POST'])
-@role_required('assent', 'admin')
+@role_required('assent', 'admin', 'assent_gestor')
 def editar(empresa_id):
     try:
         with get_db() as db:
@@ -110,7 +110,7 @@ def editar(empresa_id):
         return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
     
 @edicao_bp.route('/editar_jur/<int:empresa_id>', methods=['GET', 'POST'])
-@role_required('jur', 'admin')
+@role_required('jur', 'admin' 'assent_gestor','jur_gestor')
 def editar_jur(empresa_id):
     try:
         with get_db() as db:

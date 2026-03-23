@@ -75,7 +75,7 @@ def cadastro():
     return render_template('cadastro.html', username=session.get('username'))
 
 @cadastro_bp.route('/cadastro_jur', methods=['GET', 'POST'])
-@role_required('jur', 'admin','assent_gestor','jur_gestor')
+@role_required('jur', 'admin','jur_gestor')
 def cadastro_jur():
     if request.method == 'POST':
         empresa_id = request.form.get('empresa_id')

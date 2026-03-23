@@ -79,6 +79,14 @@
                             value="{{ p.numero_processo }}"
                             class="w-full p-2 border rounded">
 
+                            <label class="text-sm font-bold">Tipo de Processo</label>
+                            <select name="tipo_processo[]" class="w-full p-2 border rounded tipo-processo">
+                                <option value="">Selecione...</option>
+                                <option value="trabalhista" {% if p.tipo_processo == 'trabalhista' %}selected{% endif %}>Trabalhista</option>
+                                <option value="civel" {% if p.tipo_processo == 'civel' %}selected{% endif %}>Cível</option>
+                                <option value="criminal" {% if p.tipo_processo == 'criminal' %}selected{% endif %}>Criminal</option>
+                            </select>
+
                             <label class="text-sm font-bold">Status</label>
                             <select name="status[]" class="w-full p-2 border rounded">
                                 <option value="">Selecione...</option>
@@ -100,6 +108,24 @@
                             name="valor_da_causa[]"
                             value="{{ p.valor_da_causa }}"
                             class="w-full p-2 border rounded">
+
+                            <div class="flex items-center gap-2 mt-2">
+                                <input type="checkbox"
+                                    name="recurso_acionado[]"
+                                    class="recurso-checkbox"
+                                    {% if p.recurso_acionado %}checked{% endif %}>
+                                <label class="text-sm font-bold">Recurso acionado?</label>
+                            </div>
+
+                            <div class="campo-recurso mt-2 {% if not p.recurso_acionado %}hidden{% endif %}">
+                                <label class="text-sm font-bold">Tipo de Recurso</label>
+                                <select name="tipo_recurso[]" class="w-full p-2 border rounded">
+                                    <option value="">Selecione...</option>
+                                    <option value="apelacao" {% if p.tipo_recurso == 'apelacao' %}selected{% endif %}>Apelação</option>
+                                    <option value="agravo" {% if p.tipo_recurso == 'agravo' %}selected{% endif %}>Agravo</option>
+                                    <option value="embargos" {% if p.tipo_recurso == 'embargos' %}selected{% endif %}>Embargos</option>
+                                </select>
+                            </div>
 
                             <button type="button"
                             onclick="removerProcesso(this)"
@@ -184,6 +210,14 @@
         <label class="text-sm font-bold">Número do processo</label>
         <input type="text" name="numero_processo[]" class="w-full p-2 border rounded">
 
+        <label class="text-sm font-bold">Tipo de Processo</label>
+        <select name="tipo_processo[]" class="w-full p-2 border rounded tipo-processo">
+        <option value="">Selecione...</option>
+        <option value="trabalhista">Trabalhista</option>
+        <option value="civel">Cível</option>
+        <option value="criminal">Criminal</option>
+        </select>
+
         <label class="text-sm font-bold">Status</label>
         <select name="status[]" class="w-full p-2 border rounded">
         <option value="">Selecione...</option>
@@ -197,6 +231,23 @@
 
         <label class="text-sm font-bold">Valor da causa</label>
         <input type="text" name="valor_da_causa[]" class="w-full p-2 border rounded">
+
+        <div class="flex items-center gap-2 mt-2">
+        <input type="checkbox"
+        name="recurso_acionado[]"
+        class="recurso-checkbox">
+        <label class="text-sm font-bold">Recurso acionado?</label>
+        </div>
+
+        <div class="campo-recurso mt-2">
+        <label class="text-sm font-bold">Tipo de Recurso</label>
+        <select name="tipo_recurso[]" class="w-full p-2 border rounded">
+        <option value="">Selecione...</option>
+        <option value="apelacao">Apelação</option>
+        <option value="agravo">Agravo</option>
+        <option value="embargos">Embargos</option>
+        </select>
+        </div>
 
         <button type="button"
         onclick="removerProcesso(this)"
@@ -233,6 +284,40 @@
 
         }
 
+        document.addEventListener("change", function(e){
+
+        // CHECKBOX DE RECURSO
+        if(e.target.classList.contains("recurso-checkbox")){
+
+            let card = e.target.closest(".processo-card");
+            let campo = card.querySelector(".campo-recurso");
+
+            if(e.target.checked){
+                campo.classList.remove("hidden");
+            } else {
+                campo.classList.add("hidden");
+            }
+
+        }
+
+        // TIPO DE PROCESSO
+        if(e.target.classList.contains("tipo-processo")){
+
+            let card = e.target.closest(".processo-card");
+            let checkbox = card.querySelector(".recurso-checkbox");
+            let campo = card.querySelector(".campo-recurso");
+
+            if(e.target.value === "judicial"){
+                checkbox.parentElement.classList.remove("hidden");
+            } else {
+                checkbox.parentElement.classList.add("hidden");
+                campo.classList.add("hidden");
+                checkbox.checked = false;
+            }
+
+        }
+
+        });
     </script>
 </body>
 </html>

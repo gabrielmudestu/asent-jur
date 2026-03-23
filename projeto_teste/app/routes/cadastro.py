@@ -9,7 +9,7 @@ from app.services.cadastro_service import CadastroService
 cadastro_bp = Blueprint("cadastro", __name__)
 
 @cadastro_bp.route('/cadastro', methods=['GET', 'POST'])
-@role_required('assent', 'admin')
+@role_required('assent', 'admin','assent_gestor','jur_gestor')
 def cadastro():
     if request.method == 'POST':
 
@@ -75,7 +75,7 @@ def cadastro():
     return render_template('cadastro.html', username=session.get('username'))
 
 @cadastro_bp.route('/cadastro_jur', methods=['GET', 'POST'])
-@role_required('jur', 'admin')
+@role_required('jur', 'admin''assent_gestor','jur_gestor')
 def cadastro_jur():
     if request.method == 'POST':
         empresa_id = request.form.get('empresa_id')

@@ -49,9 +49,15 @@
             z-index: 10;
         }
 
+        .logo-link {
+            display: inline-block;
+            cursor: pointer;
+        }
+
         .logo-container img {
             width: 200px;
             margin-bottom: 30px;
+            display: block;
         }
 
         .nav-menu {
@@ -116,9 +122,13 @@
             margin-right: 5px;
         }
 
-        /* Botão de Logout Sólido */
-        .btn-logout {
-            background-color: var(--logout-red);
+        .topbar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-topbar {
             color: white;
             text-decoration: none;
             padding: 10px 22px;
@@ -133,10 +143,27 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* Botão de Logout Sólido */
+        .btn-logout {
+            background-color: var(--logout-red);
+        }
+
         .btn-logout:hover {
             background-color: var(--logout-red-hover);
             transform: translateY(-2px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-switch-menu {
+            background: linear-gradient(135deg, #f7cf63, #e7a73a);
+            color: #1a202c;
+            border: none;
+        }
+
+        .btn-switch-menu:hover {
+            background: linear-gradient(135deg, #efbe49, #d78f1d);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
         }
 
         /* CONTAINER DO DASHBOARD */
@@ -166,7 +193,9 @@
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="logo-link" aria-label="Voltar ao menu jurídico">
+                    <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                </a>
             </div>
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>
@@ -187,16 +216,20 @@
                 <div class="welcome-text">
                     <span> Bem-vindo,</span>{{ session['username'] }}
                 </div>
-                {% if session.get('role') == 'admin' %}
-                    <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="btn-topbar btn-logs">
-                        Alternar Menu
+
+                <div class="topbar-actions">
+                    {% if session.get('role') == 'admin' %}
+                        <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="btn-topbar btn-switch-menu">
+                            <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                            Alternar Menu
+                        </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('auth_login.logout') }}" class="btn-topbar btn-logout">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Sair do Sistema
                     </a>
-                {% endif %}
-                
-                <a href="{{ url_for('auth_login.logout') }}" class="btn-logout">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Sair do Sistema
-                </a>
+                </div>
             </div>
             
             <div class="dashboard-container">

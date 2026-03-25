@@ -55,8 +55,14 @@
             text-align: center;
         }
 
+        .logo-link {
+            display: inline-block;
+            cursor: pointer;
+        }
+
         .logo-container img {
             width: 200px;
+            display: block;
         }
 
         .nav-menu {
@@ -201,7 +207,9 @@
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="logo-link" aria-label="Voltar ao menu principal">
+                    <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                </a>
             </div>
 
             <div class="nav-menu">

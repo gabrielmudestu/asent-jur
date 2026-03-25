@@ -52,9 +52,15 @@
             z-index: 10;
         }
 
+        .logo-link {
+            display: inline-block;
+            cursor: pointer;
+        }
+
         .logo-container img {
             width: 200px;
             margin-bottom: 30px;
+            display: block;
         }
 
         .nav-menu {
@@ -217,7 +223,9 @@
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="logo-link" aria-label="Voltar ao menu jurídico">
+                    <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                </a>
             </div>
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>

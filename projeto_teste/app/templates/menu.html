@@ -54,8 +54,14 @@
             text-align: center;
         }
 
+        .logo-link {
+            display: inline-block;
+            cursor: pointer;
+        }
+
         .logo-container img {
             width: 200px;
+            display: block;
         }
 
         .nav-menu {
@@ -143,6 +149,17 @@
         .btn-logout { background-color: var(--logout-red); }
         .btn-logout:hover { background-color: var(--logout-red-hover); transform: translateY(-2px); }
 
+        .btn-switch-menu {
+            background: linear-gradient(135deg, #f7cf63, #e7a73a);
+            color: #1a202c;
+            border: none;
+        }
+
+        .btn-switch-menu:hover {
+            background: linear-gradient(135deg, #efbe49, #d78f1d);
+            transform: translateY(-2px);
+        }
+
         /* Botão de Logs exclusivo Admin */
         .btn-logs { background-color: var(--admin-amber); color: #1a202c; border: none; }
         .btn-logs:hover { background-color: #d97706; transform: translateY(-2px); }
@@ -175,7 +192,9 @@
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="logo-link" aria-label="Voltar ao menu principal">
+                    <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO">
+                </a>
             </div>
 
             <div class="nav-menu">
@@ -210,7 +229,8 @@
                 
                 <div class="topbar-actions">
                     {% if session.get('role') == 'admin' %}
-                    <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="btn-topbar btn-logs">
+                    <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="btn-topbar btn-switch-menu">
+                        <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
                         Alternar Menu
                     </a>
                     <a href="{{ url_for('logs.logs') }}" class="btn-topbar btn-logs">

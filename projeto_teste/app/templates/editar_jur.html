@@ -153,7 +153,7 @@
                 </div>
 
                 <div class="mt-8 flex justify-end gap-4 border-t pt-6">
-                    <button type="button" onclick="window.location.href='/selecionar_edicao/jur'" 
+                    <button type="button" onclick="window.location.href='/selecionar_edicao'" 
                         class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
                         CANCELAR
                     </button>
@@ -236,8 +236,6 @@
         <input type="checkbox"
         name="recurso_acionado[]"
         class="recurso-checkbox">
-        <input type="hidden" name="recurso_acionado[]" value="0">
-        <input type="checkbox" name="recurso_acionado[]" value="1">
         <label class="text-sm font-bold">Recurso acionado?</label>
         </div>
 
@@ -308,6 +306,15 @@
             let card = e.target.closest(".processo-card");
             let checkbox = card.querySelector(".recurso-checkbox");
             let campo = card.querySelector(".campo-recurso");
+
+            if(e.target.value === "judicial"){
+                checkbox.parentElement.classList.remove("hidden");
+            } else {
+                checkbox.parentElement.classList.add("hidden");
+                campo.classList.add("hidden");
+                checkbox.checked = false;
+            }
+
         }
 
         });

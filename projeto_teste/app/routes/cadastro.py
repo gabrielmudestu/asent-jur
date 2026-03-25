@@ -9,7 +9,7 @@ from app.services.cadastro_service import CadastroService
 cadastro_bp = Blueprint("cadastro", __name__)
 
 @cadastro_bp.route('/cadastro', methods=['GET', 'POST'])
-@role_required('assent', 'admin','assent_gestor','jur_gestor')
+@role_required('assent', 'admin','assent_gestor')
 def cadastro():
     if request.method == 'POST':
 
@@ -22,10 +22,10 @@ def cadastro():
                 with db.cursor() as cursor:
                     cols = ', '.join(dados.keys())
                     placeholders = ', '.join(['%s'] * len(dados))
-                    query = f"INSERT INTO municipal_lots ({cols}) VALUES ({placeholders}) RETURNING id"
+                    query = f"INSERT INTO municipal_lots ({cols}) VALUES ({placeholders})"
                     valores = [dados[campo] for campo in dados.keys()]
                     cursor.execute(query, valores)
-                    empresa_id = cursor.fetchone()[0]  # Obtém o ID do registro inserido
+                    empresa_id = cursor.lastrowid
                     db.commit()
                     gravar_log(
                         acao=f"CADASTRO_EMPRESA (ID {empresa_id})",
@@ -58,9 +58,9 @@ def cadastro():
                         cursor.execute("""
                             INSERT INTO empresa_infos (empresa_id, descricao, caminho_imagem)
                             VALUES (%s, %s, %s)
-                            ON CONFLICT (empresa_id) DO UPDATE
-                                SET descricao = EXCLUDED.descricao,
-                                    caminho_imagem = EXCLUDED.caminho_imagem
+                            ON DUPLICATE KEY UPDATE
+                                descricao = VALUES(descricao),
+                                caminho_imagem = VALUES(caminho_imagem)
                         """, (empresa_id, descricao, caminho_imagem))
                         db.commit()
                         gravar_log(
@@ -89,7 +89,7 @@ def cadastro_jur():
         try:
             with get_db() as db:
                 with db.cursor() as cursor:
-                    set_clause = ", ".join([f"{k} = %s" for k in dados_jur.keys()])
+                    set_clause = ", ".join([f"`{k}` = %s" for k in dados_jur.keys()])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
                     cursor.execute(query, list(dados_jur.values()) + [empresa_id])
                     db.commit()

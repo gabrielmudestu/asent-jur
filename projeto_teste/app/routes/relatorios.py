@@ -199,5 +199,5 @@ def relatorios():
             }
     except Exception as err:
         print("Erro ao carregar dados:", err)
-    template = 'relatorios_jur.html' if session.get('role') == 'jur' else 'relatorios.html'
+    template = 'relatorios_jur.html' if session.get('role') == 'jur' or 'jur_gestor' else 'relatorios.html'
     return render_template(template, empresas=empresas, empresas_info=empresas_info)

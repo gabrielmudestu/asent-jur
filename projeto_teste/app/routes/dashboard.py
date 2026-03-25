@@ -7,7 +7,7 @@ dashboard_bp = Blueprint("dashboard", __name__)
 @role_required('assent', 'jur', 'admin','assent_gestor','jur_gestor')
 def menu(modo):
     
-    if modo == "jur":
+    if modo == "jur" or "jur_gestor":
         return render_template('menu_jur.html')
     
     return render_template('menu.html')

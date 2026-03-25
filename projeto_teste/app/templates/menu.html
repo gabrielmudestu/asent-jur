@@ -200,7 +200,7 @@
             <div class="nav-menu">
     <a href="{{ url_for('cadastro.cadastro') }}" class="nav-button">Cadastrar Nova Empresa</a>
     <a href="{{ url_for('edicao.selecionar_edicao', modo='assent') }}" class="nav-button">Editar Cadastro</a>
-    <a href="{{ url_for('relatorio.relatorios') }}" class="nav-button">Gerar Relatório</a>
+    <a href="{{ url_for('relatorio.relatorios', modo='assent') }}" class="nav-button">Gerar Relatório</a>
 
     {% if session.get('role') == 'admin' %}
     <a href="{{ url_for('auth_user.registrar_usuario') }}" class="nav-button" style="background-color: var(--admin-amber); color: #1a202c; margin-top: 10px;">

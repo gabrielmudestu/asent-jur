@@ -15,11 +15,20 @@ relatorio_bp = Blueprint("relatorio", __name__)
 @relatorio_bp.route('/relatorio', methods=['GET', 'POST'])
 @role_required('assent', 'jur', 'admin', 'assent_gestor','jur_gestor')
 def relatorios():
+    role = session.get('role')
+    modo = request.args.get('modo')
+
+    if not modo:
+        if role in ('jur', 'jur_gestor'):
+            modo = 'jur'
+        else:
+            modo = 'assent'
+
     if request.method == 'POST':
         empresa_id = request.form.get('empresa')
         if not empresa_id:
             flash("Selecione uma empresa.", "warning")
-            return redirect(url_for('relatorios'))
+            return redirect(url_for('relatorio.relatorios', modo=modo))
         try:
             with get_db() as db:
                 with db.cursor(dictionary=True) as cursor:
@@ -199,5 +208,5 @@ def relatorios():
             }
     except Exception as err:
         print("Erro ao carregar dados:", err)
-    template = 'relatorios_jur.html' if session.get('role') == 'jur' or 'jur_gestor' else 'relatorios.html'
+    template = 'relatorios_jur.html' if modo == 'jur' else 'relatorios.html'
     return render_template(template, empresas=empresas, empresas_info=empresas_info)

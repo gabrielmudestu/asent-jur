@@ -12,13 +12,13 @@
 
     <div class="max-w-6xl mx-auto">
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
-            
+
             <div class="bg-[#002b5c] p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold flex items-center gap-2">
-                        <i data-lucide="edit"></i> Edição de Registro de Assentamento 
+                        <i data-lucide="edit"></i> Edicao de Registro de Assentamento
                     </h2>
-                    <p class="text-blue-100 text-sm italic">Alteração de dados cadastrais e técnicos</p>
+                    <p class="text-blue-100 text-sm italic">Alteracao de dados cadastrais e tecnicos</p>
                 </div>
                 <a href="{{ url_for('edicao.selecionar_edicao', modo='assent') }}" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-bold">
                     VOLTAR
@@ -26,70 +26,80 @@
             </div>
 
             <form id="formEditar" action="{{ url_for('edicao.editar', empresa_id=empresa_id) }}" method="POST" class="p-8">
-                
+
                 <div class="mb-6">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
-                        <i data-lucide="building-2" class="w-5 h-5"></i> 
-                        Empresa: <span class="text-blue-600 ml-1">{{ dados['empresa'] if dados['empresa'] else 'Não informada' }}</span>
+                        <i data-lucide="building-2" class="w-5 h-5"></i>
+                        Empresa: <span class="text-blue-600 ml-1">{{ dados['empresa'] if dados['empresa'] else 'Nao informada' }}</span>
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {% for col in colunas %}
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
                                 {{ labels.get(col, col) }}
                             </label>
-                            
+
                             {% if col == 'ramo_de_atividade' %}
                             <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
-                                <option value="">Selecione...</option>
+                                <option value="-">Selecione...</option>
                                 {% for opcao in ramo_de_atividade_opcoes %}
-                                <option value="{{ opcao }}"
-                                {% if dados[col] == opcao %}selected{% endif %}>
-                                {{ opcao }}
-                                </option>
+                                <option value="{{ opcao }}" {% if dados[col] == opcao %}selected{% endif %}>{{ opcao }}</option>
                                 {% endfor %}
                             </select>
 
                             {% elif col == 'status_de_assentamento' %}
                             <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
-                                <option value="">Selecione...</option>
+                                <option value="-">Selecione...</option>
                                 {% for opcao in status_de_assentamento_opcoes %}
-                                <option value="{{ opcao }}"
-                                {% if dados[col] == opcao %}selected{% endif %}>
-                                {{ opcao }}
-                                </option>
+                                <option value="{{ opcao }}" {% if dados[col] == opcao %}selected{% endif %}>{{ opcao }}</option>
                                 {% endfor %}
                             </select>
 
                             {% elif col == 'acao_judicial' %}
                             <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
-                                <option value="">Selecione...</option>
+                                <option value="-">Selecione...</option>
                                 {% for opcao in acao_judicial_opcoes %}
-                                <option value="{{ opcao }}"
-                                {% if dados[col] == opcao %}selected{% endif %}>
-                                {{ opcao }}
-                                </option>
+                                <option value="{{ opcao }}" {% if dados[col] == opcao %}selected{% endif %}>{{ opcao }}</option>
                                 {% endfor %}
                             </select>
 
                             {% elif col == 'imovel_regular_irregular' %}
                             <select name="{{ col }}" class="w-full p-3 border-2 border-gray-100 rounded-xl bg-gray-50/50">
-                                <option value="">Selecione...</option>
+                                <option value="-">Selecione...</option>
                                 {% for opcao in imovel_opcoes %}
-                                <option value="{{ opcao }}"
-                                {% if dados[col] == opcao %}selected{% endif %}>
-                                {{ opcao }}
-                                </option>
+                                <option value="{{ opcao }}" {% if dados[col] == opcao %}selected{% endif %}>{{ opcao }}</option>
                                 {% endfor %}
                             </select>
 
-                            {% elif 'OBSERVAÇÕES' in col.upper() or 'IRREGULARIDADES' in col.upper() or 'DESCRIÇÃO' in col.upper() or 'OBSEVACOES' in col.upper() %}
-                            <textarea name="{{ col }}" rows="2" 
+                            {% elif col in ['observacoes', 'observacoes_1', 'obsevacoes', 'irregularidades', 'observacoes_2', 'observacoes_3'] %}
+                            <textarea name="{{ col }}" rows="2" maxlength="50"
                                 class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50"
                             >{{ dados[col] if dados[col] != '-' else '' }}</textarea>
+
+                            {% elif col == 'cnpj' %}
+                            <input type="text" name="{{ col }}" value="{{ dados[col] if dados[col] != '-' else '' }}"
+                                maxlength="18" inputmode="numeric" pattern="(?:\d{14}|\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2})" title="Use 14 dígitos ou o formato 00.000.000/0000-00"
+                                class="cnpj-mask w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50">
+
+                            {% elif col in ['municipio', 'distrito', 'empresa', 'modulo_s', 'data_escrituracao', 'data_contrato_de_compra_e_venda', 'ultima_vistoria', 'atualizado'] %}
+                            <input type="{% if col in ['data_escrituracao', 'data_contrato_de_compra_e_venda', 'ultima_vistoria', 'atualizado'] %}date{% else %}text{% endif %}"
+                                name="{{ col }}" value="{{ '' if dados[col] in ['-', None] else dados[col] }}"
+                                maxlength="{% if col in ['municipio', 'distrito', 'empresa', 'modulo_s', 'data_escrituracao', 'data_contrato_de_compra_e_venda', 'ultima_vistoria', 'atualizado'] %}50{% endif %}"
+                                class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50">
+
+                            {% elif col in ['processo_sei', 'empregos_gerados', 'quadra', 'qtd_modulos', 'matricula_s'] %}
+                            <input type="number" name="{{ col }}" value="{{ 0 if dados[col] in ['-', None, ''] else dados[col] }}"
+                                min="0" max="2147483647" step="1"
+                                class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50">
+
+                            {% elif col in ['tamanho_m2', 'taxa_e_ocupacao_do_imovel'] %}
+                            <input type="number" name="{{ col }}" value="{{ 0 if dados[col] in ['-', None, ''] else dados[col] }}"
+                                min="0" {% if col == 'taxa_e_ocupacao_do_imovel' %}max="100"{% else %}max="99999999.99"{% endif %} step="0.01"
+                                class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50">
+
                             {% else %}
-                            <input type="text" name="{{ col }}" value="{{ dados[col] if dados[col] != '-' else '' }}" 
+                            <input type="text" name="{{ col }}" value="{{ dados[col] if dados[col] != '-' else '' }}"
                                 class="w-full p-3 border-2 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm bg-gray-50/50">
                             {% endif %}
                         </div>
@@ -99,17 +109,17 @@
 
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-3 text-blue-700 mb-8">
                     <i data-lucide="shield-alert" class="w-6 h-6"></i>
-                    <p class="text-sm font-medium">Os campos referentes ao <strong>Processo Judicial, Status e Assunto</strong> não aparecem aqui pois são restritos ao setor Jurídico.</p>
+                    <p class="text-sm font-medium">Os campos referentes ao <strong>Processo Judicial, Status e Assunto</strong> nao aparecem aqui pois sao restritos ao setor Juridico.</p>
                 </div>
 
                 <div class="mt-8 flex justify-end gap-4 border-t pt-6">
-                    <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='assent') }}'" 
+                    <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='assent') }}'"
                         class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
                         CANCELAR
                     </button>
-                    <button type="submit" 
+                    <button type="submit"
                         class="bg-[#002b5c] hover:bg-blue-800 text-white px-12 py-3 rounded-lg font-bold shadow-lg transform transition active:scale-95 flex items-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i> APLICAR ALTERAÇÕES
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> APLICAR ALTERACOES
                     </button>
                 </div>
             </form>
@@ -117,19 +127,31 @@
     </div>
 
     <script>
-        // Inicializa os ícones do Lucide
         lucide.createIcons();
 
-        // Script para bloquear o envio do formulário ao pressionar ENTER
         const form = document.getElementById('formEditar');
-        
+
         form.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                if (e.target.nodeName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    return false;
-                }
+            if (e.key === 'Enter' && e.target.nodeName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
             }
+        });
+
+        document.querySelectorAll('.cnpj-mask').forEach((input) => {
+            input.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '').slice(0, 14);
+                if (value.length > 12) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/, '$1.$2.$3/$4-$5');
+                } else if (value.length > 8) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
+                }
+                this.value = value;
+            });
         });
     </script>
 </body>

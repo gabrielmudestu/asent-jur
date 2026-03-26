@@ -3,7 +3,7 @@ from app.db import get_db
 from app.services.log_service import gravar_log
 import os
 from app.utils.decorators import role_required
-from app.constants import colunas_map, campos_numericos
+from app.constants import campos_numericos, colunas_map, imovel_opcoes, ramo_de_atividade_opcoes, status_de_assentamento_opcoes
 from app.services.cadastro_service import CadastroService
 
 cadastro_bp = Blueprint("cadastro", __name__)
@@ -72,22 +72,22 @@ def cadastro():
             return redirect(url_for('cadastro'))
         except Exception as e:
             flash(f'Erro ao cadastrar: {e}', 'danger')
-    return render_template('cadastro.html', username=session.get('username'))
+    return render_template(
+        'cadastro.html',
+        username=session.get('username'),
+        ramo_de_atividade_opcoes=ramo_de_atividade_opcoes,
+        status_de_assentamento_opcoes=status_de_assentamento_opcoes,
+        imovel_opcoes=imovel_opcoes,
+    )
 
 @cadastro_bp.route('/cadastro_jur', methods=['GET', 'POST'])
 @role_required('jur', 'admin','jur_gestor')
 def cadastro_jur():
     if request.method == 'POST':
         empresa_id = request.form.get('empresa_id')
-        numero_processo = request.form.get('processo_judicial', '').strip()
-        tipo_processo = request.form.get('tipo_processo', '').strip()
-        status = request.form.get('status', '').strip()
-        assunto_judicial = request.form.get('assunto_judicial', '').strip()
-        valor_da_causa = request.form.get('valor_da_causa', '').strip()
-        recurso_acionado = bool(request.form.get('recurso_acionado'))
-        tipo_recurso = request.form.get('tipo_recurso', '').strip()
         
         try:
+            processo = CadastroService.normalizar_processo_juridico(request.form)
             with get_db() as db:
                 with db.cursor() as cursor:
                     cursor.execute(
@@ -99,23 +99,24 @@ def cadastro_jur():
                         """,
                         (
                             empresa_id,
-                            numero_processo,
-                            tipo_processo or None,
-                            status,
-                            assunto_judicial,
-                            valor_da_causa or None,
-                            recurso_acionado,
-                            tipo_recurso if recurso_acionado and tipo_recurso else None,
+                            processo['numero_processo'],
+                            processo['tipo_processo'],
+                            processo['status'],
+                            processo['assunto_judicial'],
+                            processo['valor_da_causa'],
+                            processo['recurso_acionado'],
+                            processo['tipo_recurso'],
                         )
                     )
                     db.commit()
                     gravar_log(
                         acao=f"CADASTRO_PROCESSO_JURIDICO (ID {empresa_id})",
                         descricao=(
-                            f"numero_processo: {numero_processo} | tipo_processo: {tipo_processo or '-'} | "
-                            f"status: {status} | assunto_judicial: {assunto_judicial} | "
-                            f"valor_da_causa: {valor_da_causa or '-'} | recurso_acionado: {recurso_acionado} | "
-                            f"tipo_recurso: {(tipo_recurso if recurso_acionado and tipo_recurso else '-')}"
+                            f"numero_processo: {processo['numero_processo']} | tipo_processo: {processo['tipo_processo']} | "
+                            f"status: {processo['status']} | assunto_judicial: {processo['assunto_judicial']} | "
+                            f"valor_da_causa: {processo['valor_da_causa'] if processo['valor_da_causa'] is not None else '-'} | "
+                            f"recurso_acionado: {processo['recurso_acionado']} | "
+                            f"tipo_recurso: {processo['tipo_recurso'] or '-'}"
                         ),
                         usuario_username=session.get('username'),
                         db_conn=db

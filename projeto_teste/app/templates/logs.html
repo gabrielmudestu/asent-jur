@@ -31,6 +31,41 @@
                     Registros Recentes
                 </h3>
 
+                <form method="GET" action="{{ url_for('logs.logs') }}" class="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Usuário</label>
+                            <select name="username" class="w-full p-3 border rounded-lg bg-white">
+                                <option value="">Todos</option>
+                                {% for username in usernames %}
+                                <option value="{{ username }}" {% if username == username_filter %}selected{% endif %}>
+                                    {{ username }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Inicial</label>
+                            <input type="date" name="data_inicial" value="{{ data_inicial }}" class="w-full p-3 border rounded-lg bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Final</label>
+                            <input type="date" name="data_final" value="{{ data_final }}" class="w-full p-3 border rounded-lg bg-white">
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="submit" class="flex-1 bg-[#002b5c] text-white px-4 py-3 rounded-lg font-bold hover:bg-blue-900 transition-all">
+                                Filtrar
+                            </button>
+                            <a href="{{ url_for('logs.logs') }}" class="flex-1 text-center bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all">
+                                Limpar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">

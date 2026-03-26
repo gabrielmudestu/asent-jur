@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request, abort
 from app.db import get_db
 from app.services.log_service import gravar_log
+from app.services.cadastro_service import CadastroService
 from app.constants import COLUNAS, LABELS, chaves_fixas, labels_fixas, chaves_editaveis, labels_editaveis, ramo_de_atividade_opcoes, status_opcoes, status_de_assentamento_opcoes, acao_judicial_opcoes, imovel_opcoes
 from app.utils.decorators import role_required
 
@@ -47,34 +48,26 @@ def editar(empresa_id):
                     return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
                 
                 if request.method == 'POST':
-                    campos_numericos = [
-                        'processo_sei', 'empregos_gerados', 'quadra', 'qtd_modulos',
-                        'tamanho_m2', 'matricula_s', 'taxa_e_ocupacao_do_imovel'
-                    ]
-
                     campos = COLUNAS[:-4] # Pega as chaves fixas
                     set_clause = ', '.join([f"`{col}` = %s" for col in campos])
                     query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
                     valores = []
                     alteracoes = []
+                    dados_normalizados = CadastroService.normalizar_dados_edicao(request.form, campos)
 
                     for col in campos:
-                        valor_form = request.form.get(col, '').strip()
-
-                        # Determina o valor que vai para o banco
-                        if col in campos_numericos:
-                            if valor_form.isdigit():
-                                valor_final = int(valor_form)
-                            else:
-                                valor_final = 0
-                        else:
-                            valor_final = valor_form if valor_form else '-'
+                        valor_final = dados_normalizados[col]
 
                         # Determina o valor antigo do banco, considerando tipo
                         valor_velho_banco = empresa.get(col)
-                        if col in campos_numericos:
+                        if col in CadastroService.INT_FIELDS:
                             try:
                                 valor_velho = int(valor_velho_banco) if valor_velho_banco not in ('', None) else 0
+                            except (ValueError, TypeError):
+                                valor_velho = 0
+                        elif col in CadastroService.DECIMAL_FIELDS:
+                            try:
+                                valor_velho = CadastroService._parse_decimal(str(valor_velho_banco), LABELS[col]) if valor_velho_banco not in ('', None) else 0
                             except (ValueError, TypeError):
                                 valor_velho = 0
                         else:
@@ -131,33 +124,13 @@ def editar_jur(empresa_id):
                 processos = cursor.fetchall()
                 
                 if request.method == 'POST':
-
-                    numeros = request.form.getlist("numero_processo[]")
-                    tipos = request.form.getlist("tipo_processo[]")
-                    status = request.form.getlist("status[]")
-                    assuntos = request.form.getlist("assunto_judicial[]")
-                    valores = request.form.getlist("valor_da_causa[]")
-                    recursos_acionados = request.form.getlist("recurso_acionado[]")
-                    tipos_recurso = request.form.getlist("tipo_recurso[]")
+                    processos_normalizados = CadastroService.normalizar_processos_juridicos_edicao(request.form)
 
                     # Remove processos antigos
                     cursor.execute("DELETE FROM processos WHERE empresa_id = %s", (empresa_id,))
 
                     # Insere novamente
-                    for i in range(len(numeros)):
-
-                        numero = numeros[i].strip()
-
-                        if not numero:
-                            continue
-
-                        tipo_processo = tipos[i].strip() if i < len(tipos) else ''
-                        status_val = status[i].strip()
-                        assunto = assuntos[i].strip()
-                        valor = valores[i].strip()
-                        recurso_acionado = recursos_acionados[i] == '1' if i < len(recursos_acionados) else False
-                        tipo_recurso = tipos_recurso[i].strip() if i < len(tipos_recurso) else ''
-
+                    for processo in processos_normalizados:
                         cursor.execute("""
                         INSERT INTO processos
                         (empresa_id, numero_processo, tipo_processo, status, assunto_judicial,
@@ -166,13 +139,13 @@ def editar_jur(empresa_id):
                         """,
                         (
                             empresa_id,
-                            numero,
-                            tipo_processo if tipo_processo else None,
-                            status_val,
-                            assunto,
-                            valor if valor else None,
-                            recurso_acionado,
-                            tipo_recurso if recurso_acionado and tipo_recurso else None
+                            processo['numero_processo'],
+                            processo['tipo_processo'],
+                            processo['status'],
+                            processo['assunto_judicial'],
+                            processo['valor_da_causa'],
+                            processo['recurso_acionado'],
+                            processo['tipo_recurso'],
                         ))
 
                     db.commit()

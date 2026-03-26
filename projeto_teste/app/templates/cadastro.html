@@ -23,13 +23,13 @@
                 <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo CodeGO" class="h-12 w-auto">
                 <div class="border-l pl-4 border-gray-200">
                     <h1 class="text-xl font-bold text-[#002b5c]">Novo Cadastro</h1>
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Módulo de Assentamento</p>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Modulo de Assentamento</p>
                 </div>
             </div>
-            
+
             <div class="flex gap-6 items-center mt-4 md:mt-0">
                 <a href="{{ url_for('dashboard.menu', modo='assent') }}" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-2 transition-colors">
-                    <i data-lucide="home" class="w-5 h-5"></i> Início
+                    <i data-lucide="home" class="w-5 h-5"></i> Inicio
                 </a>
                 <a href="{{ url_for('auth_login.logout') }}" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Sair
@@ -48,7 +48,7 @@
         </div>
 
         <form action="{{ url_for('cadastro.cadastro') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
-            
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -62,14 +62,26 @@
 
             <div id="step-1" class="step-content active">
                 <h2 class="text-xl font-bold text-[#002b5c] mb-6 flex items-center gap-2 border-b pb-4">
-                    <i data-lucide="map-pin" class="text-blue-500"></i> 1. Identificação e Localização
+                    <i data-lucide="map-pin" class="text-blue-500"></i> 1. Identificacao e Localizacao
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Município</label><input type="text" name="MUNICIPIO" required class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Distrito</label><input type="text" name="DISTRITO" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Empresa</label><input type="text" name="EMPRESA" required class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">CNPJ</label><input type="text" name="CNPJ" required class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
-                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Municipio</label>
+                        <input type="text" name="MUNICIPIO" required maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Distrito</label>
+                        <input type="text" name="DISTRITO" maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Empresa</label>
+                        <input type="text" name="EMPRESA" required maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">CNPJ</label>
+                        <input type="text" name="CNPJ" required maxlength="18" inputmode="numeric" pattern="(?:\d{14}|\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2})" title="Use 14 dígitos ou o formato 00.000.000/0000-00" class="cnpj-mask w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+
                     <div class="md:col-span-2 p-4 bg-blue-50 rounded-2xl border-2 border-dashed border-blue-200">
                         <label class="block text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
                             <i data-lucide="image" class="w-4 h-4"></i> Upload da Imagem da Empresa
@@ -78,44 +90,82 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Descrição Detalhada da Empresa</label>
-                        <textarea name="DESCRICAO_EMPRESA" rows="3" placeholder="Histórico e principais atividades..." class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Descricao Detalhada da Empresa</label>
+                        <textarea name="DESCRICAO_EMPRESA" rows="3" placeholder="Historico e principais atividades..." class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
                     </div>
 
-                    <div class="md:col-span-2"><label class="block text-sm font-bold text-gray-700 mb-1">Ramo de Atividade</label><input type="text" name="RAMO DE ATIVIDADE" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"></div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Ramo de Atividade</label>
+                        <select name="RAMO DE ATIVIDADE" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="-">Selecione...</option>
+                            {% for opcao in ramo_de_atividade_opcoes %}
+                                <option value="{{ opcao }}">{{ opcao }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div id="step-2" class="step-content">
                 <h2 class="text-xl font-bold text-[#002b5c] mb-6 flex items-center gap-2 border-b pb-4">
-                    <i data-lucide="box" class="text-blue-500"></i> 2. Detalhes da Área
+                    <i data-lucide="box" class="text-blue-500"></i> 2. Detalhes da Area
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Quadra</label><input type="number" name="QUADRA" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Módulo(s)</label><input type="text" name="MÓDULO(S)" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Qtd. Módulos</label><input type="number" name="QTD. MÓDULOS" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Tamanho (M²)</label><input type="number" step="0.01" name="TAMANHO(M²)" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Matrícula(s)</label><input type="text" name="MATRÍCULA(S)" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Taxa de Ocupação (%)</label><input type="number" step="0.01" name="TAXA E OCUPAÇÃO DO IMÓVEL(%)" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Quadra</label>
+                        <input type="number" name="QUADRA" min="0" max="2147483647" step="1" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Modulo(s)</label>
+                        <input type="text" name="MÃ“DULO(S)" maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Qtd. Modulos</label>
+                        <input type="number" name="QTD. MÃ“DULOS" min="0" max="2147483647" step="1" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Tamanho (M2)</label>
+                        <input type="number" step="0.01" min="0" max="99999999.99" name="TAMANHO(MÂ²)" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Matricula(s)</label>
+                        <input type="number" name="MATRÃCULA(S)" min="0" max="2147483647" step="1" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Taxa de Ocupacao (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="TAXA E OCUPAÃ‡ÃƒO DO IMÃ“VEL(%)" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    </div>
                 </div>
                 <div class="mt-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Observações do Imóvel</label>
-                    <textarea name="OBSEVAÇÕES" rows="3" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Observacoes do Imovel</label>
+                    <textarea name="OBSEVAÃ‡Ã•ES" rows="3" maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                 </div>
             </div>
 
             <div id="step-3" class="step-content">
                 <h2 class="text-xl font-bold text-[#002b5c] mb-6 flex items-center gap-2 border-b pb-4">
-                    <i data-lucide="file-text" class="text-blue-500"></i> 3. Documentação 
+                    <i data-lucide="file-text" class="text-blue-500"></i> 3. Documentacao
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Processo SEI</label><input type="number" name="PROCESSO SEI" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Status de Assentamento</label><input type="text" name="STATUS DE ASSENTAMENTO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Processo SEI</label>
+                        <input type="number" name="PROCESSO SEI" min="0" max="2147483647" step="1" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Status de Assentamento</label>
+                        <select name="STATUS DE ASSENTAMENTO" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="-">Selecione...</option>
+                            {% for opcao in status_de_assentamento_opcoes %}
+                                <option value="{{ opcao }}">{{ opcao }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Imóvel Regular?</label>
-                        <select name="IMÓVEL REGULAR/IRREGULAR" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="REGULAR">REGULAR</option>
-                            <option value="IRREGULAR">IRREGULAR</option>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Imovel Regular?</label>
+                        <select name="IMÃ“VEL REGULAR/IRREGULAR" class="w-full p-3 bg-gray-50 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            {% for opcao in imovel_opcoes %}
+                                <option value="{{ opcao }}">{{ opcao }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -126,13 +176,16 @@
                     <i data-lucide="calendar" class="text-blue-500"></i> 4. Vistorias e Datas
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Escrituração</label><input type="date" name="DATA ESCRITURAÇÃO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Escrituracao</label><input type="date" name="DATA ESCRITURAÃ‡ÃƒO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-1">Contrato Compra/Venda</label><input type="date" name="DATA CONTRATO DE COMPRA E VENDA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Última Vistoria</label><input type="date" name="ÚLTIMA VISTORIA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Empregos Gerados</label><input type="number" name="EMPREGOS GERADOS" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Atualização</label><input type="date" name="ATUALIZADO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Ultima Vistoria</label><input type="date" name="ÃšLTIMA VISTORIA" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Empregos Gerados</label><input type="number" name="EMPREGOS GERADOS" min="0" max="2147483647" step="1" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Data Atualizacao</label><input type="date" name="ATUALIZADO" class="w-full p-3 bg-gray-50 border rounded-xl"></div>
                 </div>
-                <div class="mt-6"><label class="block text-sm font-bold text-gray-700 mb-1">Descreva Irregularidades (se houver)</label><textarea name="IRREGULARIDADES?" rows="3" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea></div>
+                <div class="mt-6">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Descreva Irregularidades (se houver)</label>
+                    <textarea name="IRREGULARIDADES?" rows="3" maxlength="50" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
             </div>
 
             <div class="mt-10 flex justify-between border-t pt-8">
@@ -141,7 +194,7 @@
                 </button>
                 <div class="flex gap-4">
                     <button type="button" id="nextBtn" onclick="nextPrev(1)" class="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg flex items-center gap-2 transition-all transform active:scale-95">
-                        Próximo <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        Proximo <i data-lucide="chevron-right" class="w-5 h-5"></i>
                     </button>
                     <button type="submit" id="saveBtn" class="bg-green-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hidden flex items-center gap-2 transition-all transform active:scale-95">
                         <i data-lucide="save" class="w-5 h-5"></i> FINALIZAR CADASTRO
@@ -153,23 +206,21 @@
 
     <script>
         lucide.createIcons();
-        
+
         let currentStep = 1;
         const totalSteps = 4;
 
         function nextPrev(n) {
             document.getElementById(`step-${currentStep}`).classList.remove('active');
             document.getElementById(`ind-${currentStep}`).classList.remove('active');
-            
+
             currentStep += n;
 
             document.getElementById(`step-${currentStep}`).classList.add('active');
             document.getElementById(`ind-${currentStep}`).classList.add('active');
 
-            // Botão Voltar
             document.getElementById('prevBtn').style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
-            
-            // Alternância entre Próximo e Salvar
+
             if (currentStep === totalSteps) {
                 document.getElementById('nextBtn').classList.add('hidden');
                 document.getElementById('saveBtn').classList.remove('hidden');
@@ -179,6 +230,22 @@
             }
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
+
+        document.querySelectorAll('.cnpj-mask').forEach((input) => {
+            input.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '').slice(0, 14);
+                if (value.length > 12) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/, '$1.$2.$3/$4-$5');
+                } else if (value.length > 8) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4}).*/, '$1.$2.$3/$4');
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{0,3}).*/, '$1.$2');
+                }
+                this.value = value;
+            });
+        });
     </script>
 </body>
 </html>

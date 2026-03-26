@@ -9,10 +9,40 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from app.db import get_db
+from app.constants import LABELS
 from app.services.pdf_service import add_watermark
 from app.utils.decorators import role_required
 
 relatorio_bp = Blueprint("relatorio", __name__)
+
+RELATORIO_EMPRESA_ORDEM = [
+    'municipio',
+    'distrito',
+    'empresa',
+    'cnpj',
+    'ramo_de_atividade',
+    'processo_sei',
+    'status_de_assentamento',
+    'acao_judicial',
+    'imovel_regular_irregular',
+    'quadra',
+    'modulo_s',
+    'qtd_modulos',
+    'tamanho_m2',
+    'matricula_s',
+    'taxa_e_ocupacao_do_imovel',
+    'empregos_gerados',
+    'data_escrituracao',
+    'data_contrato_de_compra_e_venda',
+    'ultima_vistoria',
+    'atualizado',
+    'observacoes',
+    'observacoes_1',
+    'obsevacoes',
+    'irregularidades',
+    'observacoes_2',
+    'observacoes_3',
+]
 
 
 @relatorio_bp.route('/relatorio', methods=['GET', 'POST'])
@@ -120,11 +150,21 @@ def relatorios():
 
             data = [["Campo", "Valor"]]
             campos_juridicos_legados = {'processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa'}
-            for chave, valor in lot.items():
-                if chave == 'id' or chave in campos_juridicos_legados:
-                    continue
+            campos_disponiveis = {
+                chave: valor
+                for chave, valor in lot.items()
+                if chave != 'id' and chave not in campos_juridicos_legados
+            }
+            chaves_ordenadas = [chave for chave in RELATORIO_EMPRESA_ORDEM if chave in campos_disponiveis]
+            chaves_ordenadas.extend(
+                chave for chave in campos_disponiveis.keys()
+                if chave not in chaves_ordenadas
+            )
+
+            for chave in chaves_ordenadas:
+                valor = campos_disponiveis[chave]
                 data.append([
-                    Paragraph(str(chave).replace('_', ' ').upper(), cell_style),
+                    Paragraph(LABELS.get(chave, str(chave).replace('_', ' ').title()), cell_style),
                     Paragraph(str(valor) if valor is not None else '-', cell_style)
                 ])
 
@@ -150,13 +190,13 @@ def relatorios():
             story.append(table)
 
             process_labels = {
-                'numero_processo': 'NUMERO DO PROCESSO',
-                'tipo_processo': 'TIPO DE PROCESSO',
-                'status': 'STATUS',
-                'assunto_judicial': 'ASSUNTO JUDICIAL',
-                'valor_da_causa': 'VALOR DA CAUSA',
-                'recurso_acionado': 'RECURSO ACIONADO',
-                'tipo_recurso': 'TIPO DE RECURSO',
+                'numero_processo': 'Numero do Processo',
+                'tipo_processo': 'Tipo de Processo',
+                'status': 'Status',
+                'assunto_judicial': 'Assunto Judicial',
+                'valor_da_causa': 'Valor da Causa',
+                'recurso_acionado': 'Recurso Acionado',
+                'tipo_recurso': 'Tipo de Recurso',
             }
 
             story.append(Spacer(1, 18))

@@ -77,6 +77,7 @@
                             <input type="text"
                             name="numero_processo[]"
                             value="{{ p.numero_processo }}"
+                            maxlength="120"
                             class="w-full p-2 border rounded">
 
                             <label class="text-sm font-bold">Tipo de Processo</label>
@@ -104,9 +105,12 @@
                             class="w-full p-2 border rounded">{{ p.assunto_judicial }}</textarea>
 
                             <label class="text-sm font-bold">Valor da causa</label>
-                            <input type="text"
+                            <input type="number"
                             name="valor_da_causa[]"
                             value="{{ p.valor_da_causa }}"
+                            min="0"
+                            max="9999999999999.99"
+                            step="0.01"
                             class="w-full p-2 border rounded">
 
                             <div class="flex items-center gap-2 mt-2">
@@ -211,7 +215,7 @@
         <div class="conteudo-processo p-4 space-y-3">
 
         <label class="text-sm font-bold">Número do processo</label>
-        <input type="text" name="numero_processo[]" class="w-full p-2 border rounded">
+        <input type="text" name="numero_processo[]" maxlength="120" class="w-full p-2 border rounded">
 
         <label class="text-sm font-bold">Tipo de Processo</label>
         <select name="tipo_processo[]" class="w-full p-2 border rounded">
@@ -233,7 +237,7 @@
         <textarea name="assunto_judicial[]" class="w-full p-2 border rounded"></textarea>
 
         <label class="text-sm font-bold">Valor da causa</label>
-        <input type="text" name="valor_da_causa[]" class="w-full p-2 border rounded">
+        <input type="number" name="valor_da_causa[]" min="0" max="9999999999999.99" step="0.01" class="w-full p-2 border rounded">
 
         <div class="flex items-center gap-2 mt-2">
         <input type="hidden"

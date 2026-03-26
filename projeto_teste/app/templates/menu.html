@@ -229,13 +229,13 @@
                 
                 <div class="topbar-actions">
                     {% if session.get('role') == 'admin' %}
-                    <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="btn-topbar btn-switch-menu">
-                        <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
-                        Alternar Menu
-                    </a>
                     <a href="{{ url_for('logs.logs') }}" class="btn-topbar btn-logs">
                         <i data-lucide="database-zap" class="w-4 h-4"></i>
                         Logs do Sistema
+                    </a>
+                    <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="btn-topbar btn-switch-menu">
+                        <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                        Alternar Menu
                     </a>
                     {% endif %}
 

@@ -68,7 +68,7 @@ class="w-full p-3 border rounded-lg">
 
 <div>
 <label class="block text-sm font-semibold text-gray-700 mb-2">Processo Judicial</label>
-<input type="text" name="processo_judicial" required
+<input type="text" name="processo_judicial" required maxlength="120"
 class="w-full p-3 border rounded-lg">
 </div>
 
@@ -88,15 +88,19 @@ class="w-full p-3 border rounded-lg">
 
 <div>
 <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-<input type="text" name="status" required
-class="w-full p-3 border rounded-lg">
+<select name="status" required class="w-full p-3 border rounded-lg">
+    <option value="">-- Selecione o status --</option>
+    <option value="ATIVO">ATIVO</option>
+    <option value="ARQUIVADO">ARQUIVADO</option>
+    <option value="SUSPENSO">SUSPENSO</option>
+</select>
 </div>
 
 </div>
 
 <div>
 <label class="block text-sm font-semibold text-gray-700 mb-2">Valor da Causa</label>
-<input type="text" name="valor_da_causa"
+<input type="number" name="valor_da_causa" min="0" step="0.01" max="9999999999999.99"
 class="w-full p-3 border rounded-lg">
 </div>
 
@@ -108,7 +112,7 @@ class="w-full p-3 border rounded-lg"></textarea>
 
 <label class="flex items-center gap-3 cursor-pointer mt-4">
     <input type="checkbox" id="recurso_acionado" name="recurso_acionado" class="hidden peer">
-    
+
     <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition">
         <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 peer-checked:translate-x-5 transition"></div>
     </div>
@@ -119,11 +123,11 @@ class="w-full p-3 border rounded-lg"></textarea>
 </label>
 
 <div id="campo-recurso" class="hidden mt-4">
-    
+
     <label class="block text-sm font-semibold text-gray-700 mb-2">
         Tipo de Recurso
     </label>
-    
+
     <select name="tipo_recurso"
     class="w-full p-3 border rounded-lg">
         <option value="">-- Selecione o tipo de recurso --</option>

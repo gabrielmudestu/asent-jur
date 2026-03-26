@@ -1,45 +1,55 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, current_app
-from app.db import get_db
-from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Frame, PageTemplate, NextPageTemplate
 from datetime import datetime
+from io import BytesIO
 import os
+
+from flask import Blueprint, current_app, flash, make_response, redirect, render_template, request, session, url_for
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+from app.db import get_db
 from app.services.pdf_service import add_watermark
 from app.utils.decorators import role_required
 
 relatorio_bp = Blueprint("relatorio", __name__)
 
+
 @relatorio_bp.route('/relatorio', methods=['GET', 'POST'])
-@role_required('assent', 'jur', 'admin', 'assent_gestor','jur_gestor')
+@role_required('assent', 'jur', 'admin', 'assent_gestor', 'jur_gestor')
 def relatorios():
     role = session.get('role')
     modo = request.args.get('modo')
 
     if not modo:
-        if role in ('jur', 'jur_gestor'):
-            modo = 'jur'
-        else:
-            modo = 'assent'
+        modo = 'jur' if role in ('jur', 'jur_gestor') else 'assent'
 
     if request.method == 'POST':
         empresa_id = request.form.get('empresa')
         if not empresa_id:
             flash("Selecione uma empresa.", "warning")
             return redirect(url_for('relatorio.relatorios', modo=modo))
+
         try:
             with get_db() as db:
                 with db.cursor(dictionary=True) as cursor:
                     cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (int(empresa_id),))
                     lot = cursor.fetchone()
-            if not lot: return "Empresa não encontrada.", 404
-            from reportlab.lib.units import inch
-            from reportlab.pdfbase import pdfmetrics
-            from reportlab.pdfbase.ttfonts import TTFont
-            if not hasattr(pdfmetrics, '_fonts'):
-                from reportlab.pdfbase import pdfmetrics
+                    cursor.execute(
+                        """
+                        SELECT numero_processo, tipo_processo, status, assunto_judicial,
+                               valor_da_causa, recurso_acionado, tipo_recurso
+                        FROM processos
+                        WHERE empresa_id = %s
+                        ORDER BY id
+                        """,
+                        (int(empresa_id),)
+                    )
+                    processos = cursor.fetchall()
+
+            if not lot:
+                return "Empresa não encontrada.", 404
+
             buffer = BytesIO()
             doc = SimpleDocTemplate(
                 buffer,
@@ -50,24 +60,6 @@ def relatorios():
                 bottomMargin=72
             )
 
-            # Frame onde o conteúdo será desenhado
-            frame = Frame(
-                doc.leftMargin,
-                doc.bottomMargin,
-                doc.width,
-                doc.height,
-                id='normal'
-            )
-
-            # Template com marca d’água → será usado em TODAS as páginas
-            template = PageTemplate(
-                id='watermark_template',
-                frames=[frame],
-                onPage=add_watermark
-            )
-            doc.addPageTemplates([template])
-
-            # Estilos
             styles = getSampleStyleSheet()
             font_title = 'Helvetica-Bold'
             font_normal = 'Helvetica'
@@ -113,29 +105,27 @@ def relatorios():
                 wordWrap='CJK'
             )
 
-            # Monta story
             story = []
 
-            # Logo no topo
             logo_path = os.path.join(current_app.root_path, 'static', 'logo_codego.png')
             if os.path.exists(logo_path):
                 logo = Image(logo_path, width=300, height=60, hAlign='CENTER')
                 story.append(logo)
                 story.append(Spacer(1, 20))
 
-            # Título
-            story.append(Paragraph("RELATÓRIO DE ASSENTAMENTO", title_style))
+            titulo_relatorio = "RELATÓRIO JURÍDICO" if modo == 'jur' else "RELATÓRIO DE ASSENTAMENTO"
+            story.append(Paragraph(titulo_relatorio, title_style))
             story.append(Paragraph(f"Relatório: {lot.get('empresa', 'N/A')}", title_style))
             story.append(Spacer(1, 12))
 
-            # Tabela
             data = [["Campo", "Valor"]]
-            for k, v in lot.items():
-                campo = str(k).replace('_', ' ').upper()
-                valor = str(v) if v is not None else '-'
+            campos_juridicos_legados = {'processo_judicial', 'status', 'assunto_judicial', 'valor_da_causa'}
+            for chave, valor in lot.items():
+                if chave == 'id' or chave in campos_juridicos_legados:
+                    continue
                 data.append([
-                    Paragraph(campo, cell_style),
-                    Paragraph(valor, cell_style)
+                    Paragraph(str(chave).replace('_', ' ').upper(), cell_style),
+                    Paragraph(str(valor) if valor is not None else '-', cell_style)
                 ])
 
             table = Table(data, colWidths=[150, 350], repeatRows=1)
@@ -147,7 +137,6 @@ def relatorios():
                 ('FONTSIZE', (0, 0), (-1, 0), 10),
                 ('TOPPADDING', (0, 0), (-1, 0), 8),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-
                 ('FONTNAME', (0, 1), (-1, -1), font_normal),
                 ('FONTSIZE', (0, 1), (-1, -1), 9),
                 ('VALIGN', (0, 1), (-1, -1), 'TOP'),
@@ -160,7 +149,58 @@ def relatorios():
             ]))
             story.append(table)
 
-            # Rodapé
+            process_labels = {
+                'numero_processo': 'NUMERO DO PROCESSO',
+                'tipo_processo': 'TIPO DE PROCESSO',
+                'status': 'STATUS',
+                'assunto_judicial': 'ASSUNTO JUDICIAL',
+                'valor_da_causa': 'VALOR DA CAUSA',
+                'recurso_acionado': 'RECURSO ACIONADO',
+                'tipo_recurso': 'TIPO DE RECURSO',
+            }
+
+            story.append(Spacer(1, 18))
+            story.append(Paragraph("PROCESSOS JURIDICOS", subtitle_style))
+
+            if processos:
+                for idx, processo in enumerate(processos, start=1):
+                    story.append(Paragraph(f"Processo {idx}", subtitle_style))
+
+                    processo_data = [["Campo", "Valor"]]
+                    for chave, label in process_labels.items():
+                        valor = processo.get(chave)
+                        if chave == 'recurso_acionado':
+                            valor = 'SIM' if valor else 'NAO'
+                        valor = str(valor) if valor not in (None, '') else '-'
+                        processo_data.append([
+                            Paragraph(label, cell_style),
+                            Paragraph(valor, cell_style)
+                        ])
+
+                    processo_table = Table(processo_data, colWidths=[150, 350], repeatRows=1)
+                    processo_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#7f1d1d')),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), font_title),
+                        ('FONTSIZE', (0, 0), (-1, 0), 10),
+                        ('TOPPADDING', (0, 0), (-1, 0), 8),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                        ('FONTNAME', (0, 1), (-1, -1), font_normal),
+                        ('FONTSIZE', (0, 1), (-1, -1), 9),
+                        ('VALIGN', (0, 1), (-1, -1), 'TOP'),
+                        ('TOPPADDING', (0, 1), (-1, -1), 6),
+                        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+                        ('LEFTPADDING', (0, 1), (-1, -1), 6),
+                        ('RIGHTPADDING', (0, 1), (-1, -1), 6),
+                        ('BACKGROUND', (0, 1), (-1, -1), colors.transparent),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
+                    ]))
+                    story.append(processo_table)
+                    story.append(Spacer(1, 12))
+            else:
+                story.append(Paragraph("Nenhum processo juridico cadastrado para esta empresa.", normal_style))
+
             footer_para = Paragraph(
                 f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')} | Usuário: {session.get('username', 'sistema')}",
                 ParagraphStyle(
@@ -176,20 +216,15 @@ def relatorios():
             story.append(Spacer(1, 10))
             story.append(footer_para)
 
-            # Força o mesmo template em todas as páginas
-            # (isso é o que faz o watermark aparecer em todas elas)
-            story.insert(0, NextPageTemplate('watermark_template'))
+            doc.build(story, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
-            # Gera o PDF
-            doc.build(story)
-
-            # Envia o PDF
             buffer.seek(0)
             response = make_response(buffer.getvalue())
             response.headers['Content-Type'] = 'application/pdf'
             response.headers['Content-Disposition'] = f'inline; filename="relatorio_{empresa_id}.pdf"'
             return response
-        except Exception as e: return f"Erro PDF: {e}"
+        except Exception as e:
+            return f"Erro PDF: {e}"
 
     empresas = []
     empresas_info = {}
@@ -201,6 +236,7 @@ def relatorios():
                 empresas = cursor.fetchall()
                 cursor.execute("SELECT empresa_id, descricao, caminho_imagem FROM empresa_infos")
                 infos = cursor.fetchall()
+
         for row in infos:
             empresas_info[str(row['empresa_id'])] = {
                 "descricao": row.get('descricao') or 'Sem descrição cadastrada.',
@@ -208,5 +244,6 @@ def relatorios():
             }
     except Exception as err:
         print("Erro ao carregar dados:", err)
+
     template = 'relatorios_jur.html' if modo == 'jur' else 'relatorios.html'
     return render_template(template, empresas=empresas, empresas_info=empresas_info)

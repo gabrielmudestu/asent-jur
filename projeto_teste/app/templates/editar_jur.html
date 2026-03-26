@@ -80,7 +80,7 @@
                             class="w-full p-2 border rounded">
 
                             <label class="text-sm font-bold">Tipo de Processo</label>
-                            <select name="tipo_processo[]" class="w-full p-2 border rounded tipo-processo">
+                            <select name="tipo_processo[]" class="w-full p-2 border rounded">
                                 <option value="">Selecione...</option>
                                 <option value="trabalhista" {% if p.tipo_processo == 'trabalhista' %}selected{% endif %}>Trabalhista</option>
                                 <option value="civel" {% if p.tipo_processo == 'civel' %}selected{% endif %}>Cível</option>
@@ -110,8 +110,11 @@
                             class="w-full p-2 border rounded">
 
                             <div class="flex items-center gap-2 mt-2">
-                                <input type="checkbox"
+                                <input type="hidden"
                                     name="recurso_acionado[]"
+                                    value="{{ '1' if p.recurso_acionado else '0' }}"
+                                    class="recurso-hidden">
+                                <input type="checkbox"
                                     class="recurso-checkbox"
                                     {% if p.recurso_acionado %}checked{% endif %}>
                                 <label class="text-sm font-bold">Recurso acionado?</label>
@@ -153,7 +156,7 @@
                 </div>
 
                 <div class="mt-8 flex justify-end gap-4 border-t pt-6">
-                    <button type="button" onclick="window.location.href='/selecionar_edicao'" 
+                    <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='jur') }}'" 
                         class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
                         CANCELAR
                     </button>
@@ -211,7 +214,7 @@
         <input type="text" name="numero_processo[]" class="w-full p-2 border rounded">
 
         <label class="text-sm font-bold">Tipo de Processo</label>
-        <select name="tipo_processo[]" class="w-full p-2 border rounded tipo-processo">
+        <select name="tipo_processo[]" class="w-full p-2 border rounded">
         <option value="">Selecione...</option>
         <option value="trabalhista">Trabalhista</option>
         <option value="civel">Cível</option>
@@ -233,13 +236,16 @@
         <input type="text" name="valor_da_causa[]" class="w-full p-2 border rounded">
 
         <div class="flex items-center gap-2 mt-2">
-        <input type="checkbox"
+        <input type="hidden"
         name="recurso_acionado[]"
+        value="0"
+        class="recurso-hidden">
+        <input type="checkbox"
         class="recurso-checkbox">
         <label class="text-sm font-bold">Recurso acionado?</label>
         </div>
 
-        <div class="campo-recurso mt-2">
+        <div class="campo-recurso mt-2 hidden">
         <label class="text-sm font-bold">Tipo de Recurso</label>
         <select name="tipo_recurso[]" class="w-full p-2 border rounded">
         <option value="">Selecione...</option>
@@ -291,32 +297,17 @@
 
             let card = e.target.closest(".processo-card");
             let campo = card.querySelector(".campo-recurso");
+            let hiddenInput = card.querySelector(".recurso-hidden");
 
             if(e.target.checked){
                 campo.classList.remove("hidden");
+                hiddenInput.value = "1";
             } else {
                 campo.classList.add("hidden");
+                hiddenInput.value = "0";
             }
 
         }
-
-        // TIPO DE PROCESSO
-        if(e.target.classList.contains("tipo-processo")){
-
-            let card = e.target.closest(".processo-card");
-            let checkbox = card.querySelector(".recurso-checkbox");
-            let campo = card.querySelector(".campo-recurso");
-
-            if(e.target.value === "judicial"){
-                checkbox.parentElement.classList.remove("hidden");
-            } else {
-                checkbox.parentElement.classList.add("hidden");
-                campo.classList.add("hidden");
-                checkbox.checked = false;
-            }
-
-        }
-
         });
     </script>
 </body>

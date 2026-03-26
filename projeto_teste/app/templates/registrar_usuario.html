@@ -45,7 +45,7 @@
         </form>
 
         <div class="mt-6 text-center border-t pt-4">
-            <a href="{{ url_for('auth_login.login') }}" class="text-xs text-blue-600 font-bold hover:underline italic">Voltar ao login</a>
+            <a href="{{ url_for('dashboard.menu', modo='jur' if session.get('role') in ['jur', 'jur_gestor'] else 'assent') }}" class="text-xs text-blue-600 font-bold hover:underline italic">Voltar ao menu</a>
         </div>
     </div>
     <script>lucide.createIcons();</script>

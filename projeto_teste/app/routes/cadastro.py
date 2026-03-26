@@ -79,21 +79,47 @@ def cadastro():
 def cadastro_jur():
     if request.method == 'POST':
         empresa_id = request.form.get('empresa_id')
-        dados_jur = {
-            'processo_judicial': request.form.get('processo_judicial', ''),
-            'status': request.form.get('status', ''),
-            'assunto_judicial': request.form.get('assunto_judicial', ''),
-            'valor_da_causa': request.form.get('valor_da_causa', '')
-        }
+        numero_processo = request.form.get('processo_judicial', '').strip()
+        tipo_processo = request.form.get('tipo_processo', '').strip()
+        status = request.form.get('status', '').strip()
+        assunto_judicial = request.form.get('assunto_judicial', '').strip()
+        valor_da_causa = request.form.get('valor_da_causa', '').strip()
+        recurso_acionado = bool(request.form.get('recurso_acionado'))
+        tipo_recurso = request.form.get('tipo_recurso', '').strip()
         
         try:
             with get_db() as db:
                 with db.cursor() as cursor:
-                    set_clause = ", ".join([f"`{k}` = %s" for k in dados_jur.keys()])
-                    query = f"UPDATE municipal_lots SET {set_clause} WHERE id = %s"
-                    cursor.execute(query, list(dados_jur.values()) + [empresa_id])
+                    cursor.execute(
+                        """
+                            INSERT INTO processos
+                            (empresa_id, numero_processo, tipo_processo, status, assunto_judicial,
+                             valor_da_causa, recurso_acionado, tipo_recurso)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (
+                            empresa_id,
+                            numero_processo,
+                            tipo_processo or None,
+                            status,
+                            assunto_judicial,
+                            valor_da_causa or None,
+                            recurso_acionado,
+                            tipo_recurso if recurso_acionado and tipo_recurso else None,
+                        )
+                    )
                     db.commit()
-                    gravar_log(f"CADASTRO_JURIDICO_INICIAL (ID {empresa_id})", db_conn=db)
+                    gravar_log(
+                        acao=f"CADASTRO_PROCESSO_JURIDICO (ID {empresa_id})",
+                        descricao=(
+                            f"numero_processo: {numero_processo} | tipo_processo: {tipo_processo or '-'} | "
+                            f"status: {status} | assunto_judicial: {assunto_judicial} | "
+                            f"valor_da_causa: {valor_da_causa or '-'} | recurso_acionado: {recurso_acionado} | "
+                            f"tipo_recurso: {(tipo_recurso if recurso_acionado and tipo_recurso else '-')}"
+                        ),
+                        usuario_username=session.get('username'),
+                        db_conn=db
+                    )
             flash('Informações jurídicas adicionadas com sucesso!', 'success')
             return redirect(url_for('dashboard.menu', modo='jur'))
         except Exception as e:

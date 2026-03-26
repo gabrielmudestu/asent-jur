@@ -110,7 +110,7 @@ def editar(empresa_id):
         return redirect(url_for('edicao.selecionar_edicao', modo='assent'))
     
 @edicao_bp.route('/editar_jur/<int:empresa_id>', methods=['GET', 'POST'])
-@role_required('jur', 'admin' 'assent_gestor','jur_gestor')
+@role_required('jur', 'admin', 'assent_gestor','jur_gestor')
 def editar_jur(empresa_id):
     try:
         with get_db() as db:
@@ -122,7 +122,8 @@ def editar_jur(empresa_id):
                     return redirect(url_for('edicao.selecionar_edicao', modo='jur'))
                 
                 cursor.execute("""
-                SELECT id, numero_processo, status, assunto_judicial, valor_da_causa
+                SELECT id, numero_processo, tipo_processo, status, assunto_judicial,
+                       valor_da_causa, recurso_acionado, tipo_recurso
                 FROM processos
                 WHERE empresa_id = %s
                 """, (empresa_id,))
@@ -132,9 +133,12 @@ def editar_jur(empresa_id):
                 if request.method == 'POST':
 
                     numeros = request.form.getlist("numero_processo[]")
+                    tipos = request.form.getlist("tipo_processo[]")
                     status = request.form.getlist("status[]")
                     assuntos = request.form.getlist("assunto_judicial[]")
                     valores = request.form.getlist("valor_da_causa[]")
+                    recursos_acionados = request.form.getlist("recurso_acionado[]")
+                    tipos_recurso = request.form.getlist("tipo_recurso[]")
 
                     # Remove processos antigos
                     cursor.execute("DELETE FROM processos WHERE empresa_id = %s", (empresa_id,))
@@ -147,21 +151,28 @@ def editar_jur(empresa_id):
                         if not numero:
                             continue
 
+                        tipo_processo = tipos[i].strip() if i < len(tipos) else ''
                         status_val = status[i].strip()
                         assunto = assuntos[i].strip()
                         valor = valores[i].strip()
+                        recurso_acionado = recursos_acionados[i] == '1' if i < len(recursos_acionados) else False
+                        tipo_recurso = tipos_recurso[i].strip() if i < len(tipos_recurso) else ''
 
                         cursor.execute("""
                         INSERT INTO processos
-                        (empresa_id, numero_processo, status, assunto_judicial, valor_da_causa)
-                        VALUES (%s,%s,%s,%s,%s)
+                        (empresa_id, numero_processo, tipo_processo, status, assunto_judicial,
+                         valor_da_causa, recurso_acionado, tipo_recurso)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
                         """,
                         (
                             empresa_id,
                             numero,
+                            tipo_processo if tipo_processo else None,
                             status_val,
                             assunto,
-                            valor if valor else None
+                            valor if valor else None,
+                            recurso_acionado,
+                            tipo_recurso if recurso_acionado and tipo_recurso else None
                         ))
 
                     db.commit()

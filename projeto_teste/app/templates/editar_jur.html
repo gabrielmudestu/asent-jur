@@ -3,316 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edição Jurídica - CODEGO</title>
+    <title>Edicao Juridica - CODEGO</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen bg-[#002b5c] p-4 md:p-8">
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
+{% set cliente = (partes | selectattr('papel', 'equalto', 'cliente') | list | first) %}
+{% set adversa = (partes | selectattr('papel', 'equalto', 'adversa') | list | first) %}
+{% set outras = partes | selectattr('papel', 'equalto', 'outra') | list %}
+{% set prazos_lista = eventos | selectattr('categoria', 'equalto', 'prazo') | list %}
+{% set movimentacoes_lista = eventos | selectattr('categoria', 'equalto', 'movimentacao') | list %}
+{% set documentos_lista = eventos | selectattr('categoria', 'equalto', 'documento') | list %}
+{% set historico_lista = eventos | selectattr('categoria', 'equalto', 'historico') | list %}
 
-    <div class="max-w-6xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
-            
-            <div class="bg-red-600 p-6 text-white flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold flex items-center gap-2">
-                        <i data-lucide="gavel"></i> Atualização de Dados Jurídicos
-                    </h2>
-                    <p class="text-red-100 text-sm italic">Campos administrativos protegidos (somente leitura)</p>
-                </div>
-                <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-bold">
-                    VOLTAR
-                </a>
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+        <div class="bg-red-600 p-6 text-white flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i data-lucide="gavel"></i> Atualizacao do Processo
+                </h2>
+                <p class="text-red-100 text-sm italic">Processo independente, sem vinculo com empresa</p>
             </div>
+            <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-bold">
+                VOLTAR
+            </a>
+        </div>
 
-            <form id="formEditarJur" action="{{ url_for('edicao.editar_jur', empresa_id=empresa_id) }}" method="POST" class="p-8">
-                
-                <div class="mb-10">
-                    <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
-                        <i data-lucide="building-2" class="w-5 h-5"></i> 
-                        Empresa: <span class="text-red-600 ml-1">{{ dados['empresa'] if dados['empresa'] else 'Não informada' }}</span>
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {% for col in colunas_fixas %}
-                        <div class="bg-gray-50 p-2 rounded border border-gray-100">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase truncate" title="{{ col }}">
-                                {{ labels.get(col, col) }}
-                            </label>
-                            <input type="text" value="{{ dados[col] or '-' }}" readonly 
-                                class="w-full bg-transparent border-none text-sm text-gray-700 font-medium focus:ring-0 cursor-not-allowed">
+        <form id="formEditarJur" action="{{ url_for('edicao.editar_jur', processo_id=processo_id) }}" method="POST" enctype="multipart/form-data" class="p-5 md:p-10 space-y-8">
+            <section class="space-y-6">
+                <h3 class="text-[#002b5c] font-bold flex items-center gap-2 border-b pb-4">
+                    <i data-lucide="gavel"></i> Dados do Processo
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Numero CNJ</label>
+                        <input type="text" name="numero_processo" required inputmode="numeric" maxlength="25"
+                            placeholder="0000000-00.0000.0.00.0000" data-processo-cnj
+                            value="{{ processo.numero_processo or '' }}"
+                            class="w-full p-3 border rounded-lg">
+                        <p class="processo-erro hidden mt-1 text-xs font-semibold text-red-600">
+                            Informe o numero no padrao CNJ: 0000000-00.0000.0.00.0000.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Titulo</label>
+                        <input type="text" name="titulo" required maxlength="255" value="{{ processo.titulo or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de acao</label>
+                        <input type="text" name="tipo_acao" required maxlength="120" value="{{ processo.tipo_acao or processo.tipo_processo or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tribunal</label>
+                        <input type="text" name="tribunal" maxlength="120" value="{{ processo.tribunal or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Vara</label>
+                        <input type="text" name="vara" maxlength="120" value="{{ processo.vara or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Comarca</label>
+                        <input type="text" name="comarca" maxlength="120" value="{{ processo.comarca or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Valor da causa</label>
+                        <input type="number" name="valor_da_causa" min="0" step="0.01" max="9999999999999.99"
+                            value="{{ processo.valor_da_causa or '' }}"
+                            class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                        <input type="text" name="status" required maxlength="100" value="{{ processo.status or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fase</label>
+                        <input type="text" name="fase" maxlength="120" value="{{ processo.fase or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Data de criacao</label>
+                        <input type="date" name="data_criacao" value="{{ processo.data_criacao or '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Descricao</label>
+                    <textarea name="descricao" rows="4" class="w-full p-3 border rounded-lg">{{ processo.descricao or processo.assunto_judicial or '' }}</textarea>
+                </div>
+            </section>
+
+            <section class="space-y-6">
+                <h3 class="text-[#002b5c] font-bold flex items-center gap-2 border-b pb-4">
+                    <i data-lucide="users"></i> Partes
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Parte cliente</label>
+                        <input type="text" name="parte_cliente" maxlength="255" value="{{ cliente.nome if cliente else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo da parte cliente</label>
+                        <input type="text" name="tipo_parte_cliente" maxlength="120" value="{{ cliente.tipo_parte if cliente else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Contato da parte cliente</label>
+                        <input type="text" name="contato_parte_cliente" maxlength="255" value="{{ cliente.contato if cliente else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Parte adversa</label>
+                        <input type="text" name="parte_adversa" maxlength="255" value="{{ adversa.nome if adversa else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo da parte adversa</label>
+                        <input type="text" name="tipo_parte_adversa" maxlength="120" value="{{ adversa.tipo_parte if adversa else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Contato da parte adversa</label>
+                        <input type="text" name="contato_parte_adversa" maxlength="255" value="{{ adversa.contato if adversa else '' }}" class="w-full p-3 border rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Outras partes</label>
+                    <textarea name="outras_partes" rows="3" class="w-full p-3 border rounded-lg">{% for parte in outras %}{{ parte.nome }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                </div>
+            </section>
+
+            <section class="space-y-6">
+                <h3 class="text-[#002b5c] font-bold flex items-center gap-2 border-b pb-4">
+                    <i data-lucide="list-checks"></i> Vinculos do Processo
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Prazos</label>
+                        <textarea name="prazos" rows="4" class="w-full p-3 border rounded-lg">{% for evento in prazos_lista %}{{ evento.descricao }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Movimentacoes</label>
+                        <textarea name="movimentacoes" rows="4" class="w-full p-3 border rounded-lg">{% for evento in movimentacoes_lista %}{{ evento.descricao }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Documentos</label>
+                        <textarea name="documentos" rows="4" class="w-full p-3 border rounded-lg">{% for evento in documentos_lista %}{{ evento.descricao }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-6">
+                <h3 class="text-[#002b5c] font-bold flex items-center gap-2 border-b pb-4">
+                    <i data-lucide="paperclip"></i> Anexos do Processo
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Arquivo</label>
+                        <input type="file" name="documento_arquivo" accept=".pdf,.docx,.png,.jpg,.jpeg,.gif,.webp"
+                            class="w-full p-3 border rounded-lg bg-white">
+                        <p class="text-xs text-gray-500 mt-1">PDF, imagem ou DOCX.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nome do documento</label>
+                        <input type="text" name="documento_nome" maxlength="255" class="w-full p-3 border rounded-lg bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo</label>
+                        <input type="text" name="documento_tipo" maxlength="80" placeholder="Contrato, procuracao, sentenca..."
+                            class="w-full p-3 border rounded-lg bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Data do documento</label>
+                        <input type="date" name="documento_data" class="w-full p-3 border rounded-lg bg-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Observacao</label>
+                        <textarea name="documento_observacao" rows="3" class="w-full p-3 border rounded-lg bg-white"></textarea>
+                    </div>
+                </div>
+
+                {% if documentos_anexos %}
+                <div class="space-y-3">
+                    {% for documento in documentos_anexos %}
+                    <div class="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div>
+                            <p class="font-bold text-[#002b5c] break-words">{{ documento.nome }}</p>
+                            <p class="text-sm text-gray-500 break-words">
+                                {{ documento.tipo or '-' }} | {{ documento.data_documento or documento.created_at or '-' }}
+                            </p>
+                            {% if documento.observacao %}
+                            <p class="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words">{{ documento.observacao }}</p>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('edicao.baixar_documento_jur', documento_id=documento.id) }}"
+                            class="inline-flex items-center justify-center gap-2 bg-[#002b5c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                            <i data-lucide="download" class="w-4 h-4"></i> BAIXAR
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">Nenhum arquivo anexado ainda.</p>
+                {% endif %}
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-[#002b5c] font-bold flex items-center gap-2 border-b pb-4">
+                    <i data-lucide="history"></i> Historico do Sistema
+                </h3>
+
+                {% if historico_lista %}
+                    <div class="space-y-3">
+                        {% for evento in historico_lista %}
+                        <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <div class="text-xs font-bold text-gray-500 uppercase">{{ evento.data_evento or evento.created_at or '-' }}</div>
+                            <div class="text-sm font-bold text-[#002b5c]">{{ evento.titulo or 'Historico do sistema' }}</div>
+                            <div class="text-sm text-gray-700">{{ evento.descricao }}</div>
                         </div>
                         {% endfor %}
                     </div>
-                </div>
+                {% else %}
+                    <p class="text-sm text-gray-500">Nenhum historico automatico registrado ainda.</p>
+                {% endif %}
+            </section>
 
-                <div class="bg-red-50 p-6 rounded-xl border border-red-100 shadow-inner">
-                    <h3 class="text-red-700 font-bold mb-6 flex items-center gap-2">
-                        <i data-lucide="edit-3" class="w-5 h-5"></i> Campos Editáveis (Jurídico)
-                    </h3>
-                    
-                    <div class="md:col-span-2">
-                    <label class="block text-sm font-bold text-gray-700 mb-3">
-                    Processos Judiciais
-                    </label>
-
-                    <div id="lista-processos" class="space-y-4">
-
-                    {% for p in processos %}
-                    <div class="border border-red-200 rounded-xl overflow-hidden processo-card">
-
-                        <button type="button"
-                        onclick="toggleProcesso(this)"
-                        class="w-full flex justify-between items-center bg-red-100 px-4 py-3 font-bold text-red-800">
-
-                            Processo {{ loop.index }} — {{ p.numero_processo if p.numero_processo else 'Novo processo' }}
-
-                            <i data-lucide="chevron-down" class="icone-toggle w-5 h-5"></i>
-
-                        </button>
-
-                        <div class="conteudo-processo p-4 space-y-3 hidden">
-
-                            <label class="text-sm font-bold">Número do processo</label>
-                            <input type="text"
-                            name="numero_processo[]"
-                            value="{{ p.numero_processo }}"
-                            maxlength="120"
-                            class="w-full p-2 border rounded">
-
-                            <label class="text-sm font-bold">Tipo de Processo</label>
-                            <select name="tipo_processo[]" class="w-full p-2 border rounded">
-                                <option value="">Selecione...</option>
-                                <option value="trabalhista" {% if p.tipo_processo == 'trabalhista' %}selected{% endif %}>Trabalhista</option>
-                                <option value="civel" {% if p.tipo_processo == 'civel' %}selected{% endif %}>Cível</option>
-                                <option value="criminal" {% if p.tipo_processo == 'criminal' %}selected{% endif %}>Criminal</option>
-                            </select>
-
-                            <label class="text-sm font-bold">Status</label>
-                            <select name="status[]" class="w-full p-2 border rounded">
-                                <option value="">Selecione...</option>
-                                {% for opcao in status_opcoes %}
-                                    <option value="{{ opcao }}"
-                                    {% if p.status == opcao %}selected{% endif %}>
-                                    {{ opcao }}
-                                </option>
-                                {% endfor %}
-                            </select>
-
-                            <label class="text-sm font-bold">Assunto Judicial</label>
-                            <textarea
-                            name="assunto_judicial[]"
-                            class="w-full p-2 border rounded">{{ p.assunto_judicial }}</textarea>
-
-                            <label class="text-sm font-bold">Valor da causa</label>
-                            <input type="number"
-                            name="valor_da_causa[]"
-                            value="{{ p.valor_da_causa }}"
-                            min="0"
-                            max="9999999999999.99"
-                            step="0.01"
-                            class="w-full p-2 border rounded">
-
-                            <div class="flex items-center gap-2 mt-2">
-                                <input type="hidden"
-                                    name="recurso_acionado[]"
-                                    value="{{ '1' if p.recurso_acionado else '0' }}"
-                                    class="recurso-hidden">
-                                <input type="checkbox"
-                                    class="recurso-checkbox"
-                                    {% if p.recurso_acionado %}checked{% endif %}>
-                                <label class="text-sm font-bold">Recurso acionado?</label>
-                            </div>
-
-                            <div class="campo-recurso mt-2 {% if not p.recurso_acionado %}hidden{% endif %}">
-                                <label class="text-sm font-bold">Tipo de Recurso</label>
-                                <select name="tipo_recurso[]" class="w-full p-2 border rounded">
-                                    <option value="">Selecione...</option>
-                                    <option value="apelacao" {% if p.tipo_recurso == 'apelacao' %}selected{% endif %}>Apelação</option>
-                                    <option value="agravo" {% if p.tipo_recurso == 'agravo' %}selected{% endif %}>Agravo</option>
-                                    <option value="embargos" {% if p.tipo_recurso == 'embargos' %}selected{% endif %}>Embargos</option>
-                                </select>
-                            </div>
-
-                            <button type="button"
-                            onclick="removerProcesso(this)"
-                            class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-                            Remover processo
-                            </button>
-
-                        </div>
-
-                    </div>
-                    {% endfor %}
-
-                    </div>
-
-                    <button type="button"
-                    onclick="adicionarProcesso()"
-                    class="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
-
-                    <i data-lucide="plus"></i>
-                    Adicionar processo
-                    </button>
-
-                    </div>
-
-                </div>
-
-                <div class="mt-8 flex justify-end gap-4 border-t pt-6">
-                    <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='jur') }}'" 
-                        class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
-                        CANCELAR
-                    </button>
-                    <button type="submit" 
-                        class="bg-red-600 hover:bg-red-700 text-white px-12 py-3 rounded-lg font-bold shadow-lg transform transition active:scale-95 flex items-center gap-2">
-                        <i data-lucide="save" class="w-5 h-5"></i> SALVAR ALTERAÇÕES JURÍDICAS
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="mt-8 flex flex-col sm:flex-row sm:justify-end gap-4 border-t pt-6">
+                <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='jur') }}'"
+                    class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
+                    CANCELAR
+                </button>
+                <button type="submit"
+                    class="bg-red-600 hover:bg-red-700 text-white px-12 py-3 rounded-lg font-bold shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i> SALVAR
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        // Inicializa ícones
-        lucide.createIcons();
+<script>
+lucide.createIcons();
+const formJur = document.getElementById('formEditarJur');
 
-        // Trava para o Enter não enviar o formulário acidentalmente
-        const formJur = document.getElementById('formEditarJur');
-        
-        formJur.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                // Permite o Enter somente em textareas (campos de assunto/observações)
-                if (e.target.nodeName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    return false;
-                }
-            }
-        });
+formJur.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.nodeName !== 'TEXTAREA') {
+        e.preventDefault();
+        return false;
+    }
+});
 
-        function adicionarProcesso(){
+function formatarProcessoCNJ(valor) {
+    const digitos = valor.replace(/\D/g, "").slice(0, 20);
+    const partes = [digitos.slice(0, 7), digitos.slice(7, 9), digitos.slice(9, 13), digitos.slice(13, 14), digitos.slice(14, 16), digitos.slice(16, 20)];
+    let formatado = partes[0];
+    if (partes[1]) formatado += "-" + partes[1];
+    if (partes[2]) formatado += "." + partes[2];
+    if (partes[3]) formatado += "." + partes[3];
+    if (partes[4]) formatado += "." + partes[4];
+    if (partes[5]) formatado += "." + partes[5];
+    return formatado;
+}
 
-        let container = document.getElementById("lista-processos");
+function processoValido(valor) {
+    return /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/.test(valor);
+}
 
-        let numero = container.children.length + 1;
+function validarCampoProcesso(input) {
+    const erro = input.parentElement.querySelector(".processo-erro");
+    const valido = processoValido(input.value);
+    input.classList.toggle("border-red-500", !valido);
+    input.classList.toggle("focus:ring-red-500", !valido);
+    if (erro) erro.classList.toggle("hidden", valido);
+    return valido;
+}
 
-        let div = document.createElement("div");
+document.querySelectorAll("[data-processo-cnj]").forEach(function(input) {
+    input.value = formatarProcessoCNJ(input.value);
+    input.addEventListener("input", function() {
+        input.value = formatarProcessoCNJ(input.value);
+        if (input.value.length === 25) validarCampoProcesso(input);
+    });
+    input.addEventListener("blur", function() {
+        validarCampoProcesso(input);
+    });
+});
 
-        div.className = "border border-red-200 rounded-xl overflow-hidden processo-card";
-
-        div.innerHTML = `
-
-        <button type="button"
-        onclick="toggleProcesso(this)"
-        class="w-full flex justify-between items-center bg-red-100 px-4 py-3 font-bold text-red-800">
-
-        Processo ${numero} — Novo processo
-
-        <i data-lucide="chevron-down" class="icone-toggle w-5 h-5"></i>
-
-        </button>
-
-        <div class="conteudo-processo p-4 space-y-3">
-
-        <label class="text-sm font-bold">Número do processo</label>
-        <input type="text" name="numero_processo[]" maxlength="120" class="w-full p-2 border rounded">
-
-        <label class="text-sm font-bold">Tipo de Processo</label>
-        <select name="tipo_processo[]" class="w-full p-2 border rounded">
-        <option value="">Selecione...</option>
-        <option value="trabalhista">Trabalhista</option>
-        <option value="civel">Cível</option>
-        <option value="criminal">Criminal</option>
-        </select>
-
-        <label class="text-sm font-bold">Status</label>
-        <select name="status[]" class="w-full p-2 border rounded">
-        <option value="">Selecione...</option>
-        <option value="ATIVO">ATIVO</option>
-        <option value="ARQUIVADO">ARQUIVADO</option>
-        <option value="SUSPENSO">SUSPENSO</option>
-        </select>
-
-        <label class="text-sm font-bold">Assunto Judicial</label>
-        <textarea name="assunto_judicial[]" class="w-full p-2 border rounded"></textarea>
-
-        <label class="text-sm font-bold">Valor da causa</label>
-        <input type="number" name="valor_da_causa[]" min="0" max="9999999999999.99" step="0.01" class="w-full p-2 border rounded">
-
-        <div class="flex items-center gap-2 mt-2">
-        <input type="hidden"
-        name="recurso_acionado[]"
-        value="0"
-        class="recurso-hidden">
-        <input type="checkbox"
-        class="recurso-checkbox">
-        <label class="text-sm font-bold">Recurso acionado?</label>
-        </div>
-
-        <div class="campo-recurso mt-2 hidden">
-        <label class="text-sm font-bold">Tipo de Recurso</label>
-        <select name="tipo_recurso[]" class="w-full p-2 border rounded">
-        <option value="">Selecione...</option>
-        <option value="apelacao">Apelação</option>
-        <option value="agravo">Agravo</option>
-        <option value="embargos">Embargos</option>
-        </select>
-        </div>
-
-        <button type="button"
-        onclick="removerProcesso(this)"
-        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-        Remover processo
-        </button>
-
-        </div>
-        `;
-
-        container.appendChild(div);
-
-        lucide.createIcons();
-
-        }
-
-        function removerProcesso(botao){
-        
-        let card = botao.closest(".processo-card");
-
-        card.remove();
-
-        }
-
-        function toggleProcesso(botao){
-
-        let card = botao.parentElement;
-        let conteudo = card.querySelector(".conteudo-processo");
-        let icone = botao.querySelector(".icone-toggle");
-
-        conteudo.classList.toggle("hidden");
-
-        icone.classList.toggle("rotate-180");
-
-        }
-
-        document.addEventListener("change", function(e){
-
-        // CHECKBOX DE RECURSO
-        if(e.target.classList.contains("recurso-checkbox")){
-
-            let card = e.target.closest(".processo-card");
-            let campo = card.querySelector(".campo-recurso");
-            let hiddenInput = card.querySelector(".recurso-hidden");
-
-            if(e.target.checked){
-                campo.classList.remove("hidden");
-                hiddenInput.value = "1";
-            } else {
-                campo.classList.add("hidden");
-                hiddenInput.value = "0";
-            }
-
-        }
-        });
-    </script>
+formJur.addEventListener("submit", function(event) {
+    const campos = formJur.querySelectorAll("[data-processo-cnj]");
+    const todosValidos = Array.from(campos).every(validarCampoProcesso);
+    if (!todosValidos) {
+        event.preventDefault();
+        campos[0].focus();
+    }
+});
+</script>
 </body>
 </html>

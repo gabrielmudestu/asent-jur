@@ -1,7 +1,8 @@
 import re
+from datetime import date
 from decimal import Decimal, InvalidOperation
 
-from app.constants import colunas_map, imovel_opcoes, ramo_de_atividade_opcoes, status_de_assentamento_opcoes, status_opcoes
+from app.constants import colunas_map, imovel_opcoes, ramo_de_atividade_opcoes, status_de_assentamento_opcoes
 
 
 class CadastroService:
@@ -29,7 +30,9 @@ class CadastroService:
         'imovel_regular_irregular': set(imovel_opcoes) | {'-'},
     }
     CNPJ_PATTERN = re.compile(r'^(?:\d{14}|\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2})$')
-    PROCESSO_TIPO_OPCOES = {'trabalhista', 'civel', 'criminal'}
+    CNJ_PATTERN = re.compile(r'^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$')
+    DATA_BR_PATTERN = re.compile(r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b')
+    DATA_ISO_PATTERN = re.compile(r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b')
     TIPO_RECURSO_OPCOES = {'apelacao', 'agravo', 'embargos', 'recurso_especial', 'recurso_extraordinario'}
     FORM_TO_DB = {form_name: db_name for form_name, db_name in colunas_map.items()}
     DB_TO_FORM = {db_name: form_name for form_name, db_name in colunas_map.items()}
@@ -39,7 +42,7 @@ class CadastroService:
         if value == '':
             return 0
         if not re.fullmatch(r'\d+', value):
-            raise ValueError(f'O campo "{field_name}" aceita apenas números inteiros.')
+            raise ValueError(f'O campo "{field_name}" aceita apenas numeros inteiros.')
         return int(value)
 
     @staticmethod
@@ -50,9 +53,9 @@ class CadastroService:
         try:
             decimal_value = Decimal(normalized)
         except InvalidOperation:
-            raise ValueError(f'O campo "{field_name}" aceita apenas números decimais válidos.')
+            raise ValueError(f'O campo "{field_name}" aceita apenas numeros decimais validos.')
         if decimal_value < 0:
-            raise ValueError(f'O campo "{field_name}" não pode ser negativo.')
+            raise ValueError(f'O campo "{field_name}" nao pode ser negativo.')
         return decimal_value.quantize(Decimal('0.01'))
 
     @staticmethod
@@ -64,10 +67,8 @@ class CadastroService:
     @classmethod
     def normalizar_dados(cls, form):
         dados = {}
-
         for form_name, db_name in colunas_map.items():
             dados[db_name] = cls._normalizar_valor(db_name, form.get(form_name, ''), form_name)
-
         return dados
 
     @classmethod
@@ -83,7 +84,7 @@ class CadastroService:
         valor = (raw_value or '').strip()
 
         if db_name == 'cnpj' and valor and not cls.CNPJ_PATTERN.fullmatch(valor):
-            raise ValueError('O CNPJ deve estar no formato 00.000.000/0000-00 ou conter 14 dígitos.')
+            raise ValueError('O CNPJ deve estar no formato 00.000.000/0000-00 ou conter 14 digitos.')
 
         if db_name in cls.INT_FIELDS:
             return cls._parse_int(valor, field_name)
@@ -95,45 +96,62 @@ class CadastroService:
 
         max_length = cls.MAX_LENGTHS.get(db_name)
         if max_length and len(valor_final) > max_length:
-            raise ValueError(f'O campo "{field_name}" aceita no máximo {max_length} caracteres.')
+            raise ValueError(f'O campo "{field_name}" aceita no maximo {max_length} caracteres.')
 
         allowed_values = cls.ALLOWED_VALUES.get(db_name)
         if allowed_values and valor_final not in allowed_values:
-            raise ValueError(f'O valor informado para "{field_name}" não é permitido.')
+            raise ValueError(f'O valor informado para "{field_name}" nao e permitido.')
 
         return valor_final
 
     @classmethod
     def normalizar_processo_juridico(cls, form):
-        numero_processo = (form.get('processo_judicial', '') or '').strip()
-        tipo_processo = (form.get('tipo_processo', '') or '').strip()
+        numero_processo = (
+            form.get('numero_processo')
+            or form.get('processo_judicial')
+            or ''
+        ).strip()
+        titulo = (form.get('titulo', '') or '').strip()
+        descricao = (form.get('descricao', '') or '').strip()
+        tipo_acao = (form.get('tipo_acao') or form.get('tipo_processo') or '').strip()
+        tribunal = (form.get('tribunal', '') or '').strip()
+        vara = (form.get('vara', '') or '').strip()
+        comarca = (form.get('comarca', '') or '').strip()
         status = (form.get('status', '') or '').strip()
-        assunto_judicial = (form.get('assunto_judicial', '') or '').strip()
+        fase = (form.get('fase', '') or '').strip()
+        data_criacao = (form.get('data_criacao', '') or '').strip() or None
         valor_da_causa = cls._parse_nullable_decimal((form.get('valor_da_causa', '') or '').strip(), 'Valor da Causa')
         recurso_acionado = bool(form.get('recurso_acionado'))
         tipo_recurso = (form.get('tipo_recurso', '') or '').strip()
 
         if not numero_processo:
-            raise ValueError('O número do processo é obrigatório.')
+            raise ValueError('O numero CNJ e obrigatorio.')
         if len(numero_processo) > 120:
-            raise ValueError('O número do processo aceita no máximo 120 caracteres.')
-        if tipo_processo not in cls.PROCESSO_TIPO_OPCOES:
-            raise ValueError('Selecione um tipo de processo válido.')
-        if status not in status_opcoes:
-            raise ValueError('Selecione um status válido.')
-        if not assunto_judicial:
-            raise ValueError('O assunto judicial é obrigatório.')
-        if recurso_acionado:
-            if tipo_recurso not in cls.TIPO_RECURSO_OPCOES:
-                raise ValueError('Selecione um tipo de recurso válido.')
-        else:
+            raise ValueError('O numero CNJ aceita no maximo 120 caracteres.')
+        if not titulo:
+            raise ValueError('O titulo do processo e obrigatorio.')
+        if not tipo_acao:
+            raise ValueError('O tipo de acao e obrigatorio.')
+        if not status:
+            raise ValueError('O status e obrigatorio.')
+        if recurso_acionado and tipo_recurso not in cls.TIPO_RECURSO_OPCOES:
+            raise ValueError('Selecione um tipo de recurso valido.')
+        if not recurso_acionado:
             tipo_recurso = ''
 
         return {
             'numero_processo': numero_processo,
-            'tipo_processo': tipo_processo,
+            'titulo': titulo,
+            'descricao': descricao or None,
+            'tipo_acao': tipo_acao,
+            'tipo_processo': tipo_acao,
+            'tribunal': tribunal or None,
+            'vara': vara or None,
+            'comarca': comarca or None,
             'status': status,
-            'assunto_judicial': assunto_judicial,
+            'fase': fase or None,
+            'data_criacao': data_criacao,
+            'assunto_judicial': descricao or titulo,
             'valor_da_causa': valor_da_causa,
             'recurso_acionado': recurso_acionado,
             'tipo_recurso': tipo_recurso or None,
@@ -141,36 +159,82 @@ class CadastroService:
 
     @classmethod
     def normalizar_processos_juridicos_edicao(cls, form):
-        numeros = form.getlist("numero_processo[]")
-        tipos = form.getlist("tipo_processo[]")
-        status_list = form.getlist("status[]")
-        assuntos = form.getlist("assunto_judicial[]")
-        valores = form.getlist("valor_da_causa[]")
-        recursos_acionados = form.getlist("recurso_acionado[]")
-        tipos_recurso = form.getlist("tipo_recurso[]")
+        return [cls.normalizar_processo_juridico(form)]
 
-        processos = []
-        for i in range(len(numeros)):
-            numero = (numeros[i] or '').strip()
-            if not numero:
-                continue
+    @staticmethod
+    def linhas_textarea(valor):
+        return [linha.strip() for linha in (valor or '').splitlines() if linha.strip()]
 
-            tipo_processo = (tipos[i] or '').strip() if i < len(tipos) else ''
-            status = (status_list[i] or '').strip() if i < len(status_list) else ''
-            assunto = (assuntos[i] or '').strip() if i < len(assuntos) else ''
-            valor = (valores[i] or '').strip() if i < len(valores) else ''
-            recurso_acionado = recursos_acionados[i] == '1' if i < len(recursos_acionados) else False
-            tipo_recurso = (tipos_recurso[i] or '').strip() if i < len(tipos_recurso) else ''
+    @classmethod
+    def extrair_data_evento(cls, texto):
+        texto = texto or ''
 
-            processo = cls.normalizar_processo_juridico({
-                'processo_judicial': numero,
-                'tipo_processo': tipo_processo,
-                'status': status,
-                'assunto_judicial': assunto,
-                'valor_da_causa': valor,
-                'recurso_acionado': '1' if recurso_acionado else '',
-                'tipo_recurso': tipo_recurso,
+        match_iso = cls.DATA_ISO_PATTERN.search(texto)
+        if match_iso:
+            ano, mes, dia = match_iso.groups()
+            try:
+                return date(int(ano), int(mes), int(dia)).isoformat()
+            except ValueError:
+                return None
+
+        match_br = cls.DATA_BR_PATTERN.search(texto)
+        if match_br:
+            dia, mes, ano = match_br.groups()
+            ano = int(ano)
+            if ano < 100:
+                ano = 2000 + ano if ano < 70 else 1900 + ano
+            try:
+                return date(ano, int(mes), int(dia)).isoformat()
+            except ValueError:
+                return None
+
+        return None
+
+    @classmethod
+    def normalizar_vinculos_processo(cls, form):
+        partes = []
+
+        parte_cliente = (form.get('parte_cliente', '') or '').strip()
+        if parte_cliente:
+            partes.append({
+                'papel': 'cliente',
+                'nome': parte_cliente,
+                'tipo_parte': (form.get('tipo_parte_cliente', '') or '').strip() or None,
+                'contato': (form.get('contato_parte_cliente', '') or '').strip() or None,
+                'observacoes': None,
             })
-            processos.append(processo)
 
-        return processos
+        parte_adversa = (form.get('parte_adversa', '') or '').strip()
+        if parte_adversa:
+            partes.append({
+                'papel': 'adversa',
+                'nome': parte_adversa,
+                'tipo_parte': (form.get('tipo_parte_adversa', '') or '').strip() or None,
+                'contato': (form.get('contato_parte_adversa', '') or '').strip() or None,
+                'observacoes': None,
+            })
+
+        for linha in cls.linhas_textarea(form.get('outras_partes', '')):
+            partes.append({
+                'papel': 'outra',
+                'nome': linha,
+                'tipo_parte': None,
+                'contato': None,
+                'observacoes': None,
+            })
+
+        eventos = []
+        for campo, categoria in [
+            ('prazos', 'prazo'),
+            ('movimentacoes', 'movimentacao'),
+            ('documentos', 'documento'),
+        ]:
+            for linha in cls.linhas_textarea(form.get(campo, '')):
+                eventos.append({
+                    'categoria': categoria,
+                    'titulo': None,
+                    'descricao': linha,
+                    'data_evento': cls.extrair_data_evento(linha) if categoria == 'prazo' else None,
+                })
+
+        return partes, eventos

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados de Assentamento - CODEGO</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+            <div class="bg-[#002b5c] p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <i data-lucide="building-2"></i> Dados de Assentamento
+                    </h2>
+                    <p class="text-blue-100 text-sm italic">Consulta somente leitura para o setor juridico</p>
+                </div>
+                <a href="{{ url_for('juridico.consultar_assentamento') }}" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-bold">
+                    VOLTAR
+                </a>
+            </div>
+
+            <div class="p-5 md:p-8">
+                <div class="mb-8">
+                    <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
+                        <i data-lucide="briefcase-business" class="w-5 h-5"></i>
+                        Empresa: <span class="text-blue-600 ml-1">{{ dados.empresa or 'Nao informada' }}</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for col in colunas %}
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase truncate mb-1" title="{{ col }}">
+                                {{ labels.get(col, col) }}
+                            </label>
+                            <div class="text-sm text-gray-800 font-medium whitespace-pre-wrap break-words">
+                                {{ dados[col] if dados[col] not in [None, ''] else '-' }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-3 text-blue-700">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    <p class="text-sm font-medium">Esta tela e apenas informativa. Alteracoes em dados de assentamento continuam restritas ao setor de Assentamento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

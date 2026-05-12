@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Processo - CODEGO</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #b91c1c; border-radius: 10px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .tab-button.active { background: #b91c1c; color: white; border-color: #b91c1c; }
+    </style>
+</head>
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
+{% set cliente = (partes | selectattr('papel', 'equalto', 'cliente') | list | first) %}
+{% set adversa = (partes | selectattr('papel', 'equalto', 'adversa') | list | first) %}
+{% set outras = partes | selectattr('papel', 'equalto', 'outra') | list %}
+{% set prazos_lista = eventos | selectattr('categoria', 'equalto', 'prazo') | list %}
+{% set movimentacoes_lista = eventos | selectattr('categoria', 'equalto', 'movimentacao') | list %}
+{% set documentos_lista = eventos | selectattr('categoria', 'equalto', 'documento') | list %}
+{% set historico_lista = eventos | selectattr('categoria', 'equalto', 'historico') | list %}
+
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+        <div class="bg-red-700 p-5 md:p-6 text-white flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-red-100">Processo juridico</p>
+                <h1 class="text-2xl font-bold flex items-center gap-2 break-words">
+                    <i data-lucide="scale" class="w-7 h-7 shrink-0"></i>
+                    {{ processo.titulo or processo.numero_processo }}
+                </h1>
+                <p class="text-red-100 text-sm font-mono mt-1 break-words">{{ processo.numero_processo }}</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}"
+                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-bold text-center">
+                    VOLTAR
+                </a>
+                <a href="{{ url_for('edicao.editar_jur', processo_id=processo_id) }}"
+                    class="bg-white text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition-all text-sm font-bold text-center">
+                    EDITAR
+                </a>
+            </div>
+        </div>
+
+        <div class="p-5 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p class="text-xs font-bold uppercase text-gray-500">Status</p>
+                    <p class="text-lg font-bold text-[#002b5c] break-words">{{ processo.status or '-' }}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p class="text-xs font-bold uppercase text-gray-500">Fase</p>
+                    <p class="text-lg font-bold text-[#002b5c] break-words">{{ processo.fase or '-' }}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p class="text-xs font-bold uppercase text-gray-500">Tipo de acao</p>
+                    <p class="text-lg font-bold text-[#002b5c] break-words">{{ processo.tipo_acao or processo.tipo_processo or '-' }}</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <p class="text-xs font-bold uppercase text-gray-500">Valor da causa</p>
+                    <p class="text-lg font-bold text-[#002b5c] break-words">
+                        {% if processo.valor_da_causa not in (None, '') %}
+                            R$ {{ "%.2f"|format(processo.valor_da_causa|float) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar mb-6">
+                <div class="flex gap-2 min-w-max border-b border-gray-200 pb-2">
+                    <button type="button" class="tab-button active px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="dados">Dados principais</button>
+                    <button type="button" class="tab-button px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="partes">Partes</button>
+                    <button type="button" class="tab-button px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="prazos">Prazos</button>
+                    <button type="button" class="tab-button px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="movimentacoes">Movimentacoes</button>
+                    <button type="button" class="tab-button px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="documentos">Documentos</button>
+                    <button type="button" class="tab-button px-4 py-2 rounded-lg border text-sm font-bold text-gray-700" data-tab="historico">Historico</button>
+                </div>
+            </div>
+
+            <section id="tab-dados" class="tab-panel active">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border rounded-lg p-4">
+                        <p class="text-xs font-bold uppercase text-gray-500">Tribunal</p>
+                        <p class="text-sm text-gray-800 break-words">{{ processo.tribunal or '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <p class="text-xs font-bold uppercase text-gray-500">Vara</p>
+                        <p class="text-sm text-gray-800 break-words">{{ processo.vara or '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <p class="text-xs font-bold uppercase text-gray-500">Comarca</p>
+                        <p class="text-sm text-gray-800 break-words">{{ processo.comarca or '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <p class="text-xs font-bold uppercase text-gray-500">Data de criacao</p>
+                        <p class="text-sm text-gray-800 break-words">{{ processo.data_criacao or '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4 md:col-span-2">
+                        <p class="text-xs font-bold uppercase text-gray-500">Descricao</p>
+                        <p class="text-sm text-gray-800 whitespace-pre-wrap break-words">{{ processo.descricao or processo.assunto_judicial or '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4 md:col-span-2">
+                        <p class="text-xs font-bold uppercase text-gray-500">Recurso</p>
+                        <p class="text-sm text-gray-800 break-words">
+                            {{ 'Sim' if processo.recurso_acionado else 'Nao' }}
+                            {% if processo.tipo_recurso %}- {{ processo.tipo_recurso }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-partes" class="tab-panel">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <p class="text-xs font-bold uppercase text-gray-500">Parte cliente</p>
+                        <p class="text-base font-bold text-[#002b5c] break-words">{{ cliente.nome if cliente else '-' }}</p>
+                        <p class="text-sm text-gray-700 break-words">{{ cliente.tipo_parte if cliente and cliente.tipo_parte else '-' }}</p>
+                        <p class="text-sm text-gray-500 break-words">{{ cliente.contato if cliente and cliente.contato else '-' }}</p>
+                    </div>
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <p class="text-xs font-bold uppercase text-gray-500">Parte adversa</p>
+                        <p class="text-base font-bold text-[#002b5c] break-words">{{ adversa.nome if adversa else '-' }}</p>
+                        <p class="text-sm text-gray-700 break-words">{{ adversa.tipo_parte if adversa and adversa.tipo_parte else '-' }}</p>
+                        <p class="text-sm text-gray-500 break-words">{{ adversa.contato if adversa and adversa.contato else '-' }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 border rounded-lg p-4">
+                    <p class="text-xs font-bold uppercase text-gray-500 mb-3">Outras partes</p>
+                    {% if outras %}
+                        <div class="space-y-2">
+                            {% for parte in outras %}
+                            <div class="text-sm text-gray-800 break-words">
+                                <span class="font-bold">{{ parte.nome }}</span>
+                                {% if parte.tipo_parte %} - {{ parte.tipo_parte }}{% endif %}
+                                {% if parte.contato %} - {{ parte.contato }}{% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">Nenhuma outra parte cadastrada.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section id="tab-prazos" class="tab-panel">
+                {% set lista = prazos_lista %}
+                {% include 'partials/processo_eventos_lista.html' %}
+            </section>
+
+            <section id="tab-movimentacoes" class="tab-panel">
+                {% set lista = movimentacoes_lista %}
+                {% include 'partials/processo_eventos_lista.html' %}
+            </section>
+
+            <section id="tab-documentos" class="tab-panel">
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-[#002b5c] font-bold flex items-center gap-2 mb-4">
+                            <i data-lucide="paperclip" class="w-5 h-5"></i> Arquivos anexados
+                        </h3>
+                        {% if documentos_anexos %}
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                {% for documento in documentos_anexos %}
+                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                        <div>
+                                            <p class="font-bold text-[#002b5c] break-words">{{ documento.nome }}</p>
+                                            <p class="text-sm text-gray-500 break-words">
+                                                {{ documento.tipo or '-' }} | {{ documento.data_documento or documento.created_at or '-' }}
+                                            </p>
+                                            <p class="text-xs text-gray-400 break-words">{{ documento.nome_arquivo_original }}</p>
+                                        </div>
+                                        <a href="{{ url_for('edicao.baixar_documento_jur', documento_id=documento.id) }}"
+                                            class="inline-flex items-center justify-center gap-2 bg-[#002b5c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                                            <i data-lucide="download" class="w-4 h-4"></i> Baixar
+                                        </a>
+                                    </div>
+                                    {% if documento.observacao %}
+                                    <p class="text-sm text-gray-700 whitespace-pre-wrap break-words mt-3">{{ documento.observacao }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="border border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                <i data-lucide="file-x" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
+                                <p class="text-sm text-gray-500">Nenhum arquivo anexado.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h3 class="text-[#002b5c] font-bold flex items-center gap-2 mb-4">
+                            <i data-lucide="file-text" class="w-5 h-5"></i> Registros de documentos
+                        </h3>
+                        {% set lista = documentos_lista %}
+                        {% include 'partials/processo_eventos_lista.html' %}
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-historico" class="tab-panel">
+                {% set lista = historico_lista %}
+                {% include 'partials/processo_eventos_lista.html' %}
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+document.querySelectorAll(".tab-button").forEach(function(button) {
+    button.addEventListener("click", function() {
+        const tab = button.dataset.tab;
+        document.querySelectorAll(".tab-button").forEach(function(item) {
+            item.classList.toggle("active", item === button);
+        });
+        document.querySelectorAll(".tab-panel").forEach(function(panel) {
+            panel.classList.toggle("active", panel.id === "tab-" + tab);
+        });
+    });
+});
+</script>
+</body>
+</html>

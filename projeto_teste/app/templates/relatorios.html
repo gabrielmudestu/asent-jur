@@ -10,11 +10,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    
     <style>
         :root {
             --sidebar-bg: #ffffff;
-            --accent-blue: #002b5c; /* Azul Cobalto */
+            --accent-blue: #002b5c;
             --button-blue: #7a97bb;
             --text-white: #ffffff;
             --logout-red: #ef4444;
@@ -27,7 +26,7 @@
             height: 100%;
             width: 100%;
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Mantém o comportamento de dashboard */
+            overflow: hidden;
         }
 
         .wrapper {
@@ -36,7 +35,6 @@
             width: 100vw;
         }
 
-        /* --- SIDEBAR (EXTRADA DO SEU CÓDIGO) --- */
         .sidebar {
             width: 280px;
             min-width: 280px;
@@ -92,12 +90,10 @@
             transform: translateX(5px);
         }
 
-        /* Destaque para a página atual */
         .nav-button.active {
             background-color: var(--accent-blue);
         }
 
-        /* --- CONTEÚDO PRINCIPAL --- */
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -105,7 +101,6 @@
             background-color: #f3f4f6;
         }
 
-        /* --- TOPBAR (EXTRADA DO SEU CÓDIGO) --- */
         .topbar {
             background-color: var(--accent-blue);
             color: var(--text-white);
@@ -152,10 +147,9 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- ÁREA DE TRABALHO DO RELATÓRIO --- */
         .report-container {
             padding: 40px;
-            overflow-y: auto; /* Permite rolar apenas o conteúdo se for longo */
+            overflow-y: auto;
         }
 
         .report-card {
@@ -200,10 +194,106 @@
         .btn-submit:hover {
             opacity: 0.9;
         }
+
+        .ts-dropdown .meta-line {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .ts-control .item {
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            body, html {
+                height: auto;
+                min-height: 100%;
+                overflow: auto;
+            }
+
+            .wrapper {
+                width: 100%;
+                min-height: 100vh;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding: 14px;
+            }
+
+            .logo-container {
+                margin-bottom: 14px;
+            }
+
+            .logo-container img {
+                width: min(170px, 70vw);
+            }
+
+            .nav-menu {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-button {
+                padding: 11px 10px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+
+            .nav-button:hover {
+                transform: none;
+            }
+
+            #empresa-info {
+                margin-top: 14px !important;
+            }
+
+            #empresa-foto {
+                max-height: 160px;
+            }
+
+            .topbar {
+                height: auto;
+                min-height: 64px;
+                padding: 12px 14px;
+                align-items: stretch;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .welcome-text {
+                font-size: 1.1rem;
+                overflow-wrap: anywhere;
+            }
+
+            .btn-logout {
+                justify-content: center;
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .report-container {
+                padding: 16px;
+            }
+
+            .report-card {
+                max-width: none;
+                padding: 20px;
+                border-radius: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-
     <div class="wrapper">
         <div class="sidebar">
             <div class="logo-container">
@@ -217,6 +307,7 @@
                 <a href="{{ url_for('edicao.selecionar_edicao', modo='assent') }}" class="nav-button">Editar Cadastro</a>
                 <a href="{{ url_for('relatorio.relatorios', modo='assent') }}" class="nav-button active">Gerar Relatório</a>
             </div>
+
             <div id="empresa-info" style="margin-top: 30px; width: 100%; display: none;">
                 <div style="text-align: center; margin-bottom: 10px;">
                     <img id="empresa-foto"
@@ -232,13 +323,13 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="main-content">
             <div class="topbar">
                 <div class="welcome-text">
                     <span>Bem-vindo,</span> {{ session['username'] }}
                 </div>
-                
+
                 <a href="{{ url_for('auth_login.logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Sair do Sistema
@@ -249,15 +340,10 @@
                 <div class="report-card">
                     <h2>Emissão de Relatório Oficial</h2>
                     <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Selecione uma empresa da base de dados para gerar o documento PDF consolidado.</p>
-                    
-                    <form method="post" action="/relatorio">
+
+                    <form method="post" action="{{ url_for('relatorio.relatorios', modo='assent') }}">
                         <label style="font-weight: 600; font-size: 13px; color: #444; display: block; margin-bottom: 8px;">EMPRESA REGISTRADA</label>
-                        <select id="select-empresa" name="empresa" class="form-select" required>
-                            <option value="">Clique para selecionar...</option>
-                            {% for empresa in empresas %}
-                                <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
-                            {% endfor %}
-                        </select>
+                        <select id="select-empresa" name="empresa" class="form-select" required></select>
 
                         <button type="submit" class="btn-submit">
                             <i class="fas fa-file-pdf" style="margin-right: 8px;"></i> Gerar Relatório Agora
@@ -268,52 +354,71 @@
         </div>
     </div>
 
-    
+    <script type="application/json" id="empresas-data">
+        {{ empresas | tojson | safe }}
+    </script>
     <script type="application/json" id="empresas-info-data">
         {{ empresas_info | tojson | safe }}
     </script>
     <script>
         lucide.createIcons();
 
-        new TomSelect("#select-empresa", {
+        const empresas = JSON.parse(document.getElementById('empresas-data').textContent);
+        const empresasInfo = JSON.parse(document.getElementById('empresas-info-data').textContent);
+
+        const select = new TomSelect("#select-empresa", {
+            valueField: "id",
+            labelField: "empresa",
+            searchField: ["empresa", "municipio", "cnpj", "processo_sei", "numeros_processos"],
+            options: empresas,
+            maxOptions: 1000,
             create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            },
-            placeholder: "Digite para buscar empresa...",
-            maxOptions: 1000
+            placeholder: "Digite empresa, município, CNPJ, processo SEI ou número do processo...",
+            render: {
+                option: function(data, escape) {
+                    const meta = [
+                        data.municipio || "-",
+                        data.cnpj || "-",
+                        data.processo_sei || "-",
+                        data.numeros_processos || "-"
+                    ].join(" | ");
+
+                    return '<div>' +
+                        '<strong>' + escape(data.empresa || "") + '</strong>' +
+                        '<span class="meta-line">' + escape(meta) + '</span>' +
+                    '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div>' + escape(data.empresa || "") + '</div>';
+                }
+            }
         });
 
-
         document.addEventListener('DOMContentLoaded', function() {
-            const selectEmpresa = document.querySelector('select[name="empresa"]');
             const empresaInfoBox = document.getElementById('empresa-info');
             const empresaFoto = document.getElementById('empresa-foto');
             const empresaNome = document.getElementById('empresa-nome');
             const empresaDescricao = document.getElementById('empresa-descricao');
 
-            const empresasInfo = JSON.parse(
-                document.getElementById('empresas-info-data').textContent
-            );
-
-            selectEmpresa.addEventListener('change', function() {
-                const id = this.value;
-
+            function atualizarEmpresaInfo(id) {
                 if (!id || !empresasInfo[id]) {
                     empresaInfoBox.style.display = 'none';
                     return;
                 }
 
                 const info = empresasInfo[id];
+                const empresaSelecionada = empresas.find(function(item) {
+                    return String(item.id) === String(id);
+                });
 
                 empresaFoto.src = info.foto;
                 empresaFoto.alt = `Foto da empresa ${id}`;
-                empresaNome.textContent = this.options[this.selectedIndex].text; // nome vindo do select
+                empresaNome.textContent = empresaSelecionada ? empresaSelecionada.empresa : '';
                 empresaDescricao.textContent = info.descricao;
-
                 empresaInfoBox.style.display = 'block';
-            });
+            }
+
+            select.on('change', atualizarEmpresaInfo);
         });
     </script>
 </body>

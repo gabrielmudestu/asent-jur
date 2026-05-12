@@ -15,7 +15,7 @@
         .step-indicator.active { background-color: #2563eb; color: white; border-color: #2563eb; }
     </style>
 </head>
-<body class="min-h-screen bg-[#002b5c] p-4 md:p-8">
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto">
         <header class="bg-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center border border-gray-100">
@@ -47,7 +47,7 @@
             <div id="ind-4" class="step-indicator bg-white text-gray-400 w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-gray-300 transition-all">4</div>
         </div>
 
-        <form action="{{ url_for('cadastro.cadastro') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
+        <form action="{{ url_for('cadastro.cadastro') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-5 md:p-8 shadow-2xl border border-gray-100">
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -188,15 +188,15 @@
                 </div>
             </div>
 
-            <div class="mt-10 flex justify-between border-t pt-8">
-                <button type="button" id="prevBtn" onclick="nextPrev(-1)" class="bg-gray-100 text-gray-600 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all invisible flex items-center gap-2">
+            <div class="mt-10 flex flex-col sm:flex-row sm:justify-between gap-4 border-t pt-8">
+                <button type="button" id="prevBtn" onclick="nextPrev(-1)" class="bg-gray-100 text-gray-600 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all invisible flex items-center justify-center gap-2">
                     <i data-lucide="chevron-left" class="w-5 h-5"></i> Anterior
                 </button>
-                <div class="flex gap-4">
-                    <button type="button" id="nextBtn" onclick="nextPrev(1)" class="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg flex items-center gap-2 transition-all transform active:scale-95">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="button" id="nextBtn" onclick="nextPrev(1)" class="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95">
                         Proximo <i data-lucide="chevron-right" class="w-5 h-5"></i>
                     </button>
-                    <button type="submit" id="saveBtn" class="bg-green-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hidden flex items-center gap-2 transition-all transform active:scale-95">
+                    <button type="submit" id="saveBtn" class="bg-green-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-green-700 shadow-lg hidden flex items-center justify-center gap-2 transition-all transform active:scale-95">
                         <i data-lucide="save" class="w-5 h-5"></i> FINALIZAR CADASTRO
                     </button>
                 </div>

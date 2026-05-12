@@ -185,6 +185,89 @@
             border: none;
             display: block;
         }
+
+        @media (max-width: 900px) {
+            body, html {
+                height: auto;
+                min-height: 100%;
+                overflow: auto;
+            }
+
+            .wrapper {
+                width: 100%;
+                min-height: 100vh;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding: 14px;
+            }
+
+            .logo-container {
+                margin-bottom: 14px;
+            }
+
+            .logo-container img {
+                width: min(170px, 70vw);
+            }
+
+            .nav-menu {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-button {
+                padding: 11px 10px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+
+            .nav-button:hover {
+                transform: none;
+            }
+
+            .main-content {
+                min-height: 0;
+            }
+
+            .topbar {
+                height: auto;
+                min-height: 64px;
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .welcome-text {
+                font-size: 1.1rem;
+                overflow-wrap: anywhere;
+            }
+
+            .topbar-actions {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .btn-topbar {
+                justify-content: center;
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .dashboard-container {
+                height: 65vh;
+                min-height: 420px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -10,13 +10,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
-    
     <style>
         :root {
             --sidebar-bg: #ffffff;
-            --accent-blue: #002b5c; /* Azul Cobalto */
-            --button-red: #e57373; /* Tom avermelhado jurídico */
+            --accent-blue: #002b5c;
+            --button-red: #e57373;
             --button-red-hover: #d32f2f;
             --text-white: #ffffff;
             --logout-red: #ef4444;
@@ -38,7 +36,6 @@
             width: 100vw;
         }
 
-        /* --- SIDEBAR JURÍDICA --- */
         .sidebar {
             width: 280px;
             min-width: 280px;
@@ -90,20 +87,17 @@
             transform: translateX(5px);
         }
 
-        /* Destaque para a página atual no jurídico */
         .nav-button.active {
             background-color: var(--accent-blue);
         }
 
-        /* --- CONTEÚDO PRINCIPAL --- */
         .main-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            background-color: #f3f4f6; /* Fundo cinza claro para destacar o card */
+            background-color: #f3f4f6;
         }
 
-        /* --- TOPBAR JURÍDICA --- */
         .topbar {
             background-color: var(--accent-blue);
             color: var(--text-white);
@@ -152,7 +146,6 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- CONTAINER DE RELATÓRIO --- */
         .container-trabalho {
             padding: 40px;
             flex-grow: 1;
@@ -165,6 +158,12 @@
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             max-width: 650px;
+        }
+
+        .cards-relatorios {
+            display: grid;
+            grid-template-columns: minmax(0, 650px);
+            gap: 18px;
         }
 
         .card-relatorio h2 {
@@ -217,6 +216,101 @@
         .btn-gerar:hover {
             opacity: 0.9;
         }
+
+        .ts-dropdown .meta-line {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .ts-control .item {
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            body, html {
+                height: auto;
+                min-height: 100%;
+                overflow: auto;
+            }
+
+            .wrapper {
+                width: 100%;
+                min-height: 100vh;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding: 14px;
+            }
+
+            .logo-container img {
+                width: min(170px, 70vw);
+                margin-bottom: 14px;
+            }
+
+            .nav-menu {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-button {
+                padding: 11px 10px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+
+            .nav-button:hover {
+                transform: none;
+            }
+
+            #empresa-info {
+                margin-top: 14px !important;
+            }
+
+            #empresa-foto {
+                max-height: 160px;
+            }
+
+            .topbar {
+                height: auto;
+                min-height: 64px;
+                padding: 12px 14px;
+                align-items: stretch;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .welcome-text,
+            .welcome-text span {
+                font-size: 1.1rem;
+                overflow-wrap: anywhere;
+            }
+
+            .btn-logout {
+                justify-content: center;
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .container-trabalho {
+                padding: 16px;
+            }
+
+            .card-relatorio {
+                max-width: none;
+                padding: 20px;
+                border-radius: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -230,7 +324,15 @@
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>
                 <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="nav-button">Editar Processos</a>
+                <a href="{{ url_for('juridico.prazos_juridicos') }}" class="nav-button">Alertas de Prazos</a>
+                <a href="{{ url_for('juridico.consultar_assentamento') }}" class="nav-button">Consultar Assentamento</a>
                 <a href="{{ url_for('relatorio.relatorios', modo='jur') }}" class="nav-button active">Gerar Relatório</a>
+                {% if session.get('role') == 'jur_gestor' %}
+                <a href="{{ url_for('auth_user.registrar_colaborador') }}" class="nav-button" style="background-color: var(--button-red); margin-top: 10px;">
+                    <i data-lucide="user-plus" class="w-4 h-4 inline-block mr-2"></i>
+                    Registrar Usuario
+                </a>
+                {% endif %}
             </div>
             <div id="empresa-info" style="margin-top: 30px; width: 100%; display: none;">
                 <div style="text-align: center; margin-bottom: 10px;">
@@ -253,82 +355,85 @@
                 <div class="welcome-text">
                     <span> Bem-vindo,</span>{{ session['username'] }}
                 </div>
-                
+
                 <a href="{{ url_for('auth_login.logout') }}" class="btn-logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                     Sair do Sistema
                 </a>
             </div>
-            
+
             <div class="container-trabalho">
+                <div class="cards-relatorios">
                 <div class="card-relatorio">
-                    <h2>Relatório Jurídico</h2>
-                    <p class="instrucao">Selecione a empresa para consolidar os dados cadastrais e as informações de processos judiciais em um PDF.</p>
-                    
-                    <form method="post" action="/relatorio">
-                        <label style="font-weight: 600; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecionar Empresa</label>
-                        <select id="select-empresa" name="empresa" class="form-select" required>
-                            <option value="">Buscar empresa...</option>
-                            {% for empresa in empresas %}
-                                <option value="{{ empresa.id }}">{{ empresa.empresa }}</option>
-                            {% endfor %}
-                        </select>
+                    <h2>Relatorio do Processo</h2>
+                    <p class="instrucao">Selecione um processo para gerar um PDF com dados principais, partes, prazos, movimentacoes e documentos.</p>
+
+                    <form method="post" action="{{ url_for('relatorio.relatorios', modo='jur') }}">
+                        <input type="hidden" name="relatorio_tipo" value="processo">
+                        <label style="font-weight: 600; font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecionar Processo</label>
+                        <select id="select-processo" name="processo" class="form-select" required></select>
 
                         <button type="submit" class="btn-gerar">
                             <i class="fas fa-file-invoice"></i>
-                            Gerar Documento PDF
+                            Gerar Relatorio PDF
                         </button>
                     </form>
+                </div>
+
+                <div class="card-relatorio">
+                    <h2>Relatorio Geral de Processos</h2>
+                    <p class="instrucao">Gere um PDF consolidado com todos os processos cadastrados e um resumo por status.</p>
+
+                    <form method="post" action="{{ url_for('relatorio.relatorios', modo='jur') }}">
+                        <input type="hidden" name="relatorio_tipo" value="geral_processos">
+                        <button type="submit" class="btn-gerar">
+                            <i class="fas fa-list"></i>
+                            Gerar Relatorio Geral
+                        </button>
+                    </form>
+                </div>
+
                 </div>
             </div>
         </div>
     </div>
-    <script type="application/json" id="empresas-info-data">
-        {{ empresas_info | tojson | safe }}
+
+    <script type="application/json" id="processos-data">
+        {{ processos | tojson | safe }}
     </script>
 
     <script>
         lucide.createIcons();
 
-        new TomSelect("#select-empresa", {
+        const processos = JSON.parse(document.getElementById('processos-data').textContent);
+
+        new TomSelect("#select-processo", {
+            valueField: "id",
+            labelField: "numero_processo",
+            searchField: ["numero_processo", "titulo", "tipo_acao", "tribunal", "comarca", "status", "fase"],
+            options: processos,
+            maxOptions: 1000,
             create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            },
-            placeholder: "Digite para buscar empresa...",
-            maxOptions: 1000
-        });
+            placeholder: "Digite CNJ, titulo, tipo, tribunal, comarca, status ou fase...",
+            render: {
+                option: function(data, escape) {
+                    const meta = [
+                        data.titulo || "-",
+                        data.tipo_acao || "-",
+                        data.tribunal || "-",
+                        data.comarca || "-",
+                        data.status || "-"
+                    ].join(" | ");
 
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectEmpresa = document.querySelector('select[name="empresa"]');
-            const empresaInfoBox = document.getElementById('empresa-info');
-            const empresaFoto = document.getElementById('empresa-foto');
-            const empresaNome = document.getElementById('empresa-nome');
-            const empresaDescricao = document.getElementById('empresa-descricao');
-
-            const empresasInfo = JSON.parse(
-                document.getElementById('empresas-info-data').textContent
-            );
-
-            selectEmpresa.addEventListener('change', function() {
-                const id = this.value;
-
-                if (!id || !empresasInfo[id]) {
-                    empresaInfoBox.style.display = 'none';
-                    return;
+                    return '<div>' +
+                        '<strong>' + escape(data.numero_processo || "") + '</strong>' +
+                        '<span class="meta-line">' + escape(meta) + '</span>' +
+                    '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div>' + escape(data.numero_processo || "") + '</div>';
                 }
-
-                const info = empresasInfo[id];
-
-                empresaFoto.src = info.foto;
-                empresaFoto.alt = `Foto da empresa ${id}`;
-                empresaNome.textContent = this.options[this.selectedIndex].text; // nome vindo do select
-                empresaDescricao.textContent = info.descricao;
-
-                empresaInfoBox.style.display = 'block';
-            });
+            }
         });
     </script>
 </body>

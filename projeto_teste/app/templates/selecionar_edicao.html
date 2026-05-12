@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selecionar para Edição - CODEGO</title>
+    <title>Selecionar para Edicao - CODEGO</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,129 +14,208 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-[#002b5c] p-4 md:p-8 flex flex-col items-center">
-
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8 flex flex-col items-center">
 <div class="w-full max-w-6xl">
+    <div class="bg-white rounded-t-2xl p-6 shadow-xl border-b flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="p-3 {% if modo == 'jur' %}bg-red-50 text-red-600{% else %}bg-blue-50 text-[#002b5c]{% endif %} rounded-full">
+                <i data-lucide="search" class="w-6 h-6"></i>
+            </div>
 
-<div class="bg-white rounded-t-2xl p-6 shadow-xl border-b flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-[#002b5c]">
+                    {{ 'Selecionar Processo' if modo == 'jur' else 'Selecionar Registro' }}
+                </h1>
+                <p class="text-xs text-gray-500 font-medium">MODO:
+                    <span class="{% if modo == 'jur' %}text-red-600{% else %}text-blue-600{% endif %} uppercase">
+                        {{ 'Edicao Juridica' if modo == 'jur' else 'Edicao de Assentamento' }}
+                    </span>
+                </p>
+            </div>
+        </div>
 
-<div class="flex items-center gap-4">
-<div class="p-3 {% if modo == 'jur' %}bg-red-50 text-red-600{% else %}bg-blue-50 text-[#002b5c]{% endif %} rounded-full">
-<i data-lucide="search" class="w-6 h-6"></i>
-</div>
+        <form method="get" class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+            <div class="relative w-full md:w-80">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+                <input id="searchInput"
+                    name="q"
+                    type="text"
+                    value="{{ termo_busca or '' }}"
+                    placeholder="{{ 'Pesquisar CNJ, titulo, parte cliente, parte adversa, tipo ou status...' if modo == 'jur' else 'Pesquisar municipio, empresa, CNPJ ou processo...' }}"
+                    class="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#002b5c] outline-none">
+            </div>
+            {% if modo == 'jur' %}
+            <input type="hidden" name="page" value="1">
+            <button type="submit"
+                class="w-full md:w-auto px-4 py-2 bg-[#002b5c] hover:bg-blue-800 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="search-check" class="w-4 h-4"></i> BUSCAR
+            </button>
+            {% endif %}
 
-<div>
-<h1 class="text-xl font-bold text-[#002b5c]">Selecionar Registro</h1>
-<p class="text-xs text-gray-500 font-medium">MODO:
-<span class="{% if modo == 'jur' %}text-red-600{% else %}text-blue-600{% endif %} uppercase">
-{{ 'Edição Jurídica' if modo == 'jur' else 'Edição de Assentamento' }}
-</span>
-</p>
-</div>
-</div>
+            <a href="{{ url_for('dashboard.menu', modo='assent' if modo == 'assent' else 'jur') }}"
+                class="w-full md:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="corner-up-left" class="w-4 h-4"></i> VOLTAR AO MENU
+            </a>
+        </form>
+    </div>
 
-<div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+    <div class="bg-white rounded-b-2xl shadow-2xl overflow-hidden border border-white/20">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table id="tabelaRegistros" class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-600 border-b">
+                    <tr>
+                        {% if modo == 'jur' %}
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Processo</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Titulo</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Parte cliente</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Parte adversa</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Tipo de acao</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Status</th>
+                        {% else %}
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Municipio</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Empresa</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">CNPJ</th>
+                        {% endif %}
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center">Acao</th>
+                    </tr>
+                </thead>
 
-<!-- 🔎 BARRA DE PESQUISA -->
-<div class="relative w-full md:w-72">
-<i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
-<input id="searchInput"
-type="text"
-placeholder="Pesquisar município, empresa, CNPJ ou processo..."
-class="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#002b5c] outline-none">
-</div>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in dados %}
+                    <tr class="hover:bg-gray-50/80 transition-colors linha-registro"
+                        data-processo="{{ item.numero_processo if modo == 'jur' else item.processo_judicial }}"
+                        data-sei="{{ item.processo_sei }}">
+                        {% if modo == 'jur' %}
+                            <td class="px-6 py-4 text-sm font-bold text-[#002b5c] font-mono">{{ item['numero_processo'] }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['titulo'] or '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['parte_cliente'] or '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['parte_adversa'] or '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['tipo_acao'] or item['tipo_processo'] or '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ item['status'] or '-' }}</td>
+                        {% else %}
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ item['municipio'] }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-[#002b5c]">{{ item['empresa'] }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ item['cnpj'] }}</td>
+                        {% endif %}
 
-<a href="{{ url_for('dashboard.menu', modo='assent' if modo == 'assent' else 'jur') }}"
-class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
-<i data-lucide="corner-up-left" class="w-4 h-4"></i> VOLTAR AO MENU
-</a>
+                        <td class="px-6 py-4 text-center">
+                            {% if modo == 'jur' %}
+                                <div class="flex flex-col sm:flex-row justify-center gap-2">
+                                <a href="{{ url_for('edicao.detalhe_jur', processo_id=item['id']) }}"
+                                    class="inline-flex items-center justify-center gap-2 bg-[#002b5c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
+                                    <i data-lucide="eye" class="w-4 h-4"></i> VER
+                                </a>
+                                <a href="{{ url_for('edicao.editar_jur', processo_id=item['id']) }}"
+                                    class="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
+                                    <i data-lucide="gavel" class="w-4 h-4"></i> EDITAR
+                                </a>
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for('edicao.editar', empresa_id=item['id']) }}"
+                                    class="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#002b5c] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
+                                    <i data-lucide="edit" class="w-4 h-4"></i> EDITAR
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-</div>
-</div>
+        {% if not dados %}
+        <div class="p-20 text-center">
+            <i data-lucide="folder-open" class="w-16 h-16 text-gray-200 mx-auto mb-4"></i>
+            <p class="text-gray-400 font-medium">Nenhum registro encontrado para edicao.</p>
+        </div>
+        {% endif %}
 
-<div class="bg-white rounded-b-2xl shadow-2xl overflow-hidden border border-white/20">
+        {% if modo == 'jur' and paginacao %}
+        <div class="border-t bg-gray-50 px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="text-sm text-gray-600">
+                Mostrando
+                <span class="font-bold text-[#002b5c]">{{ paginacao.inicio }}</span>
+                a
+                <span class="font-bold text-[#002b5c]">{{ paginacao.fim }}</span>
+                de
+                <span class="font-bold text-[#002b5c]">{{ paginacao.total_registros }}</span>
+                processos
+            </div>
 
-<div class="overflow-x-auto custom-scrollbar">
-<table id="tabelaRegistros" class="w-full text-left">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span class="text-sm text-gray-500 text-center">
+                    Pagina {{ paginacao.pagina }} de {{ paginacao.total_paginas }}
+                </span>
 
-<thead class="bg-gray-50 text-gray-600 border-b">
-<tr>
-<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Município</th>
-<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Empresa</th>
-<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">CNPJ</th>
-<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center">Ação</th>
-</tr>
-</thead>
+                <div class="flex items-center justify-center gap-2">
+                    {% if paginacao.tem_anterior %}
+                    <a href="{{ url_for('edicao.selecionar_edicao', modo='jur', q=termo_busca, page=paginacao.pagina - 1) }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border text-sm font-bold text-gray-700 hover:bg-gray-100">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+                    </a>
+                    {% else %}
+                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 border text-sm font-bold text-gray-400 cursor-not-allowed">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+                    </span>
+                    {% endif %}
 
-<tbody class="divide-y divide-gray-100">
+                    {% if paginacao.tem_proxima %}
+                    <a href="{{ url_for('edicao.selecionar_edicao', modo='jur', q=termo_busca, page=paginacao.pagina + 1) }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#002b5c] text-white text-sm font-bold hover:bg-blue-800">
+                        Proxima <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                    {% else %}
+                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 border text-sm font-bold text-gray-400 cursor-not-allowed">
+                        Proxima <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
-{% for item in dados %}
-<tr class="hover:bg-gray-50/80 transition-colors linha-registro"
-data-processo="{{ item.processo_judicial }}"
-data-sei="{{ item.processo_sei }}">
-<td class="px-6 py-4 text-sm text-gray-600">{{ item['municipio'] }}</td>
-<td class="px-6 py-4 text-sm font-bold text-[#002b5c]">{{ item['empresa'] }}</td>
-<td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ item['cnpj'] }}</td>
-<td class="px-6 py-4 text-center">
-
-{% if modo == 'jur' %}
-<a href="{{ url_for('edicao.editar_jur', empresa_id=item['id']) }}"
-class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
-<i data-lucide="gavel" class="w-4 h-4"></i> EDITAR JURÍDICO
-</a>
-{% else %}
-<a href="{{ url_for('edicao.editar', empresa_id=item['id']) }}"
-class="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#002b5c] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all transform active:scale-95">
-<i data-lucide="edit" class="w-4 h-4"></i> EDITAR
-</a>
-{% endif %}
-
-</td>
-</tr>
-{% endfor %}
-
-</tbody>
-</table>
-</div>
-
-{% if not dados %}
-<div class="p-20 text-center">
-<i data-lucide="folder-open" class="w-16 h-16 text-gray-200 mx-auto mb-4"></i>
-<p class="text-gray-400 font-medium">Nenhum registro encontrado para edição.</p>
-</div>
-{% endif %}
-
-</div>
-
-<p class="text-white/50 text-[10px] text-center mt-4 uppercase tracking-widest">Sistema ASENTJUR - CODEGO 2024</p>
-
+    <p class="text-white/50 text-[10px] text-center mt-4 uppercase tracking-widest">Sistema ASENTJUR - CODEGO 2024</p>
 </div>
 
 <script>
 lucide.createIcons();
 
-document.getElementById("searchInput").addEventListener("keyup", function () {
+const searchInput = document.getElementById("searchInput");
 
-let filtro = this.value.toLowerCase();
-
-let linhas = document.querySelectorAll(".linha-registro");
-
-linhas.forEach(function(linha){
-
-let textoVisivel = linha.innerText.toLowerCase();
-let processoJudicial = (linha.dataset.processo || "").toLowerCase();
-let processoSEI = (linha.dataset.sei || "").toLowerCase();
-
-if(textoVisivel.includes(filtro) || processoJudicial.includes(filtro) || processoSEI.includes(filtro)){
-linha.style.display = "";
-}else{
-linha.style.display = "none";
-}
-
+{% if modo == 'jur' %}
+let searchTimer = null;
+searchInput.addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () {
+        searchInput.form.submit();
+    }, 550);
 });
+{% else %}
+searchInput.addEventListener("keyup", function () {
+    const filtro = this.value.toLowerCase().trim();
+    const filtroNumerico = filtro.replace(/\D/g, "");
+    const linhas = document.querySelectorAll(".linha-registro");
 
+    linhas.forEach(function(linha) {
+        const textoVisivel = linha.innerText.toLowerCase();
+        const processoJudicial = (linha.dataset.processo || "").toLowerCase();
+        const processoNumerico = processoJudicial.replace(/\D/g, "");
+        const processoSEI = (linha.dataset.sei || "").toLowerCase();
+
+        if (
+            textoVisivel.includes(filtro) ||
+            processoJudicial.includes(filtro) ||
+            processoSEI.includes(filtro) ||
+            (filtroNumerico && processoNumerico.includes(filtroNumerico))
+        ) {
+            linha.style.display = "";
+        } else {
+            linha.style.display = "none";
+        }
+    });
 });
+{% endif %}
 </script>
-
 </body>
 </html>

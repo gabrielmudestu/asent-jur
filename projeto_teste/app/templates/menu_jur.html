@@ -187,6 +187,87 @@
             border: none;
             display: block;
         }
+
+        @media (max-width: 900px) {
+            body, html {
+                height: auto;
+                min-height: 100%;
+                overflow: auto;
+            }
+
+            .wrapper {
+                width: 100%;
+                min-height: 100vh;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding: 14px;
+            }
+
+            .logo-container img {
+                width: min(170px, 70vw);
+                margin-bottom: 14px;
+            }
+
+            .nav-menu {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-button {
+                padding: 11px 10px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+
+            .nav-button:hover {
+                transform: none;
+            }
+
+            .main-content {
+                min-height: 0;
+            }
+
+            .topbar {
+                height: auto;
+                min-height: 64px;
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .welcome-text,
+            .welcome-text span {
+                font-size: 1.1rem;
+                overflow-wrap: anywhere;
+            }
+
+            .topbar-actions {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .btn-topbar {
+                justify-content: center;
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .dashboard-container {
+                height: 65vh;
+                min-height: 420px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -200,12 +281,14 @@
             <div class="nav-menu">
                 <a href="{{ url_for('cadastro.cadastro_jur') }}" class="nav-button">Adicionar Processos</a>
                 <a href="{{ url_for('edicao.selecionar_edicao', modo='jur') }}" class="nav-button">Editar Processos</a>
-                <a href="{{ url_for('relatorio.relatorios', modo='jur') }}" class="nav-button">Gerar Relatório</a>
+                <a href="{{ url_for('juridico.prazos_juridicos') }}" class="nav-button">Alertas de Prazos</a>
+                <a href="{{ url_for('juridico.consultar_assentamento') }}" class="nav-button">Consultar Assentamento</a>
+                <a href="{{ url_for('relatorio.relatorios', modo='jur') }}" class="nav-button">Gerar Relatorio</a>
 
                 {% if session.get('role') == 'jur_gestor' %}
     <a href="{{ url_for('auth_user.registrar_colaborador') }}" class="nav-button" style="background-color: var(--button-red); margin-top: 10px;">
         <i data-lucide="user-plus" class="w-4 h-4 inline-block mr-2"></i>
-        Registrar Usuário
+        Registrar Usuario
     </a>
     {% endif %}
             </div>

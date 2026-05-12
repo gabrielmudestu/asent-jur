@@ -1,249 +1,261 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cadastro Jurídico - CODEGO</title>
-<link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Juridico - CODEGO</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='imagens_empresas/asentjur.png') }}" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="min-h-screen bg-[#002b5c] p-4 md:p-8">
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
+<div class="max-w-6xl mx-auto">
+    <header class="bg-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center border border-gray-100">
+        <div class="flex items-center gap-4">
+            <img src="{{ url_for('static', filename='logo_codego.png') }}" class="h-12 w-auto">
+            <div>
+                <h1 class="text-xl font-bold text-[#002b5c]">Gestao Juridica</h1>
+                <p class="text-sm text-gray-500 italic">Novo processo</p>
+            </div>
+        </div>
 
-<div class="max-w-4xl mx-auto">
+        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+            <a href="{{ url_for('cadastro.importar_processos_jur') }}"
+                class="bg-[#002b5c] hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 text-sm">
+                <i data-lucide="upload" class="w-4 h-4"></i> Importar Processos
+            </a>
+            <a href="{{ url_for('dashboard.menu', modo='jur') }}" class="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center gap-2 text-sm">
+                <i data-lucide="home" class="w-4 h-4"></i> Inicio
+            </a>
+        </div>
+    </header>
 
-<header class="bg-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center border border-gray-100">
-<div class="flex items-center gap-4">
-<img src="{{ url_for('static', filename='logo_codego.png') }}" class="h-12 w-auto">
-<div>
-<h1 class="text-xl font-bold text-[#002b5c]">Gestão Jurídica</h1>
-<p class="text-sm text-gray-500 italic">Novo Registro Processual</p>
-</div>
-</div>
+    <form action="{{ url_for('cadastro.cadastro_jur') }}" method="POST" enctype="multipart/form-data"
+        class="bg-white rounded-2xl p-5 md:p-10 shadow-2xl border border-gray-100 space-y-8">
 
-<a href="{{ url_for('dashboard.menu', modo='jur') }}" class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 text-sm">
-<i data-lucide="home" class="w-4 h-4"></i> Início
-</a>
+        <section class="space-y-6">
+            <h2 class="text-lg font-bold text-[#002b5c] flex items-center gap-2 border-b pb-4">
+                <i data-lucide="gavel"></i> Dados do Processo
+            </h2>
 
-</header>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Numero CNJ</label>
+                    <input type="text" name="numero_processo" required inputmode="numeric" maxlength="25"
+                        placeholder="0000000-00.0000.0.00.0000" data-processo-cnj
+                        class="w-full p-3 border rounded-lg">
+                    <p class="processo-erro hidden mt-1 text-xs font-semibold text-red-600">
+                        Informe o numero no padrao CNJ: 0000000-00.0000.0.00.0000.
+                    </p>
+                </div>
 
-<form action="{{ url_for('cadastro.cadastro_jur') }}" method="POST"
-class="bg-white rounded-2xl p-10 shadow-2xl border border-gray-100">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Titulo</label>
+                    <input type="text" name="titulo" required maxlength="255" class="w-full p-3 border rounded-lg">
+                </div>
 
-<div class="mb-8">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de acao</label>
+                    <input type="text" name="tipo_acao" required maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
 
-<h2 class="text-lg font-bold text-[#002b5c] mb-6 flex items-center gap-2 border-b pb-4">
-<i data-lucide="search"></i> 1. Selecione a Empresa
-</h2>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tribunal</label>
+                    <input type="text" name="tribunal" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
 
-<select name="empresa_id" id="empresa_id" required onchange="toggleForm(this.value)"
-class="w-full p-3 border rounded-lg">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Vara</label>
+                    <input type="text" name="vara" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
 
-<option value="">-- Clique para selecionar uma empresa --</option>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Comarca</label>
+                    <input type="text" name="comarca" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
 
-{% for empresa in empresas %}
-<option value="{{ empresa.id }}" data-cnpj="{{ empresa.cnpj }}">
-{{ empresa.empresa }} (CNPJ: {{ empresa.cnpj }})
-</option>
-{% endfor %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Valor da causa</label>
+                    <input type="number" name="valor_da_causa" min="0" step="0.01" max="9999999999999.99"
+                        class="w-full p-3 border rounded-lg">
+                </div>
 
-</select>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <input type="text" name="status" required maxlength="100" class="w-full p-3 border rounded-lg">
+                </div>
 
-</div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fase</label>
+                    <input type="text" name="fase" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
 
-<div id="formulario-juridico" class="hidden space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Data de criacao</label>
+                    <input type="date" name="data_criacao" class="w-full p-3 border rounded-lg">
+                </div>
+            </div>
 
-<h2 class="text-lg font-bold text-[#002b5c] mb-8 flex items-center gap-2 border-b pb-4">
-<i data-lucide="gavel"></i> 2. Informações do Processo
-</h2>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Descricao</label>
+                <textarea name="descricao" rows="4" class="w-full p-3 border rounded-lg"></textarea>
+            </div>
+        </section>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section class="space-y-6">
+            <h2 class="text-lg font-bold text-[#002b5c] flex items-center gap-2 border-b pb-4">
+                <i data-lucide="users"></i> Partes
+            </h2>
 
-<div>
-<label class="block text-sm font-semibold text-gray-700 mb-2">Processo Judicial</label>
-<input type="text" name="processo_judicial" required maxlength="120"
-class="w-full p-3 border rounded-lg">
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Parte cliente</label>
+                    <input type="text" name="parte_cliente" maxlength="255" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo da parte cliente</label>
+                    <input type="text" name="tipo_parte_cliente" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contato da parte cliente</label>
+                    <input type="text" name="contato_parte_cliente" maxlength="255" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Parte adversa</label>
+                    <input type="text" name="parte_adversa" maxlength="255" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo da parte adversa</label>
+                    <input type="text" name="tipo_parte_adversa" maxlength="120" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contato da parte adversa</label>
+                    <input type="text" name="contato_parte_adversa" maxlength="255" class="w-full p-3 border rounded-lg">
+                </div>
+            </div>
 
-<div>
-    <label class="block text-sm font-semibold text-gray-700 mb-2">
-        Tipo de Processo
-    </label>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Outras partes</label>
+                <textarea name="outras_partes" rows="3" class="w-full p-3 border rounded-lg"></textarea>
+            </div>
+        </section>
 
-    <select name="tipo_processo" required
-    class="w-full p-3 border rounded-lg">
-        <option value="">-- Selecione o tipo de processo --</option>
-        <option value="trabalhista">Trabalhista</option>
-        <option value="civel">Cível</option>
-        <option value="criminal">Criminal</option>
-    </select>
-</div>
+        <section class="space-y-6">
+            <h2 class="text-lg font-bold text-[#002b5c] flex items-center gap-2 border-b pb-4">
+                <i data-lucide="list-checks"></i> Vinculos do Processo
+            </h2>
 
-<div>
-<label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-<select name="status" required class="w-full p-3 border rounded-lg">
-    <option value="">-- Selecione o status --</option>
-    <option value="ATIVO">ATIVO</option>
-    <option value="ARQUIVADO">ARQUIVADO</option>
-    <option value="SUSPENSO">SUSPENSO</option>
-</select>
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Prazos</label>
+                    <textarea name="prazos" rows="4" class="w-full p-3 border rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Movimentacoes</label>
+                    <textarea name="movimentacoes" rows="4" class="w-full p-3 border rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Documentos</label>
+                    <textarea name="documentos" rows="4" class="w-full p-3 border rounded-lg"></textarea>
+                </div>
+            </div>
+        </section>
 
-</div>
+        <section class="space-y-6">
+            <h2 class="text-lg font-bold text-[#002b5c] flex items-center gap-2 border-b pb-4">
+                <i data-lucide="paperclip"></i> Anexo do Processo
+            </h2>
 
-<div>
-<label class="block text-sm font-semibold text-gray-700 mb-2">Valor da Causa</label>
-<input type="number" name="valor_da_causa" min="0" step="0.01" max="9999999999999.99"
-class="w-full p-3 border rounded-lg">
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Arquivo</label>
+                    <input type="file" name="documento_arquivo" accept=".pdf,.docx,.png,.jpg,.jpeg,.gif,.webp"
+                        class="w-full p-3 border rounded-lg bg-white">
+                    <p class="text-xs text-gray-500 mt-1">PDF, imagem ou DOCX.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nome do documento</label>
+                    <input type="text" name="documento_nome" maxlength="255" class="w-full p-3 border rounded-lg bg-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo</label>
+                    <input type="text" name="documento_tipo" maxlength="80" placeholder="Contrato, procuracao, sentenca..."
+                        class="w-full p-3 border rounded-lg bg-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Data do documento</label>
+                    <input type="date" name="documento_data" class="w-full p-3 border rounded-lg bg-white">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Observacao</label>
+                    <textarea name="documento_observacao" rows="3" class="w-full p-3 border rounded-lg bg-white"></textarea>
+                </div>
+            </div>
+        </section>
 
-<div>
-<label class="block text-sm font-semibold text-gray-700 mb-2">Assunto Judicial</label>
-<textarea name="assunto_judicial" required rows="3"
-class="w-full p-3 border rounded-lg"></textarea>
-</div>
+        <div class="mt-10 flex flex-col sm:flex-row sm:justify-end gap-4 border-t pt-6">
+            <button type="button" onclick="window.location.href='{{ url_for('dashboard.menu', modo='jur') }}'"
+                class="bg-gray-100 text-gray-600 px-6 py-3 rounded-lg font-bold">
+                Voltar
+            </button>
 
-<label class="flex items-center gap-3 cursor-pointer mt-4">
-    <input type="checkbox" id="recurso_acionado" name="recurso_acionado" class="hidden peer">
-
-    <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 relative transition">
-        <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 peer-checked:translate-x-5 transition"></div>
-    </div>
-
-    <span class="text-sm font-semibold text-gray-700">
-        Recurso acionado?
-    </span>
-</label>
-
-<div id="campo-recurso" class="hidden mt-4">
-
-    <label class="block text-sm font-semibold text-gray-700 mb-2">
-        Tipo de Recurso
-    </label>
-
-    <select name="tipo_recurso"
-    class="w-full p-3 border rounded-lg">
-        <option value="">-- Selecione o tipo de recurso --</option>
-        <option value="apelacao">Apelação</option>
-        <option value="agravo">Agravo</option>
-        <option value="embargos">Embargos</option>
-        <option value="recurso_especial">Recurso Especial</option>
-        <option value="recurso_extraordinario">Recurso Extraordinário</option>
-    </select>
-
-</div>
-
-<div class="mt-10 flex justify-end gap-4 border-t pt-6">
-
-<button type="button" onclick="window.location.reload()"
-class="bg-gray-100 text-gray-600 px-6 py-3 rounded-lg font-bold">
-Voltar
-</button>
-
-<button type="submit"
-class="bg-green-600 text-white px-10 py-3 rounded-lg font-bold flex items-center gap-2">
-<i data-lucide="save" class="w-5 h-5"></i> Salvar Registro
-</button>
-
-</div>
-
-</div>
-</form>
+            <button type="submit"
+                class="bg-green-600 text-white px-10 py-3 rounded-lg font-bold flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-5 h-5"></i> Salvar Processo
+            </button>
+        </div>
+    </form>
 </div>
 
 <script>
-
 lucide.createIcons();
+const formJur = document.querySelector("form");
 
-function toggleForm(valor){
-const form = document.getElementById('formulario-juridico');
-
-if(valor !== ""){
-form.classList.remove('hidden');
-form.scrollIntoView({behavior:'smooth'});
-}else{
-form.classList.add('hidden');
-}
-}
-
-function normalize(text){
-return text.toLowerCase()
-.normalize("NFD")
-.replace(/[\u0300-\u036f]/g,"");
+function formatarProcessoCNJ(valor) {
+    const digitos = valor.replace(/\D/g, "").slice(0, 20);
+    const partes = [digitos.slice(0, 7), digitos.slice(7, 9), digitos.slice(9, 13), digitos.slice(13, 14), digitos.slice(14, 16), digitos.slice(16, 20)];
+    let formatado = partes[0];
+    if (partes[1]) formatado += "-" + partes[1];
+    if (partes[2]) formatado += "." + partes[2];
+    if (partes[3]) formatado += "." + partes[3];
+    if (partes[4]) formatado += "." + partes[4];
+    if (partes[5]) formatado += "." + partes[5];
+    return formatado;
 }
 
-new TomSelect("#empresa_id",{
-
-create:false,
-maxOptions:1000,
-openOnFocus:true,
-highlight:true,
-placeholder:"Digite o nome da empresa ou CNPJ...",
-
-score:function(search){
-
-const normalizedSearch = normalize(search);
-
-return function(item){
-
-const text = normalize(item.text);
-const cnpj = normalize(item.$option.dataset.cnpj || "");
-
-if(text.includes(normalizedSearch)) return 1;
-if(cnpj.includes(normalizedSearch)) return 1;
-
-return 0;
-
-};
-
-},
-
-render:{
-
-option:function(data,escape){
-
-const cnpj = data.$option.dataset.cnpj || "";
-const nome = data.text.split('(CNPJ')[0];
-
-return `
-<div class="flex flex-col py-1">
-<span class="font-semibold text-[#002b5c]">${escape(nome)}</span>
-<span class="text-xs text-gray-400 font-mono">${escape(cnpj)}</span>
-</div>
-`;
-
-},
-
-item:function(data,escape){
-
-const nome = data.text.split('(CNPJ')[0];
-return `<div>${escape(nome)}</div>`;
-
+function processoValido(valor) {
+    return /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/.test(valor);
 }
 
+function validarCampoProcesso(input) {
+    const erro = input.parentElement.querySelector(".processo-erro");
+    const valido = processoValido(input.value);
+    input.classList.toggle("border-red-500", !valido);
+    input.classList.toggle("focus:ring-red-500", !valido);
+    if (erro) erro.classList.toggle("hidden", valido);
+    return valido;
 }
 
+document.querySelectorAll("[data-processo-cnj]").forEach(function(input) {
+    input.value = formatarProcessoCNJ(input.value);
+    input.addEventListener("input", function() {
+        input.value = formatarProcessoCNJ(input.value);
+        if (input.value.length === 25) validarCampoProcesso(input);
+    });
+    input.addEventListener("blur", function() {
+        validarCampoProcesso(input);
+    });
 });
 
-const checkbox = document.getElementById("recurso_acionado");
-const campoRecurso = document.getElementById("campo-recurso");
-
-checkbox.addEventListener("change", function () {
-    if (this.checked) {
-        campoRecurso.classList.remove("hidden");
-    } else {
-        campoRecurso.classList.add("hidden");
+formJur.addEventListener("submit", function(event) {
+    const campos = formJur.querySelectorAll("[data-processo-cnj]");
+    const todosValidos = Array.from(campos).every(validarCampoProcesso);
+    if (!todosValidos) {
+        event.preventDefault();
+        campos[0].focus();
     }
 });
-
 </script>
-
 </body>
 </html>

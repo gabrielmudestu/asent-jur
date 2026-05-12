@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen bg-[#002b5c] flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/10">
+<body class="min-h-screen bg-[#002b5c] flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white p-5 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/10">
         <div class="flex flex-col items-center mb-6">
             <img src="{{ url_for('static', filename='logo_codego.png') }}" alt="Logo" class="h-16 mb-4">
             <h1 class="text-xl font-bold text-[#002b5c] uppercase tracking-wide">Cadastro de Usuário</h1>
@@ -34,7 +34,7 @@
     </div>
 </div>
             
-            <div class="grid grid-cols-2 gap-4 pt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 <button type="reset" class="bg-gray-500 text-white text-xs font-bold py-3 rounded shadow hover:bg-gray-600 transition uppercase tracking-wider">
                     Limpar Tudo
                 </button>

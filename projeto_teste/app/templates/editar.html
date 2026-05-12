@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen bg-[#002b5c] p-4 md:p-8">
+<body class="min-h-screen bg-[#002b5c] p-3 sm:p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto">
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
@@ -25,7 +25,7 @@
                 </a>
             </div>
 
-            <form id="formEditar" action="{{ url_for('edicao.editar', empresa_id=empresa_id) }}" method="POST" class="p-8">
+            <form id="formEditar" action="{{ url_for('edicao.editar', empresa_id=empresa_id) }}" method="POST" class="p-5 md:p-8">
 
                 <div class="mb-6">
                     <h3 class="text-[#002b5c] font-bold border-b pb-2 mb-6 flex items-center gap-2">
@@ -112,13 +112,13 @@
                     <p class="text-sm font-medium">Os campos referentes ao <strong>Processo Judicial, Status e Assunto</strong> nao aparecem aqui pois sao restritos ao setor Juridico.</p>
                 </div>
 
-                <div class="mt-8 flex justify-end gap-4 border-t pt-6">
+                <div class="mt-8 flex flex-col sm:flex-row sm:justify-end gap-4 border-t pt-6">
                     <button type="button" onclick="window.location.href='{{ url_for('edicao.selecionar_edicao', modo='assent') }}'"
                         class="px-8 py-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all">
                         CANCELAR
                     </button>
                     <button type="submit"
-                        class="bg-[#002b5c] hover:bg-blue-800 text-white px-12 py-3 rounded-lg font-bold shadow-lg transform transition active:scale-95 flex items-center gap-2">
+                        class="bg-[#002b5c] hover:bg-blue-800 text-white px-12 py-3 rounded-lg font-bold shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
                         <i data-lucide="check-circle" class="w-5 h-5"></i> APLICAR ALTERACOES
                     </button>
                 </div>

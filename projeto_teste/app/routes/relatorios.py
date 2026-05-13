@@ -413,17 +413,6 @@ def relatorios():
                 with db.cursor(dictionary=True) as cursor:
                     cursor.execute("SELECT * FROM municipal_lots WHERE id = %s", (int(empresa_id),))
                     lot = cursor.fetchone()
-                    cursor.execute(
-                        """
-                        SELECT numero_processo, tipo_processo, status, assunto_judicial,
-                               valor_da_causa, recurso_acionado, tipo_recurso
-                        FROM processos
-                        WHERE empresa_id = %s
-                        ORDER BY id
-                        """,
-                        (int(empresa_id),)
-                    )
-                    processos = cursor.fetchall()
 
             if not lot:
                 return "Empresa não encontrada.", 404
@@ -536,58 +525,6 @@ def relatorios():
                 ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
             ]))
             story.append(table)
-
-            process_labels = {
-                'numero_processo': 'Numero do Processo',
-                'tipo_processo': 'Tipo de Processo',
-                'status': 'Status',
-                'assunto_judicial': 'Assunto Judicial',
-                'valor_da_causa': 'Valor da Causa',
-                'recurso_acionado': 'Recurso Acionado',
-                'tipo_recurso': 'Tipo de Recurso',
-            }
-
-            story.append(Spacer(1, 18))
-            story.append(Paragraph("PROCESSOS JURIDICOS", subtitle_style))
-
-            if processos:
-                for idx, processo in enumerate(processos, start=1):
-                    story.append(Paragraph(f"Processo {idx}", subtitle_style))
-
-                    processo_data = [["Campo", "Valor"]]
-                    for chave, label in process_labels.items():
-                        valor = processo.get(chave)
-                        if chave == 'recurso_acionado':
-                            valor = 'SIM' if valor else 'NAO'
-                        valor = str(valor) if valor not in (None, '') else '-'
-                        processo_data.append([
-                            Paragraph(label, cell_style),
-                            Paragraph(valor, cell_style)
-                        ])
-
-                    processo_table = Table(processo_data, colWidths=[150, 350], repeatRows=1)
-                    processo_table.setStyle(TableStyle([
-                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#7f1d1d')),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-                        ('FONTNAME', (0, 0), (-1, 0), font_title),
-                        ('FONTSIZE', (0, 0), (-1, 0), 10),
-                        ('TOPPADDING', (0, 0), (-1, 0), 8),
-                        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                        ('FONTNAME', (0, 1), (-1, -1), font_normal),
-                        ('FONTSIZE', (0, 1), (-1, -1), 9),
-                        ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-                        ('TOPPADDING', (0, 1), (-1, -1), 6),
-                        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-                        ('LEFTPADDING', (0, 1), (-1, -1), 6),
-                        ('RIGHTPADDING', (0, 1), (-1, -1), 6),
-                        ('BACKGROUND', (0, 1), (-1, -1), colors.transparent),
-                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-                    ]))
-                    story.append(processo_table)
-                    story.append(Spacer(1, 12))
-            else:
-                story.append(Paragraph("Nenhum processo juridico cadastrado para esta empresa.", normal_style))
 
             footer_para = Paragraph(
                 f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')} | Usuário: {session.get('username', 'sistema')}",
